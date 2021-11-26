@@ -11,8 +11,12 @@ from collections import defaultdict, Counter
 from math import factorial
 from scipy.special import comb
 
+from COMSOC.voting.utils import SATEncodingHandler
+
 class AnonymousScenario(AbstractScenario):
     """Class representing an anonymous voting scenario"""
+
+    SATencoding = SATEncodingHandler()
 
     @classmethod
     def _profileDictFromString(self, description):
@@ -90,11 +94,6 @@ class AnonymousScenario(AbstractScenario):
         return sum(sub_count(k) for k in range(1, self.nVoters+1))
 
     @property
-    def theory(self):
-        import COMSOC.anonymous
-        return COMSOC.anonymous
-
-    @property
     def nVoters(self):
         """Return the number of voters."""
         return self._nVoters
@@ -107,7 +106,8 @@ class AnonymousScenario(AbstractScenario):
     @property
     def defaultAxioms(self) -> Set:
         # TODO: I import this here to avoid cyclic imports; find a better way to do this?
-        return {self.theory.axioms.AtLeastOne(self)}
+        from COMSOC.anonymous.axioms import AtLeastOne
+        return {AtLeastOne(self)}
 
     def get_outcome(self, description):
         """Given a string, return the corresponding outcome.
@@ -211,7 +211,7 @@ class AnonymousScenario(AbstractScenario):
         # the corresponding alternative from the possible winners of the corresponding profile.
         for literal in model:
             if literal < 0:
-                profile, alt = self.theory.SATencoding.decode(literal)
+                profile, alt = self.SATencoding.decode(literal)
                 possibleWinners[profile].remove(alt)
             # If it is positive, nothing to do: we already have all possible winners there.
 

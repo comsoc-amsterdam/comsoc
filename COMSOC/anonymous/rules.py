@@ -1,7 +1,5 @@
 from COMSOC.interfaces.rules import AbstractRule
 
-import COMSOC.anonymous.model as model
-
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import List
@@ -32,13 +30,16 @@ class AnonymousRule(AbstractRule, ABC):
 
         return self._model
 
-class ScoringRule(AnonymousRule, ABC):
+class ScoringRule(AnonymousRule):
 
     @abstractmethod
     def _get_score(self, ballot, alternative):
         pass
 
     def __call__(self, profile):
+
+        # TODO: Fix circular imports.
+        from COMSOC.anonymous.model import AnonymousOutcome
 
         scores = defaultdict(int)
 
@@ -61,7 +62,7 @@ class ScoringRule(AnonymousRule, ABC):
             elif score == maxscore:
                 winners.add(alternative)
 
-        return model.AnonymousOutcome(winners)
+        return AnonymousOutcome(winners)
 
 class Borda(ScoringRule):
     """The Borda rule."""

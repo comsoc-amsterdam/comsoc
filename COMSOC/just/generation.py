@@ -1,9 +1,9 @@
-from COMSOC.interfaces.model import AbstractProfile, AbstractOutcome, AbstractScenario
-from COMSOC.interfaces.axioms import Instance, DerivedAxiomInstance
-from COMSOC.reasoning import AbstractReasoner
-
-from typing import Set, Type, Iterator, List
 from collections import deque
+from COMSOC.interfaces.model import AbstractProfile, AbstractOutcome, AbstractScenario
+from COMSOC.interfaces.axioms import Instance, Axiom
+
+from typing import Set, Iterator
+
 
 class InstanceGraph:
     """An instance graph (of a given set of axioms)."""
@@ -92,7 +92,7 @@ class InstanceGraph:
 
     #### Back to the Graph! ####
 
-    def __init__(self, axioms: Set[Type[Instance]], heuristics = False):
+    def __init__(self, axioms: Set[Axiom], heuristics = False):
         """Initalises the instance graph, given a set of axioms. The `heuristics` parameter controls whether we should use the heuristic strategies during search."""
         self._intraAxioms = {axiom for axiom in axioms if axiom.isIntra()}
         self._interAxioms = {axiom for axiom in axioms if not axiom.isIntra()}
@@ -226,41 +226,3 @@ class InstanceGraph:
 
         # If we have exhausted the queue, return the instances one final time.
         yield self.instances
-
-class Justification:
-
-    """Class representing a justifcation for the outcome of some collective decision."""
-    
-    def __init__(self, problem, normative: Set[Type[Instance]], explanation: Set[Instance]):
-        """Given a justification problem, a set of axioms and an explanation, construct a justification object."""
-        self._normative = normative
-        self._explanation = explanation
-        self._problem = problem
-
-        # Check that the normative basis of this justification uses the allowed axioms.
-        assert self._normative.issubset(problem.corpus), "Adequacy does not hold!"
-
-    @property
-    def problem(self):
-        """Return the justification problem this justification solves."""
-        return self._problem
-
-    @property
-    def normative(self):
-        """Return the normative basis (set of axioms)."""
-        return self._normative
-    
-    @property
-    def explanation(self):
-        """Return the explanation (set of instances)."""
-        return self._explanation
-
-    def __str__(self):
-        res = f"########\n{self.problem}\n\nNORMATIVE BASIS:\n\t{{{', '.join(map(str, self.normative))}}}\nEXPLANATION:\n"
-        for instance in sorted(self.explanation, key = lambda instance: str(instance.created_by)):
-            res += "\t(" + str(instance.created_by).upper() + ") " + str(instance) + "\n"
-
-        return res + "########"
-
-    def __len__(self):
-        return len(self._explanation)

@@ -1,4 +1,5 @@
-from COMSOC.interfaces.axioms import Axiom, IntraprofileAxiom, InterprofileAxiom, Instance, DerivedAxiomInstance, AbstractGoalConstraint, DerivedAxiom
+from COMSOC.interfaces.axioms import Axiom, IntraprofileAxiom, InterprofileAxiom,\
+    Instance, DerivedAxiomInstance, DerivedAxiom
 import COMSOC.anonymous.model as model
 
 from typing import List, Set, Type
@@ -769,11 +770,3 @@ class SymmetryInstance(DerivedAxiomInstance):
             return f"Profile ({self._profile}) is self-connected through neutrality. For each cluster C in {{{', '.join(map(lambda x: str(set(x)), self._clusters))}}}, either all elements of C win or they all lose."
         else:
             return f"Profile ({self._profile}) is self-connected through neutrality. Either all elements of {', '.join(map(lambda x: str(set(x)), self._clusters))} win or they all lose."
-
-##### SPECIAL AXIOMS #######
-
-class GoalConstraint(AbstractGoalConstraint):
-
-    def as_SAT(self, encoding):
-        p, o = self._profile, self._outcome
-        return [[encoding.encode(p, a) if a not in o else -encoding.encode(p, a) for a in self.profile.alternatives]]    

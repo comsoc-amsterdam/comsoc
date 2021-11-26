@@ -17,12 +17,6 @@ class AbstractScenario(ABC):
 
     @property
     @abstractmethod
-    def theory(self):
-        """Return the theory (module) this scenario is part of."""
-        pass
-
-    @property
-    @abstractmethod
     def nProfiles(self) -> int:
         """Return the number of profiles in this scenario."""
         pass

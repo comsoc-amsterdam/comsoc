@@ -4,7 +4,9 @@ from COMSOC.interfaces.axioms import Axiom, Instance, DerivedAxiomInstance
 
 from typing import Set, Iterator
 
-from COMSOC.justification import Justification, InstanceGraph
+from COMSOC.just.generation import InstanceGraph
+from COMSOC.just.justification import Justification
+from COMSOC.just.axioms import GoalConstraint
 
 class AbstractProblem:
     """Generic reasoning problem."""
@@ -52,7 +54,7 @@ class CheckAxioms(ReasoningProblem):
 
         scenario = self.getScenario(axioms)
 
-        SATreasoner = SAT(scenario.theory.SATencoding)
+        SATreasoner = SAT(scenario.SATencoding)
 
         strategies = {
             "SAT" : lambda : SATreasoner.checkAxioms(axioms)
@@ -66,7 +68,7 @@ class CheckRule(ReasoningProblem):
 
         scenario = self.getScenario(axioms)
 
-        SATreasoner = SAT(scenario.theory.SATencoding)
+        SATreasoner = SAT(scenario.SATencoding)
 
         strategies = {
             "SAT" : lambda : SATreasoner.checkRule(axioms, rule)
@@ -80,7 +82,7 @@ class FindRule(ReasoningProblem):
 
         scenario = self.getScenario(axioms)
 
-        SATreasoner = SAT(scenario.theory.SATencoding)
+        SATreasoner = SAT(scenario.SATencoding)
 
         strategies = {
             "SAT" : lambda : SATreasoner.findRule(axioms)
@@ -99,17 +101,15 @@ class JustificationProblem(AbstractProblem):
         self._profile = profile
         self._outcome = outcome
 
-        scenario = self.getScenario(corpus)
-
-        self._theory = scenario.theory
+        self.scenario = self.getScenario(corpus)
 
         # We add the default axioms of the scenario. These are the properties that must always hold
         # for any aggregation rule. For example, in the case of voting, there is a default axiom 
         # stating that, for all profiles, at least one alternative should win.
-        self._corpus = corpus.union(scenario.defaultAxioms)
+        self._corpus = corpus.union(self.scenario.defaultAxioms)
 
         self._reasoners = {
-            "SAT" : SAT(scenario.theory.SATencoding)
+            "SAT" : SAT(self.scenario.SATencoding)
         }
 
     @property
@@ -131,8 +131,7 @@ class JustificationProblem(AbstractProblem):
         """Given a set of instances and a solver, iterate over the justification that can be extracted from this set of instances."""
 
         # Add the goal constraint to the instances.
-        GoalConstraint = self._theory.axioms.GoalConstraint
-        goal = GoalConstraint(self.profile, self.outcome)
+        goal = GoalConstraint(self.scenario, self.profile, self.outcome)
         instances.add(goal)
 
         # If the set of instances is unsatisfiable, it might contain a justification.
