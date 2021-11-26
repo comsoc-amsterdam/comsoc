@@ -18,7 +18,7 @@ class AbstractReasoner(ABC):
 
     """Abstract interface that describes the methods offered by a reasoner.
 
-    A reasoner is a collection of methods that handle tasks such as encoding, testing for satisfiability, and MUS enumeration. A reasoner should not be instatiated, as it only exports classmethods."""
+    A reasoner is a collection of methods that handle tasks such as encoding, testing for satisfiability, and MUS enumeration."""
 
     #@final
     def encodeAxioms(self, scenario, axioms: Set[Axiom]):

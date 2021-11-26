@@ -47,35 +47,6 @@ class AnonymousScenario(AbstractScenario):
         
         return profile_dict
 
-    @classmethod
-    def scenarioAndProfileFromString(cls, description: str):
-        """Return a (scenario, profile) pair from a string description.
-
-
-        If the string describes a profile of N voters and M alternatives, return a scenario
-        with N voters and M alternatives and the described profile.
-        Two variants:
-        `012,012,210` or `2:012,1:210` mean the same thing. In the
-        latter example, you can omit the `1:`.
-
-        """
-
-        # get the dictionary description of the profile
-        profile_dict = cls._profileDictFromString(description)
-
-        # The number of voters is the total of the counts.
-        nVoters = sum(profile_dict.values())
-        # Get any ballot; its length is the number of alternatives.
-        for anyBallot in profile_dict:
-            nAlternatives = len(anyBallot)
-            break
-
-        # Make the scenario and return it.
-        scenario = cls(nVoters, anyBallot)
-
-        return scenario, AnonymousProfile(profile_dict)
-
-
     def __init__(self, nVoters: int, alternatives: Iterator):
         self._nVoters = nVoters
         self._alternatives = frozenset(alternatives)
@@ -84,7 +55,6 @@ class AnonymousScenario(AbstractScenario):
         # memory for time).
         self._profilesByLength = {}
     
-
     @property
     def nProfiles(self) -> int:
         """Return the number of profiles in this scenario."""
