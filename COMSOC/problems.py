@@ -1,12 +1,13 @@
 from COMSOC.reasoning import SAT
 from COMSOC.interfaces.model import AbstractScenario, AbstractProfile, AbstractOutcome
-from COMSOC.interfaces.axioms import Axiom, Instance, DerivedAxiomInstance
+from COMSOC.interfaces.axioms import Axiom, Instance
 
 from typing import Set, Iterator
 
 from COMSOC.just.generation import InstanceGraph
 from COMSOC.just.justification import Justification
 from COMSOC.just.axioms import GoalConstraint
+from COMSOC.just.axioms import DerivedAxiomInstance
 
 class AbstractProblem:
     """Generic reasoning problem."""

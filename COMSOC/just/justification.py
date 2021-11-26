@@ -1,4 +1,4 @@
-from COMSOC.interfaces.axioms import Instance, Axiom, DerivedAxiomInstance
+from COMSOC.interfaces.axioms import Instance, Axiom
 from COMSOC.reasoning import AbstractReasoner
 
 from typing import Set, List

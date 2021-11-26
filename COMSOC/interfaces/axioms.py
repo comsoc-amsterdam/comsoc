@@ -70,21 +70,6 @@ class InterprofileAxiom(Axiom):
     def isIntra(self):
         return False
 
-class DerivedAxiom(IntraprofileAxiom):
-
-    """Heuristic axiom implied by other axioms."""
-
-    @property
-    @abstractmethod
-    def activators(self) -> Set[str]:
-        """Set of axioms names that imply this axiom."""
-        pass
-    
-    #@final
-    def isActive(self, corpus: Set) -> bool:
-        """Given a set of axioms, check whether the axioms that imply this axiom are in this set."""
-        return self.activators.issubset(set(map(str, corpus)))
-
 class Instance(ABC):
 
     """Class representing an axiom instance."""
@@ -134,12 +119,4 @@ class Instance(ABC):
     @abstractmethod
     def as_SAT(self, encoding) -> List[List[int]]:
         """Return the SAT encoding of this instance."""
-        pass
-
-class DerivedAxiomInstance(Instance):
-    """An instance of a derived axiom."""
-
-    @abstractmethod
-    def convertToActivatorsInstances(self) -> Set[Instance]:
-        """Convert this instance in a set of instances that imply it."""
         pass
