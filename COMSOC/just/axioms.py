@@ -1,10 +1,15 @@
 from COMSOC.interfaces.axioms import Instance, Axiom, IntraprofileAxiom
 from COMSOC.interfaces.model import AbstractProfile
 
-from COMSOC.anonymous.axioms import NeutralityInstance
-from COMSOC.anonymous.model import AnonymousScenario, AnonymousPreference
+from COMSOC.anonymous.axioms import Neutrality, NeutralityInstance
+from COMSOC.anonymous.axioms import Cancellation, CancellationInstance
+from COMSOC.anonymous.axioms import PositiveResponsiveness, PositiveResponsivenessInstance
+
+from COMSOC.anonymous.model import AnonymousScenario, AnonymousPreference, AnonymousProfile
 
 from typing import Type, Set, List
+
+from itertools import combinations
 
 from abc import abstractmethod
 
@@ -74,14 +79,14 @@ class DerivedAxiom(IntraprofileAxiom):
 
     @property
     @abstractmethod
-    def activators(self) -> Set[str]:
+    def activators(self) -> Set[Type[Axiom]]:
         """Set of axioms names that imply this axiom."""
         pass
     
     #@final
-    def isActive(self, corpus: Set) -> bool:
+    def isActive(self, corpus: Set[Axiom]) -> bool:
         """Given a set of axioms, check whether the axioms that imply this axiom are in this set."""
-        return self.activators.issubset(set(map(str, corpus)))
+        return self.activators.issubset(set(map(type, corpus)))
 
 
 class DerivedAxiomInstance(Instance):
@@ -99,7 +104,7 @@ class Symmetry(DerivedAxiom):
 
     @property
     def activators(self):
-        return {"Neutrality"}
+        return {Neutrality}
 
     def getInstances(self):
         insts = set()
@@ -240,3 +245,229 @@ class SymmetryInstance(DerivedAxiomInstance):
             return f"Profile ({self._profile}) is self-connected through neutrality. For each cluster C in {{{', '.join(map(lambda x: str(set(x)), self._clusters))}}}, either all elements of C win or they all lose."
         else:
             return f"Profile ({self._profile}) is self-connected through neutrality. Either all elements of {', '.join(map(lambda x: str(set(x)), self._clusters))} win or they all lose."
+
+class QuasiTiedWinner(DerivedAxiom):
+
+    @property
+    def activators(self):
+        return {Cancellation, PositiveResponsiveness}
+
+    def getInstances(self):
+        insts = set()
+        for profile in scenario.profiles:
+            # This returns the set of instances regarding `profile`
+            # (possibly empty).
+            insts.update(self.getInstancesMentioning(profile))
+        return insts
+
+    def _findWinner(self, profile):
+        winner = None
+
+        for x, y in combinations(profile.alternatives, 2):
+            if winner is None:
+                contest_winners = profile.majorityContest(x, y)
+                if len(contest_winners) < 2:
+                    winner = x if x in contest_winners else y
+            if winner is not None:
+                if winner != x and winner != y:
+                    contest_winners = profile.majorityContest(x, y)
+                    if len(contest_winners) < 2:
+                        return None
+                else:
+                    loser = (y if winner == x else x)
+                    contest_winners = profile.majorityContest(winner, loser)
+                    if winner not in contest_winners:
+                        return None
+
+        return winner
+
+    def _tryLoweringAlt(self, ballots, winner, soFar = []):
+        if not ballots:
+            p_dict = {}
+            for b in soFar:
+                if b in p_dict:
+                    p_dict[b] += 1
+                else:
+                    p_dict[b] = 1
+
+            p = AnonymousProfile(p_dict)
+            if p.isPerfectTie():
+                return p
+            else:
+                return None
+
+        reference, rest = ballots[0], ballots[1:]
+
+        while True:
+            prof = self._tryLoweringAlt(rest, winner, soFar + [reference])
+            if prof is not None:
+                return prof
+
+            if reference.index(winner) == len(reference) - 1:
+                return None
+            else:
+                reference = list(reference)
+                rank = reference.index(winner)
+                reference[rank] = reference[rank + 1]
+                reference[rank + 1] = winner
+                reference = AnonymousPreference(reference)
+
+    def _findCancProfile(self, profile):
+        winner = self._findWinner(profile)
+        if winner is None:
+            return None, None
+        else:
+            return self._tryLoweringAlt(list(profile.allBallots()), winner), winner
+
+    def getInstancesMentioning(self, profile):
+
+        canc_prof, x = self._findCancProfile(profile)
+        if canc_prof is not None:
+            return {QuasiTiedWinnerInstance(profile, canc_prof, x)}
+
+        return set()
+    
+class QuasiTiedWinnerInstance(DerivedAxiomInstance):
+
+    """Instance of the `Quasi Tied Winner` derived axiom."""
+
+    def __init__(self, profile, canc_profile, winner):
+        self._profile = profile
+        self._canc_profile = canc_profile
+        self._winner = winner
+
+    @property
+    def axiom(self):
+        return QuasiTiedWinner
+
+    def mentions(self):
+        return {self._profile}
+
+    def as_SAT(self, encoding) -> List[List[int]]:
+        return [[(1 if x == self._winner else -1) * encoding.encode(self._profile, x)] for x in self._profile.alternatives]
+
+    def _isEqual(self, other) -> bool:
+        return self._profile == other._profile
+
+    def _hashable(self):
+        return self._profile
+
+    def convertToActivatorsInstances(self) -> Set:
+        return {CancellationInstance(self._canc_profile),\
+            PositiveResponsivenessInstance(self._canc_profile, self._winner, self._profile)}
+
+    def __str__(self):
+        return f'In profile {self._profile}, {self._winner} has been raised from {self._canc_profile}, a Cancellation profile. Thus it must win.'
+
+class QuasiTiedLoser(DerivedAxiom):
+
+    @property
+    def activators(self):
+        return {Cancellation, PositiveResponsiveness}
+
+    def getInstances(self):
+        insts = set()
+        for profile in scenario.profiles:
+            # This returns the set of instances regarding `profile`
+            # (possibly empty).
+            insts.update(self.getInstancesMentioning(profile))
+        return insts
+
+    def _findLoser(self, profile):
+        loser = None
+
+        for x, y in combinations(profile.alternatives, 2):
+            if loser is None:
+                contest_winners = profile.majorityContest(x, y)
+                if len(contest_winners) < 2:
+                    loser = x if y in contest_winners else y
+            if loser is not None:
+                if loser != x and loser != y:
+                    contest_winners = profile.majorityContest(x, y)
+                    if len(contest_winners) < 2:
+                        return None
+                else:
+                    winner = (y if loser == x else x)
+                    contest_winners = profile.majorityContest(winner, loser)
+                    if winner not in contest_winners:
+                        return None
+
+        return loser
+
+    def _tryRisingAlt(self, ballots, loser, soFar = []):
+        if not ballots:
+            p_dict = {}
+            for b in soFar:
+                if b in p_dict:
+                    p_dict[b] += 1
+                else:
+                    p_dict[b] = 1
+
+            p = AnonymousProfile(p_dict)
+            if p.isPerfectTie():
+                return p
+            else:
+                return None
+
+        reference, rest = ballots[0], ballots[1:]
+
+        while True:
+            prof = self._tryRisingAlt(rest, loser, soFar + [reference])
+            if prof is not None:
+                return prof
+
+            if reference.index(loser) == 0:
+                return None
+            else:
+                reference = list(reference)
+                rank = reference.index(loser)
+                reference[rank] = reference[rank - 1]
+                reference[rank - 1] = loser
+                reference = AnonymousPreference(reference)
+
+    def _findCancProfile(self, profile):
+        loser = self._findLoser(profile)
+        if loser is None:
+            return None, None
+        else:
+            return self._tryRisingAlt(list(profile.allBallots()), loser), loser
+
+    def getInstancesMentioning(self, profile):
+
+        canc_prof, x = self._findCancProfile(profile)
+        if canc_prof is not None:
+            return {QuasiTiedLoserInstance(profile, canc_prof, x)}
+
+        return set()
+    
+class QuasiTiedLoserInstance(DerivedAxiomInstance):
+
+    """Instance of the `Quasi Tied Loser` derived axiom."""
+
+    def __init__(self, profile, canc_profile, loser):
+        self._profile = profile
+        self._canc_profile = canc_profile
+        self._loser = loser
+
+    @property
+    def axiom(self):
+        return QuasiTiedLoser
+
+    def mentions(self):
+        return {self._profile}
+
+    def as_SAT(self, encoding) -> List[List[int]]:
+        return [[-encoding.encode(self._profile, self._loser)]]
+
+    def _isEqual(self, other) -> bool:
+        return self._profile == other._profile
+
+    def _hashable(self):
+        return self._profile
+
+    def convertToActivatorsInstances(self) -> Set:
+        return {CancellationInstance(self._canc_profile),\
+            PositiveResponsivenessInstance(self._profile, self._loser, self._canc_profile)}
+
+    def __str__(self):
+        return f'In profile {self._profile}, {self._loser} has been lowered from {self._canc_prof}, a Cancellation profile. Thus it cannot win here.'

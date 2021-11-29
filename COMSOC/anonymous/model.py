@@ -231,6 +231,14 @@ class AnonymousProfile(AbstractProfile):
         """Return all unique ballots."""
         return self._profile.keys()
 
+    def allBallots(self):
+        """Return a list of all ballots."""
+        all_b = []
+        for b, count in self.ballotsWithCounts():
+            all_b += [b] * count
+
+        return all_b
+
     def anyBallot(self):
         """Return any ballot in the profile."""
         for b in self.uniqueBallots():

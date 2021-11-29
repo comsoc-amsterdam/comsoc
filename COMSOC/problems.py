@@ -128,7 +128,7 @@ class JustificationProblem(AbstractProblem):
         """Return the given set of axioms."""
         return self._corpus
 
-    def _extract(self, instances: Set[Instance], strategy: str) -> Iterator:
+    def _extract(self, instances: Set[Instance], strategy: str, ignore_nontriviality : bool) -> Iterator:
         """Given a set of instances and a solver, iterate over the justification that can be extracted from this set of instances."""
 
         # Add the goal constraint to the instances.
@@ -166,13 +166,14 @@ class JustificationProblem(AbstractProblem):
                     normative = {instance.created_by for instance in explanation}
 
                     # If the normative basis is nontrivial, yield the justification.
-                    if solver.checkAxioms(normative):
+                    if ignore_nontriviality or solver.checkAxioms(normative):
                         yield Justification(self, normative, explanation)
                 except KeyError:
                     # We handle by doing nothing. Indeed, we will just continue iterating over the MUSes.
                     pass
 
-    def solve(self, strategy: str, depth: int=None, heuristics: bool=False, maximum: int=-1, derivedAxioms = set()) -> Iterator:
+    def solve(self, strategy: str, depth: int=None, heuristics: bool=False,\
+        maximum: int=-1, derivedAxioms = set(), ignore_nontriviality = False) -> Iterator:
 
         """Iterate over the justifications for this problem.
 
@@ -188,6 +189,8 @@ class JustificationProblem(AbstractProblem):
                 How many justifications to retrieve.
             derivedAxioms : set
                 Heuristic axioms to add.
+            ignore_nontriviality : bool
+                If set to true, does not perform the nontriviality check on the resulting basis.
 
             Returns
             -------
@@ -217,7 +220,7 @@ class JustificationProblem(AbstractProblem):
         # returns all instances up to depth 0; then up to depth 1; etc...
         for instances in graph.BFS(self.profile, depth):
             # Try to extract a justification from these instances:
-            for justification in self._extract(instances, strategy):
+            for justification in self._extract(instances, strategy, ignore_nontriviality):
                 # if we find one, yield it
                 yield justification
 
