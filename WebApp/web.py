@@ -12,7 +12,9 @@ from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 
 app = Flask(__name__)
 
-figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
+figures = ['circle_alt', 'triangle_alt', 'square_alt']
+# Uncomment this to have 4 alternatives.
+# figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
 
 @app.route('/')
 def index():
