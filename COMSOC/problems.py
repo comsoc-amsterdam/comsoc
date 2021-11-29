@@ -165,7 +165,8 @@ class JustificationProblem(AbstractProblem):
 
                     normative = {instance.created_by for instance in explanation}
 
-                    # If the normative basis is nontrivial, yield the justification.
+                    # If the normative basis is nontrivial (or if we do not perform the check),
+                    # yield the justification.
                     if ignore_nontriviality or solver.checkAxioms(normative):
                         yield Justification(self, normative, explanation)
                 except KeyError:

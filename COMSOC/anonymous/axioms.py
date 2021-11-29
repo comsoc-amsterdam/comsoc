@@ -617,4 +617,4 @@ class ReinforcementInstance(Instance):
         return cnf
 
     def __str__(self):
-        return f"Since profile ({self._profile}) can be obtained by combining ({self._part1}) and ({self._part2}), then whenever the intersection of F({self._part1}) and F({self._part2}) is non-empty, it must be equal to F({self._profile})."
+        return f"If some alternatives win in both ({self._part1}) and ({self._part2}), they must be the outcome of ({self._profile})."

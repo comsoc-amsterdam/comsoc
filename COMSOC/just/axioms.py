@@ -52,7 +52,7 @@ class AbstractGoalConstraint(Instance):
 
     def __str__(self):
         """A description of this instance."""
-        return f"In profile {self._profile} the outcome should NOT be {self._outcome}."
+        return f"In profile ({self._profile}) the outcome should NOT be {self._outcome}."
 
 
 class AnonymousGoal(AbstractGoalConstraint):
@@ -88,6 +88,8 @@ class DerivedAxiom(IntraprofileAxiom):
         """Given a set of axioms, check whether the axioms that imply this axiom are in this set."""
         return self.activators.issubset(set(map(type, corpus)))
 
+
+#### Anonymous Voting ####
 
 class DerivedAxiomInstance(Instance):
     """An instance of a derived axiom."""
@@ -261,27 +263,45 @@ class QuasiTiedWinner(DerivedAxiom):
         return insts
 
     def _findWinner(self, profile):
+        """Given a profile, try to check whether there is a quasi-tied winner.
+
+        A quasi tied winner ties or wins against every other alternative, and wins in at least one case.
+        Furthermore, any other pair of alternatives must tie with each other."""
+
+        # Initially, we don't know who the winner is.
         winner = None
 
+        # We try every pair of alternatives.
         for x, y in combinations(profile.alternatives, 2):
+            # If we do not know yet who is the winner, if x or y win this contest, then
+            # we assume it's the one winning.
             if winner is None:
                 contest_winners = profile.majorityContest(x, y)
                 if len(contest_winners) < 2:
                     winner = x if x in contest_winners else y
+            # If we do know:
             if winner is not None:
+                # Every other pair must tie.
                 if winner != x and winner != y:
                     contest_winners = profile.majorityContest(x, y)
                     if len(contest_winners) < 2:
                         return None
+                # And the winner must tie or win.
                 else:
                     loser = (y if winner == x else x)
                     contest_winners = profile.majorityContest(winner, loser)
                     if winner not in contest_winners:
                         return None
 
+        # If we never found a winner, this will be none!
         return winner
 
     def _tryLoweringAlt(self, ballots, winner, soFar = []):
+
+        """Given a quasi-tied winner, we search recursively for the underlying Cancellation
+        profile."""
+
+        # In thise case, we are done: we try to construct the Cancellation profile.
         if not ballots:
             p_dict = {}
             for b in soFar:
@@ -296,6 +316,7 @@ class QuasiTiedWinner(DerivedAxiom):
             else:
                 return None
 
+        # Get the first ballot.
         reference, rest = ballots[0], ballots[1:]
 
         while True:
@@ -313,6 +334,8 @@ class QuasiTiedWinner(DerivedAxiom):
                 reference = AnonymousPreference(reference)
 
     def _findCancProfile(self, profile):
+        """Find a cancellation profile and a quasi tied winner."""
+
         winner = self._findWinner(profile)
         if winner is None:
             return None, None
@@ -357,9 +380,11 @@ class QuasiTiedWinnerInstance(DerivedAxiomInstance):
             PositiveResponsivenessInstance(self._canc_profile, self._winner, self._profile)}
 
     def __str__(self):
-        return f'In profile {self._profile}, {self._winner} has been raised from {self._canc_profile}, a Cancellation profile. Thus it must win.'
+        return f'In profile ({self._profile}), {self._winner} has been raised from ({self._canc_profile}), a Cancellation profile. Thus it must win.'
 
 class QuasiTiedLoser(DerivedAxiom):
+
+    # For the documentation, check the twin axiom QuasiTiedWinner. It is almost equal.
 
     @property
     def activators(self):
@@ -470,4 +495,4 @@ class QuasiTiedLoserInstance(DerivedAxiomInstance):
             PositiveResponsivenessInstance(self._profile, self._loser, self._canc_profile)}
 
     def __str__(self):
-        return f'In profile {self._profile}, {self._loser} has been lowered from {self._canc_prof}, a Cancellation profile. Thus it cannot win here.'
+        return f'In profile ({self._profile}), {self._loser} has been lowered from ({self._canc_prof}), a Cancellation profile. Thus it cannot win here.'
