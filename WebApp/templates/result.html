@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Automated Justification</title>
+    <link rel="stylesheet" href={{url_for('static', filename='style.css')}}/>
+  </head>
+  <body>
+    <h1>Justification Found</h1>
+    <ul>
+        {% for instance in explanation %}
+            <li>{{instance|safe}}</li>
+        {% endfor %}
+    </ul> 
+  </body>
+</html>

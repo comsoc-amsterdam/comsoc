@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Automated Justification</title>
+    <link rel="stylesheet" href={{url_for('static', filename='style.css')}}/>
+  </head>
+  <body>
+    <h1>Automated Justification of Electoral Outcomes</h1>
+    {% for v in range(1, voters+1) %}
+      <div id="voter{{v}}" class="voter">
+        <button id="decrease" type="button" onclick="removeVoter(this.parentNode);">-</button>
+        {% for figure in figures %}
+        <span id="position{{v}}_{{figure}}" ondrop="drop(event)" ondragover="allowDrop(event)" class="position">
+          <img id="draggable{{v}}_{{figure}}" src="{{url_for('static', filename=figure + '.svg')}}" class="{{figure}}" draggable="true" ondragstart="drag(event)" width="50px">
+        </span>
+        {% endfor %}
+        <button id="increase" type="button" onclick="copyVoter(this.parentNode);">+</button>
+      </div>
+    {% endfor %}
+
+    <div id="selectables">
+      {% for figure in figures %}
+        <img id="choosable{{figure}}" src="{{url_for('static', filename=figure + '.svg')}}" onclick="greyOut(this.id);" width="30px" class="selectable dulled {{figure}}">
+      {% endfor %}
+    </div>
+    <button type="button" onclick="collectProfile();">Justify</button>
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+  </body>
+</html>
