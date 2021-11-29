@@ -9,87 +9,89 @@ from COMSOC.just.justification import Justification
 from COMSOC.just.axioms import GoalConstraint
 from COMSOC.just.axioms import DerivedAxiomInstance
 
-class AbstractProblem:
+from abc import ABC, abstractmethod
+
+class AbstractProblem(ABC):
     """Generic reasoning problem."""
+
+    def __init__(self):
+        self._past_solutions = {}
+        self._dispatch_strategies = {}
+
+        for attribute in dir(self):
+            if attribute[:9] == 'strategy_':
+                self._dispatch_strategies[attribute[9:]] = getattr(self, attribute)
+
     def getScenario(self, axioms: Set[Axiom]):
-        for anyAxiom in axioms:
-            scenario = anyAxiom.scenario
-            break
+        """Return the scenario of the set of axioms given."""
+
+        scenario = None
 
         for axiom in axioms:
-            if scenario != axiom.scenario:
+            if scenario is None:
+                scenario = axiom.scenario
+            elif scenario != axiom.scenario:
                 raise ValueError("All axioms must regard the same scenario.")
 
         return scenario
 
-class ReasoningProblem(AbstractProblem):
-
-    def __init__(self, strategies: dict):
-        self._past_solutions = {}
-        self._dispatch_strategies = strategies
-
     def _get_solution_key(self, dictionary):
         return frozenset((key, value) for key, value in dictionary.items() if key != "strategy")
 
-    def solve(self, **named_args):
+    def solve(self, **kwargs):
         try:
-            sol_key = self._get_solution_key(named_args)
+            sol_key = self._get_solution_key(kwargs)
 
             if not sol_key in self._past_solutions:
-                if "strategy" not in named_args:
+                if "strategy" not in kwargs:
                     raise ValueError("Please specify a strategy. Usage: `strategy=<strategy_name>`.\n" + \
                         f". Available strategies: {','.join(strategy for strategy in self._strategies)}")
 
-                strategy = named_args["strategy"]
-                cleaned_named_args = dict(sol_key)
-                self._past_solutions[sol_key] = self._dispatch_strategies[strategy](**cleaned_named_args)
+                strategy = kwargs["strategy"]
+                cleaned_kwargs = dict(sol_key)
+                self._past_solutions[sol_key] = self._dispatch_strategies[strategy](**cleaned_kwargs)
             return self._past_solutions[sol_key]
 
         except KeyError:
             raise ValueError(f"The selected strategy `{kwargs['strategy']}` was not implemented.\n" + \
-                f". Available strategies: {','.join(strategy for strategy in self._strategies)}")
+                f". Available strategies: {','.join(strategy for strategy in self._strategies)}")    
 
-class CheckAxioms(ReasoningProblem):
+class CheckAxioms(AbstractProblem):
 
     def __init__(self, axioms):
+        super().__init__()
+        self._axioms = axioms
 
-        scenario = self.getScenario(axioms)
+    def strategy_SAT(self):
+        scenario = self.getScenario(self._axioms)
+        reasoner = SAT(scenario.SATencoding)
+        return reasoner.checkAxioms(self._axioms)
 
-        SATreasoner = SAT(scenario.SATencoding)
-
-        strategies = {
-            "SAT" : lambda : SATreasoner.checkAxioms(axioms)
-        }
-
-        super().__init__(strategies)
-
-class CheckRule(ReasoningProblem):
+class CheckRule(AbstractProblem):
 
     def __init__(self, axioms, rule):
+        super().__init__()
+        self._axioms = axioms
+        self._rule = rule
 
-        scenario = self.getScenario(axioms)
+    def strategy_SAT(self):
+        scenario = self.getScenario(self._axioms)
+        if self._rule.scenario != scenario:
+            raise ValueError("The rule and the axioms regard different scenarios.")
 
-        SATreasoner = SAT(scenario.SATencoding)
+        reasoner = SAT(scenario.SATencoding)
+        return reasoner.checkRule(self._axioms, self._rule)
 
-        strategies = {
-            "SAT" : lambda : SATreasoner.checkRule(axioms, rule)
-        }
-
-        super().__init__(strategies)
-
-class FindRule(ReasoningProblem):
+class FindRule(AbstractProblem):
 
     def __init__(self, axioms):
+        super().__init__()
+        self._axioms = axioms
 
-        scenario = self.getScenario(axioms)
-
-        SATreasoner = SAT(scenario.SATencoding)
-
-        strategies = {
-            "SAT" : lambda : SATreasoner.findRule(axioms)
-        }
-
-        super().__init__(strategies)
+    def strategy_SAT(self):
+        scenario = self.getScenario(self._axioms)
+        reasoner = SAT(scenario.SATencoding)
+        return reasoner.findRule(self._axioms)
 
 class JustificationProblem(AbstractProblem):
 
@@ -99,19 +101,17 @@ class JustificationProblem(AbstractProblem):
             outcome: AbstractOutcome, corpus: Set[Axiom]):
 
         """Construct a justification problem object."""
+
+        super().__init__()
+
         self._profile = profile
         self._outcome = outcome
-
         self.scenario = self.getScenario(corpus)
 
         # We add the default axioms of the scenario. These are the properties that must always hold
         # for any aggregation rule. For example, in the case of voting, there is a default axiom 
         # stating that, for all profiles, at least one alternative should win.
         self._corpus = corpus.union(self.scenario.defaultAxioms)
-
-        self._reasoners = {
-            "SAT" : SAT(self.scenario.SATencoding)
-        }
 
     @property
     def profile(self):
@@ -128,19 +128,18 @@ class JustificationProblem(AbstractProblem):
         """Return the given set of axioms."""
         return self._corpus
 
-    def _extract(self, instances: Set[Instance], strategy: str, ignore_nontriviality : bool) -> Iterator:
-        """Given a set of instances and a solver, iterate over the justification that can be extracted from this set of instances."""
+    def _extract(self, instances: Set[Instance], reasoner, ignore_nontriviality : bool) -> Iterator:
+        """Given a set of instances and a reasoner, iterate over the justification that can be extracted from this set of instances."""
 
         # Add the goal constraint to the instances.
         goal = GoalConstraint(self.scenario, self.profile, self.outcome)
         instances.add(goal)
 
         # If the set of instances is unsatisfiable, it might contain a justification.
-        solver = self._reasoners[strategy]
-        if not solver.checkInstances(instances):
+        if not reasoner.checkInstances(instances):
 
             # Enumerate all MUSes of these instances...
-            for MUS in solver.enumerateMUSes(instances):
+            for MUS in reasoner.enumerateMUSes(instances):
 
                 # An MUS is an explanation iff it contains the goal profile.
 
@@ -173,7 +172,7 @@ class JustificationProblem(AbstractProblem):
                     # We handle by doing nothing. Indeed, we will just continue iterating over the MUSes.
                     pass
 
-    def solve(self, strategy: str, depth: int=None, heuristics: bool=False,\
+    def _justify(self, reasoner, depth: int=None, heuristics: bool=False,\
         maximum: int=-1, derivedAxioms = set(), ignore_nontriviality = False) -> Iterator:
 
         """Iterate over the justifications for this problem.
@@ -214,23 +213,24 @@ class JustificationProblem(AbstractProblem):
 
         graph = InstanceGraph(axioms, heuristics = heuristics)
 
-        # how many justifications we found so far?
-        justsRetrievedSoFar = 0
+        results = []
 
         # Recall that BFS iterates over the sets of instances in order of depth. That is, at the first iteration,
         # returns all instances up to depth 0; then up to depth 1; etc...
         for instances in graph.BFS(self.profile, depth):
             # Try to extract a justification from these instances:
-            for justification in self._extract(instances, strategy, ignore_nontriviality):
+            for justification in self._extract(instances, reasoner, ignore_nontriviality):
                 # if we find one, yield it
-                yield justification
+                results.append(justification)
 
-                # Increase the counter, and quit if we reached the maximum allowed.
-                # (maximum is -1 by default; in that case the condition will never be true.)
-                justsRetrievedSoFar += 1
-                if justsRetrievedSoFar == maximum:
-                    return
+                if len(results) == maximum:
+                    return results
+                    
+        return results
 
+    def strategy_SAT(self, **kwargs):
+        reasoner = SAT(self.scenario.SATencoding)
+        return self._justify(reasoner = reasoner, **kwargs)
     
     def __str__(self):
         return f"Given profile: {self.profile}\nTarget outcome: {self.outcome}\nCorpus: {{{', '.join(map(str, self.corpus))}}}"
