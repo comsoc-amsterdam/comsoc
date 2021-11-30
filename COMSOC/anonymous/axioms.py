@@ -74,7 +74,7 @@ class FaithfulnessInstance(Instance):
         return self._profile
 
     def as_SAT(self, encoding) -> List[List[int]]:
-        # The CNF is made of singleton clauses. For every alternative, we hace one clause stating that it must win 
+        # The CNF is made of singleton clauses. For every alternative, we have one clause stating that it must win 
         # (if it is the top ranked one) or lose (otherwise)
         return [[(1 if x == self._profile.top() else -1) * encoding.encode(self._profile, x)] for x in self._profile.alternatives]
 
