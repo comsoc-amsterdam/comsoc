@@ -80,6 +80,10 @@ class Instance(ABC):
         """Return the class of the axiom which this instance is instance of."""
         pass
 
+    @property
+    def axiom_name(self):
+        return self.axiom.__name__
+
     @abstractmethod
     def mentions(self) -> Set[AbstractProfile]:
         """Return the set of profiles mentioned by this instance."""

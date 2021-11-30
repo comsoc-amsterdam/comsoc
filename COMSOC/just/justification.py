@@ -34,8 +34,8 @@ class Justification:
 
     def __str__(self):
         res = f"########\n{self.problem}\n\nNORMATIVE BASIS:\n\t{{{', '.join(map(str, self.normative))}}}\nEXPLANATION:\n"
-        for instance in sorted(self.explanation, key = lambda instance: str(instance.created_by)):
-            res += "\t(" + str(instance.created_by).upper() + ") " + str(instance) + "\n"
+        for instance in sorted(self.explanation, key = lambda inst: inst.axiom_name):
+            res += "\t(" + instance.axiom_name.upper() + ") " + str(instance) + "\n"
 
         return res + "########"
 
