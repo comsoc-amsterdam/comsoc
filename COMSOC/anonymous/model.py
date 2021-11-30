@@ -305,7 +305,7 @@ class AnonymousProfile(AbstractProfile):
     def isPerfectTie(self) -> bool:
         """Check whether this profile is a perfect tie (as defined in the Cancellation axiom)."""
 
-        # Can only happen for profile with an even amount of voters.
+        # Can only happen for profile with an even number of voters.
         if len(self) % 2 != 0:
             return False
 
