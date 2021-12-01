@@ -1,7 +1,5 @@
 """Export tools to reason about social choice axioms in various encoding languages."""
 
-# TODO: Encode Axiom as a Whole, not only Instance per Instance
-
 from abc import ABC, abstractmethod
 
 from COMSOC.interfaces.axioms import Axiom, Instance
