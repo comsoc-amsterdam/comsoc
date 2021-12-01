@@ -43,9 +43,9 @@ def handle_data():
     problem = JustificationProblem(profile, outcome, corpus)
 
     shortest = None
-    for justification in problem.solve(strategy = "SAT", depth = 10, heuristics = True, maximum = 5, \
+    for justification in problem.solve(extract = "SAT", nontriviality = "ignore", depth = 10, heuristics = True, maximum = 5, \
                                       derivedAxioms = {Symmetry(scenario), QuasiTiedWinner(scenario),\
-                                                      QuasiTiedLoser(scenario)}, ignore_nontriviality = True):
+                                                      QuasiTiedLoser(scenario)}):
         
         if shortest is None or len(justification) < len(shortest):
             shortest = justification
