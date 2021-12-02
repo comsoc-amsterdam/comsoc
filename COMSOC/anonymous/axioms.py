@@ -62,7 +62,7 @@ class FaithfulnessInstance(Instance):
 
     @property
     def axiom(self) -> Type[Axiom]:
-        return Faitfhulness
+        return Faithfulness
 
     def mentions(self):
         return {self._profile}
