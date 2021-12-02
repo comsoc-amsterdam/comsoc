@@ -194,6 +194,20 @@ class AnonymousScenario(AbstractScenario):
         alt_str = '{' + ', '.join(map(str, sorted(self.alternatives))) + '}'
         return f"Anonymous voting scenario, with {self.nVoters} voters and alternatives {alt_str}."
 
+    def __getstate__(self):
+        """Return the pickling information."""
+        return (self.nVoters, self.alternatives)
+
+    def __setstate__(self, tupl):
+        """Unpickle the object."""
+        self.__init__(*tupl)
+
+    def __eq__(self, other):
+        return type(self) == type(other) and other.nVoters == self.nVoters and\
+            other.alternatives == self.alternatives
+
+    def __hash__(self):
+        return hash((self.nVoters, self.alternatives))
 
 class AnonymousPreference(VotingPreference):
     """Class representing an individual preference in anonymous voting. Identical to a voting preference."""
