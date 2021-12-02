@@ -18,13 +18,25 @@ class AbstractReasoner(ABC):
 
     A reasoner is a collection of methods that handle tasks such as encoding, testing for satisfiability, and MUS enumeration."""
 
-    #@final
-    def encodeAxioms(self, scenario, axioms: Set[Axiom]):
-        """Given a set of instances, encode them in the given language (first, we add the default axioms)."""
-        return self.getAxiomEncodings(axioms.union(scenario.defaultAxioms))
+    def getScenario(self, axioms: Set[Axiom]):
+        """Return the scenario of the set of axioms given.
 
+        If the axioms are defined for different scenarios, raise an Exception."""
+
+        scenario = None
+
+        for axiom in axioms:
+            if scenario is None:
+                scenario = axiom.scenario
+            elif scenario != axiom.scenario:
+                raise ValueError("All axioms must regard the same scenario.")
+
+        return scenario
+
+    #@final
     @abstractmethod
-    def getAxiomEncodings(self, axioms: Set[Axiom]):
+    def encodeAxioms(self, axioms: Set[Axiom]):
+        """Given a set of instances, encode them in the given language."""
         pass
 
     @abstractmethod
@@ -45,37 +57,13 @@ class AbstractReasoner(ABC):
     #@final
     def checkInstances(self, instances: Set[Instance]) -> bool:
 
-        """Check whether the input axioms (for the input scenario) are satisfiable."""
-
-        # We add the default axioms of the scenario. These are the properties that must always hold
-        # for any aggregation rule. For example, in the case of voting, there is a default axiom 
-        # stating that, for all profiles, at least one alternative should win.
         return self._isSatisfiable(self.encodeInstances(instances))
-
-    def getScenario(self, axioms: Set[Axiom]):
-        for anyAxiom in axioms:
-            scenario = anyAxiom.scenario
-            break
-
-        for axiom in axioms:
-            if scenario != axiom.scenario:
-                raise ValueError("All axioms must regard the same scenario.")
-
-        return scenario
 
     #@final
     def checkAxioms(self, axioms: Set[Type[Instance]]) -> bool:
 
         """Check whether the input axioms (for the input scenario) are satisfiable."""
-
-        # We add the default axioms of the scenario. These are the properties that must always hold
-        # for any aggregation rule. For example, in the case of voting, there is a default axiom 
-        # stating that, for all profiles, at least one alternative should win.
-
-        scenario = self.getScenario(axioms)
-
-        axioms = axioms.union(scenario.defaultAxioms)
-        return self._isSatisfiable(self.encodeAxioms(scenario, axioms))
+        return self._isSatisfiable(self.encodeAxioms(axioms))
 
     #@final
     def findRule(self, axioms: Set[Type[Instance]]) -> AbstractRule:
@@ -83,7 +71,7 @@ class AbstractReasoner(ABC):
         scenario = self.getScenario(axioms)
 
         """Return an aggregation function (for the input scenario) that satisfies the input axiom instances."""
-        return self._getRule(scenario, self.encodeAxioms(scenario, axioms))
+        return self._getRule(scenario, self.encodeAxioms(axioms))
 
     @abstractmethod
     def enumerateMUSes(self, instances: Set[Instance], maximum: int=-1) -> Iterator[Set[Instance]]:
@@ -113,8 +101,7 @@ class AbstractReasoner(ABC):
     #@final
     def checkRule(self, axioms: Set[Type[Instance]], rule: AbstractRule) -> bool:
         """Check whether an aggregation rule (for a given scenario) satisfies the input axioms."""
-        scenario = self.getScenario(axioms)
-        return self._doesRuleSatisfy(self.encodeAxioms(scenario, axioms), rule)
+        return self._doesRuleSatisfy(self.encodeAxioms(axioms), rule)
 
 class SAT(AbstractReasoner):
 
@@ -136,7 +123,7 @@ class SAT(AbstractReasoner):
         return cnf
 
     
-    def getAxiomEncodings(self, axioms):
+    def encodeAxioms(self, axioms):
         cnf = []
         for axiom in axioms:
             cnf += axiom.as_SAT(self.encoding)

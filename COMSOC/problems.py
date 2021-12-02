@@ -10,6 +10,8 @@ from COMSOC.just.axioms import GoalConstraint
 from COMSOC.just.axioms import DerivedAxiomInstance
 
 from abc import ABC, abstractmethod
+import pickle
+import os
 
 # General helper function.
 
@@ -31,48 +33,111 @@ def getScenario(axioms: Set[Axiom]):
 class AbstractProblem(ABC):
     """Generic problem class."""
 
+    def save(self, filename: str):
+        with open(filename, 'wb') as file:
+            pickle.dump(self, file)
+
+    @classmethod
+    def load(cls, filename: str):
+        with open(filename, 'rb') as p:
+            loaded = pickle.load(p)
+        return loaded
+
+    @classmethod
+    def load_all(cls, folder: str) -> Iterator:
+        if folder[-1] != '/':
+            folder += '/'
+        for filename in os.listdir(folder):
+            yield cls.load(folder + filename)
+
 class DecisionProblem(AbstractProblem):
     """Generic decision problem (i.e., the answer is YES or NO) involving axioms."""
 
     def __init__(self, axioms):
-        self._axioms = axioms
+        scenario = getScenario(axioms)
+        self._axioms = axioms.union(scenario.defaultAxioms)
 
-    def solve(self, strategy = ""):
+    def hasSolution(self):
+        return hasattr(self, "_solution")
+
+    def solve(self, **kwargs):
         """Return the solution to the problem."""
 
         # Was the solution already computed?
-        if not hasattr(self, "_solution"):
+        if not self.hasSolution():
             # If not, compute it now. To do so, choose the reasoner according
             # to the strategy.
-            self._solution = self._get_solution(self.get_reasoner(strategy))
+            if not "strategy" in kwargs:
+                raise ValueError("Please specify one or more strategies (string or list of strings).")
+
+            strategies = kwargs["strategy"]
+            if not isinstance(strategies, list):
+                strategies = [strategies]
+
+            self._solution = self._get_solution(strategies, kwargs)
 
         return self._solution
 
-    def get_reasoner(self, strategy: str) -> AbstractReasoner:
+    def _check_from_folder(self, folder):
+        for other in self.load_all(folder):
+            if self.is_sub_problem(other) and other.hasSolution():
+                return other.solve()
+
+    def _get_solution(self, strategies: List[str], kwargs: dict):
+        for strat in strategies:
+            if strat == 'ignore':
+                return True
+            elif strat == 'from_folder':
+                result = self._check_from_folder(kwargs['nb_folder'])
+                if result is not None:
+                    return result
+            else:
+                reasoner = self._get_reasoner(strategies)
+                if reasoner is not None:
+                    return self._apply_reasoner(reasoner)
+
+        raise NotImplementedError("No strategy worked", strategies)
+
+    def _get_reasoner(self, strategies: List[str]) -> AbstractReasoner:
         """Given a strategy, return the corresponding reasoner."""
 
-        if strategy == 'SAT':
-            return SAT(getScenario(self._axioms).SATencoding)
-        else:
-            raise NotImplementedError("No such strategy", strategy)
+        for strategy in strategies:
+            if strategy == 'SAT':
+                return SAT(getScenario(self._axioms).SATencoding)
 
     @abstractmethod
-    def _get_solution(self, reasoner: AbstractReasoner):
+    def _apply_reasoner(self, reasoner: AbstractReasoner):
         """Given a reasoner, compute the solution to the problem. Subclasses only need to override this."""
         pass
+
+    def __getstate__(self):
+        """Pickle the object"""
+        return (self._axioms, self._solution if hasattr(self, "_solution") else None)
+
+    def __setstate__(self, state):
+        """Unpickle"""
+        self.__init__(state[0])
+        if state[1] is not None:
+            self._solution = state[1]
+
+    def is_sub_problem(self, other):
+        return type(self) == type(other) and self._axioms.issubset(other._axioms)
+
+    def __eq__(self, other):
+        return type(self) == type(other) and self._axioms == other._axioms
 
 class CheckAxioms(DecisionProblem):
 
     """Problem: Check if a set of axioms is consistent."""
 
-    def _get_solution(self, reasoner):
+    def _apply_reasoner(self, reasoner):
         return reasoner.checkAxioms(self._axioms)
 
 class FindRule(DecisionProblem):
 
     """Problem: Find a rule satysfing a set of axioms."""
 
-    def _get_solution(self, reasoner):
+    def _apply_reasoner(self, reasoner):
         return reasoner.findRule(self._axioms)
 
 class CheckRule(DecisionProblem):
@@ -84,8 +149,25 @@ class CheckRule(DecisionProblem):
         # We also need the rule.
         self._rule = rule
 
-    def _get_solution(self, reasoner):
+    def _apply_reasoner(self, reasoner):
         return reasoner.checkRule(self._axioms, self._rule)
+
+    def __getstate__(self):
+        """Pickle the object"""
+        return tuple([item for item in super().__getstate__()] + [self._rule])
+
+    def __setstate__(self, state):
+        """Unpickle"""
+        super().__setstate__(state)
+        self._rule = state[2]
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self._rule == other._rule
+
+    def is_sub_problem(self, other):
+        return type(self) == type(other) and self._rule == other._rule\
+            and self._axioms.issubset(other._axioms)
+
 
 class JustificationProblem(AbstractProblem):
 
@@ -105,6 +187,10 @@ class JustificationProblem(AbstractProblem):
         # stating that, for all profiles, at least one alternative should win.
         self._corpus = corpus.union(self.scenario.defaultAxioms)
 
+        self.reasoners = {
+            "SAT" : SAT(self.scenario.SATencoding)
+        }
+
     @property
     def profile(self):
         """Return the given profile."""
@@ -120,13 +206,21 @@ class JustificationProblem(AbstractProblem):
         """Return the given set of axioms."""
         return self._corpus
 
-    def _extract(self, instances: Set[Instance], extract_reasoner: AbstractReasoner, \
-            nontriviality_reasoner: AbstractReasoner) -> Iterator:
+    def _extract(self, instances: Set[Instance], extract, \
+            nontriviality, kwargs) -> Iterator:
         """Given a set of instances, iterate over the justifications that can be extracted from this set."""
 
         # Add the goal constraint to the instances.
         goal = GoalConstraint(self.scenario, self.profile, self.outcome)
         instances.add(goal)
+
+        if isinstance(extract, list):
+            for strat in strategy:
+                if strat in self.reasoners:
+                  extract_reasoner = self.reasoners[extract]
+                  break  
+        else:
+            extract_reasoner = self.reasoners[extract]
 
         # If the set of instances is unsatisfiable, it might contain a justification.
         if not extract_reasoner.checkInstances(instances):
@@ -164,14 +258,14 @@ class JustificationProblem(AbstractProblem):
 
                     # If the normative basis is nontrivial (or if we do not perform the check),
                     # yield the justification.
-                    if nontriviality_reasoner is None or nontriviality_reasoner.checkAxioms(normative):
+                    if CheckAxioms(normative).solve(strategy = nontriviality, **kwargs):
                         yield Justification(self, normative, explanation)
-                except KeyError:
+                except KeyError:  # If the goal is not in the MUS,
                     # We handle by doing nothing. Indeed, we will just continue iterating over the MUSes.
                     pass
 
     def solve(self, extract: str, nontriviality: str, depth: int=None, heuristics: bool=False,\
-        maximum: int=-1, derivedAxioms = set()) -> Iterator:
+        maximum: int=-1, derivedAxioms = set(), **kwargs) -> Iterator:
 
         """Iterate over the justifications for this problem.
 
@@ -196,19 +290,6 @@ class JustificationProblem(AbstractProblem):
                 An iterator over justifications.
         """
 
-        # Define the relevant reasoners.
-
-        reasoners = {
-            "SAT" : SAT(self.scenario.SATencoding)
-        }
-
-        extract_reasoner = reasoners[extract]
-
-        if nontriviality == "ignore":
-            nontriviality_reasoner = None
-        else:
-            nontriviality_reasoner = reasoners[extract]
-
         # Silly base case
         if maximum == 0:
             return
@@ -231,7 +312,7 @@ class JustificationProblem(AbstractProblem):
         # returns all instances up to depth 0; then up to depth 1; etc...
         for instances in graph.BFS(self.profile, depth):
             # Try to extract a justification from these instances:
-            for justification in self._extract(instances, extract_reasoner, nontriviality_reasoner):
+            for justification in self._extract(instances, extract, nontriviality, kwargs):
                 # if we find one, yield it
                 
                 yield justification
