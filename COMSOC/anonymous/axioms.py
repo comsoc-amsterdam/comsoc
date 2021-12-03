@@ -310,8 +310,150 @@ class PositiveResponsiveness(InterprofileAxiom):
 
     """Axiom encoding the fact that if a (possibly tied) alternative receives increased support, then it must be the unique winner."""
 
+    def _remove_alt_data(self, profile, x):
+        """Clean a profile from an alternative.
+
+        Will return two dictionaries: one mapping every cleaned ballot B to the list
+        of ballots that, if we remove x from it, we obtain B.
+        One mapping every cleaned ballot B to the total number of voters whose cleaned
+        ballot is B."""
+        counts, ballots = {}, {}
+        for ballot, count in profile.ballotsWithCounts():
+            # Remove x.
+            cleaned = model.AnonymousPreference(y for y in ballot if x != y)
+
+            if not cleaned in ballots:
+                ballots[cleaned] = []
+            ballots[cleaned].extend([ballot] * count)
+
+            if not cleaned in counts:
+                counts[cleaned] = 0
+            counts[cleaned] += count
+
+        return counts, ballots        
+
+    def _check_profs(self, p, q):
+        """Check whether between two profiles there are instances of Positive Responsiveness.
+
+        For each instance that exists between p and q,
+        return a tuple of form (base, raised, x). Here, `base` is a profile (p or q) such that,
+        by raising the support of x, we obtain `raised` (again, p or q). We return a list of such
+        tuples."""
+
+        results = []
+
+        # The two profiles must be distinct.
+        if p != q:
+            # Let us try all alternatives, and see if, for one of them,
+            # we find an instance.
+            for x in self.scenario.alternatives:
+                # This function removes "x" from the alternatives of these profiles;
+                # p_ballots maps each "cleaned" ballot B to a set of ballots B' of p such that,
+                # by removing x from B', we obtain B. p_counts counts for every cleaned ballot B
+                # the *total* number of voters such that, if you remove x from their ballot, you
+                # obtain B.
+                p_counts, p_ballots = self._remove_alt_data(p, x)
+                q_counts, q_ballots = self._remove_alt_data(q, x)
+                # To be an instance of PosRes, everything else besides x must be
+                # equal.
+                if p_counts == q_counts:
+                    # Now, we have to do the following. For every cleaned ballot B,
+                    # the sets of ballots in p_ballots[B] and q_ballots[B] only differ in 
+                    # where x is ranked. We need to pair every ballot in p_ballots[B]
+                    # to a ballot in q_ballots[B] such that the rank of x 
+                    # is the same or has been increased for one of the two (and the direction
+                    # of the increase must always be the same, i.e., always p or always q).
+                    # If we can do this for every cleaned ballot B, then we we succeeded.
+
+                    # Initially, we don't know if p is the profile where the support
+                    # of x has increased or if q is.
+                    direction = 'unk'
+
+                    # Hence, for every set of cleaned ballot (note that these are equal for p and q)...
+                    for ballot in p_ballots:
+
+                        # To make the pairings, we keep the ballots from p fixed,
+                        # and try every permutations of the ballots from q.
+
+                        # Recall that, given a cleaned ballot B, p_ballots[B] contains
+                        # the list of ballots such that, if you remove x, you get B.
+                        p_list = p_ballots[ballot]  # this is a list.
+                        for q_list in permutations(q_ballots[ballot]):
+
+                            # This will be explained later...
+                            failed = False
+                            direction_old = direction
+
+                            # We pair each ballots (recall that we try every permutation of q_list)
+                            for p_ballot, q_ballot in zip(p_list, q_list):
+                                # We don't know yet, so we check.
+                                if direction is 'unk':
+                                    # If the rank of x is lower in p than in q,
+                                    # then the support of x has increased in p from q.
+                                    if p_ballot.rank(x) < q_ballot.rank(x):
+                                        direction = 'p raises q'
+                                    # Other direction
+                                    elif p_ballot.rank(x) > q_ballot.rank(x):
+                                        direction = 'q raises p'
+                                    # Else, we can't say anything. Still `unk`.
+                                # If we do know something,
+                                else:
+                                    # If the rank in p is greater AND this contradicts
+                                    # what we have seen so far, we have failed.
+                                    if p_ballot.rank(x) > q_ballot.rank(x) and\
+                                        direction == 'p raises q':
+                                            failed = True
+                                            break
+                                    if p_ballot.rank(x) < q_ballot.rank(x) and\
+                                        direction == 'q raises p':
+                                            failed = True
+                                            break
+
+                            # If we failed, we reset direction to direction_old, i.e., before
+                            # trying the mapping;
+                            # this means that, if we were in state `unk` before trying this mapping,
+                            # we are still in that state.
+                            if failed:
+                                direction = direction_old
+                            # If we did not fail, this mapping works; hence we break, and return to the outer
+                            # loop.
+                            if not failed:
+                                break
+
+                        # If this is the case, it means we tried every mapping, and
+                        # failed all of them (otherwise, we would have breaked without failure
+                        # before). Hence we break out from this loop as well, there is no
+                        # use in trying out the next ballot.
+                        if failed:
+                            break
+
+                    # If we got to here without every failing,
+                    # then we do know the direction, and can create
+                    # the result accordingly.
+                    if direction == 'p raises q':
+                        results.append((q, p, x))
+                    elif direction == 'q raises p':
+                        results.append((p, q, x))
+
+        return results
+
     def getInstances(self):
-        raise NotImplementedError("Implement me!")
+        insts = set()
+        # Of course, if we only have one alternative, there are no instances (no increase possible)
+        if len(self.scenario.alternatives) > 1:
+            # Then, for every possible size of profiles.
+            for size in range(1, self.scenario.nVoters+1):
+                # We get all (unordered) pairs of profiles of the same size
+                # (we can have an instance only between profiles of the same size).
+                for p, q in combinations(self.scenario.profilesOfSize(size), 2):
+                    # If there is an instance between p and q, this will return a tuple
+                    # (base, raised, x), where the support of x in base has been augmented
+                    # to obtan raised. Otherwise, returns None.
+                    for base, raised, x in self._check_profs(p, q):
+                        # If we found an instance, create it!
+                        insts.add(PositiveResponsivenessInstance(base, x, raised))
+
+        return insts
 
     def getInstancesMentioning(self, profile):
         raise NotImplementedError("Implement me!")
