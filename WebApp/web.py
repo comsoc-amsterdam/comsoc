@@ -68,4 +68,4 @@ def handle_data():
         return render_template('result.html', explanation = instances)
 
 if __name__ == '__main__':
-  socketio.run(app)
+  socketio.run(app, host='127.0.0.1', port=5000)
