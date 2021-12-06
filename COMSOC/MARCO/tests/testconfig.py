@@ -12,7 +12,7 @@ cmd_array = [interpreter, cmd]
 common_flags = '-v'
 
 test_set_flags = [
-    '', '-b MCSes', '--nomax', '--parallel MUS,MUS', '--parallel MUS,MCS', '--parallel MUS,MCSonly', '--parallel MUS,MUS --comms-disable', '--parallel MUS,MUS --comms-ignore'
+    '', '-b MCSes', '--nomax', '--threads 1', '--parallel MUS,MCS', '--parallel MUS,MCSonly'
 ]
 
 # check for systems on which MUSer cannot run
@@ -67,17 +67,19 @@ jobs = [
       'default': True,
     },
 ]
+jobs.extend([
+    # Test some options on fewer instances
+    {
+    'name':    'marco_py',
+    'files':   reg_files,
+    'flags':   ['--comms-disable', '--comms-ignore', '--all-randomized', '--improved-implies'],
+    'flags_all': common_flags,
+    'exclude': ['c10.cnf', 'dlx2_aa.cnf'],
+    'default': True,
+    },
+])
 if muser_available:
     jobs.extend([
-        # --pmuser
-        {
-        'name':    'marco_py',
-        'files':   reg_files,
-        'flags':   ['--pmuser 2'],
-        'flags_all': common_flags,
-        'exclude': ['c10.cnf', 'dlx2_aa.cnf'],
-        'default': True,
-        },
         # --force-minisat
         {
         'name':    'marco_py',

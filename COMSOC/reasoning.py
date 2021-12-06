@@ -7,10 +7,12 @@ from COMSOC.interfaces.model import AbstractScenario
 from COMSOC.interfaces.rules import AbstractRule
 
 from typing import Set, Type, Iterator, List
-import subprocess, os, io, signal
+import os
 from pysat.solvers import Minisat22 as pySAT
 
 from time import time
+
+from COMSOC.MARCO.src.marco.marco import parse_args, enumerate_with_args
 
 class AbstractReasoner(ABC):
 
@@ -74,7 +76,7 @@ class AbstractReasoner(ABC):
         return self._getRule(scenario, self.encodeAxioms(axioms))
 
     @abstractmethod
-    def enumerateMUSes(self, instances: Set[Instance], maximum: int=-1) -> Iterator[Set[Instance]]:
+    def enumerateMUSes(self, instances: Set[Instance]) -> Iterator[Set[Instance]]:
 
         """Enumerate the subsets of that input instances that are minimally unsatisfiable.
 
@@ -82,8 +84,6 @@ class AbstractReasoner(ABC):
             ----------
             instances : Set[Instance]
                 A set of instances.
-            maximum : int
-                Controls how many MUSes should we search for. Default: -1 (no limit),
 
             Returns
             -------
@@ -165,7 +165,7 @@ class SAT(AbstractReasoner):
         return self._isSatisfiable(cnf)
 
     
-    def enumerateMUSes(self, instances: Set[Instance], maximum: int=-1) -> Iterator[Set[Instance]]:
+    def enumerateMUSes(self, instances: Set[Instance]) -> Iterator[Set[Instance]]:
 
         # First, we assign, to each instance, a unique index.
         # Note that MARCO (our MUS enumerator) requires to index CNFs starting from one. Hence the +1.
@@ -182,27 +182,24 @@ class SAT(AbstractReasoner):
             file.write(gcnf_string)
             file.close()
 
-            # Launch the MUS enumerator (parallel option). It will return up to <maximum> MUSes.
-            command = f"COMSOC/MARCO/marco.py -v --parallel MUS,MUS,MUS,MUS,MUS,MUS,MUS,MUS -l {maximum} {self.FILE_NAME}"
-            # Launch the subprocess.
-            proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, shell = True, preexec_fn=os.setsid)
+            marco_args_list = [self.FILE_NAME, '--verbose', '--bias', 'MUSes']
+
+            marco_args = parse_args(marco_args_list)
+            # generator can be saved in a variable to call .close() later
+            marco_gen = enumerate_with_args(marco_args)
 
             # Every line of the output of the subprocess is an MUS.
-            for line in io.TextIOWrapper(proc.stdout, encoding="utf-8"):
-                # Only care for MUSes (start with `U`)
-                if len(line) != 0 and line[0] == 'U':
-                    line = line[:-1]  # remove \n
-                    # Get indexes of clauses in gMUS.
-                    listIDs = [tmp for tmp in line.split(" ")]
-                    listIDs = listIDs[1:] # Remove 'U' to only keep IDs
-                    listIDs = [int(id) for id in listIDs]
-
+            for result in marco_gen:
+                # Only care for MUSes (first argument is `U`)
+                kind, indexes = result
+                if kind == 'U':
                     # We return the instances corresponding to the group of clauses in the gMUS.
                     # Recall that we use the same indexes for instances and group of clauses, so this works.
-                    yield {indexed_instances[i] for i in listIDs}
+                    yield {indexed_instances[i] for i in indexes}
+
         finally:
-            # Kill the subprocess.
-            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            # Close the generator.
+            marco_gen.close()
             # Remove the created file.
             os.remove(self.FILE_NAME)
 

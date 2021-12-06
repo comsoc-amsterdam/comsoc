@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from flask import Flask, request, render_template, url_for
+from flask_socketio import SocketIO
 
 import sys
 sys.path.insert(0, "../")
@@ -11,10 +12,11 @@ from COMSOC.problems import JustificationProblem
 from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 figures = ['circle_alt', 'triangle_alt', 'square_alt']
 # Uncomment this to have 4 alternatives.
-# figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
+figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
 
 @app.route('/')
 def index():
@@ -42,10 +44,12 @@ def handle_data():
 
     problem = JustificationProblem(profile, outcome, corpus)
 
+    derived = {Symmetry(scenario), QuasiTiedWinner(scenario),\
+                                                      QuasiTiedLoser(scenario)}
+
     shortest = None
-    for justification in problem.solve(extract = "SAT", nontriviality = "ignore", depth = 10, heuristics = True, maximum = 5, \
-                                      derivedAxioms = {Symmetry(scenario), QuasiTiedWinner(scenario),\
-                                                      QuasiTiedLoser(scenario)}):
+    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "ignore"], depth = 10, heuristics = True, maximum = 5, \
+                                      derivedAxioms = derived, nb_folder = '../knownbases'):
         
         if shortest is None or len(justification) < len(shortest):
             shortest = justification
@@ -62,3 +66,6 @@ def handle_data():
             instances.add(text)
 
         return render_template('result.html', explanation = instances)
+
+if __name__ == '__main__':
+  socketio.run(app)
