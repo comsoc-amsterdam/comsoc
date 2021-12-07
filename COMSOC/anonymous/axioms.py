@@ -355,6 +355,8 @@ class Neutrality(InterprofileAxiom):
 
         # If an instance speaks of only one profile, then, if O1 and O2 are different, none of them can be the real outcome
         constraints.append(":- step(neutrality(P,O1,P,O2), N1, N2), instance(neutrality(P,O1,P,O2)), profile(P), outcome(O1), outcome(O2), O1 != O2, N1 < N2, 1{statement(N2,P,O1); statement(N2,P,O2)}.")
+        # If an instance speaks of only one profile, then, equal outcomes are ok
+        constraints.append(":- step(neutrality(P,O,P,O), N1, N2), instance(neutrality(P,O,P,O)), profile(P), outcome(O), N1 < N2, statement(N1,P,O), not statement(N2,P,O).")
 
         # If O1 is a possible outcome for P1 and O2 is a possible outcome for P2, O1 still a possible outcome for P1
         constraints.append(":- step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2), node(N1), node(N2), N1 < N2, statement(N1,P1,O1), statement(N1,P2,O2), not statement(N2,P1,O1), P1 != P2.")
