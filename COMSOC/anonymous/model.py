@@ -284,9 +284,9 @@ class AnonymousProfile(AbstractProfile):
         prefer_x, prefer_y = 0, 0
         for ballot, count in self.ballotsWithCounts():
             if ballot.prefers(x, y):
-                prefer_x += 1
+                prefer_x += count
             else:
-                prefer_y += 1
+                prefer_y += count
 
         if prefer_x > prefer_y:
             return {x}
