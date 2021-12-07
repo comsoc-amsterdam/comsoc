@@ -449,11 +449,17 @@ class NeutralityInstance(Instance):
         for outcome in map(model.AnonymousOutcome, powerset(self._base.alternatives)):
             if outcome:
                 mapped_outcome = model.AnonymousOutcome(self._mapping[a] for a in outcome)
-
-                encoded_outcome = encoding.encode_outcome(outcome)
                 encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
+                
+                encoded_outcome = encoding.encode_outcome(outcome)
 
-                asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+                if len(self._profiles) == 1:
+                    if mapped_outcome != encoded_outcome:
+                        asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+                else:
+                    encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
+                    asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+
         
         return asp
 
