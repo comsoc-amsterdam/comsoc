@@ -19,7 +19,11 @@ class Axiom(ABC):
         for instance in self.getInstances():
             cnf += instance.as_SAT(encoding)
 
-        return cnf   
+        return cnf
+
+    def tree_asp(self):
+        """Return facts, rules, constraints for building the ASP tree."""
+        pass 
 
     @property
     def scenario(self):
@@ -123,4 +127,7 @@ class Instance(ABC):
     @abstractmethod
     def as_SAT(self, encoding) -> List[List[int]]:
         """Return the SAT encoding of this instance."""
+        pass
+
+    def as_asp(self, encoding) -> List[str]:
         pass

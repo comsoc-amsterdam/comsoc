@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <script type="text/javascript">
+    var nodes = new vis.DataSet([
+    {% for node in nodes %}
+      {id: {{ node.id }}, label: '{{ nodeLabels[node] }}', shape: 'box'},
+    {% endfor %}
+    ]);
+
+    var edges = new vis.DataSet([
+    {% for edge in edges %}
+      {from: {{ edge[0].id }}, to: {{ edge[1].id }}, label: '{{ edgeLabels[edge] }}', arrows: 'to', font: { align: 'horizontal'}},
+    {% endfor %}
+    ]);
+  </script>
+{% endblock %}

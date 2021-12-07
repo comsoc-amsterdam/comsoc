@@ -6,10 +6,6 @@ class SATEncodingHandler:
 
         # These data structures are needed for SAT solving. They are used to map
         # all possible (profile, alternative) pairs into a positive integer.
-        # TODO: do it a-priori by only looking at the integer, without the datastructure, that is
-        # create a bijection from anon-profiles to natural numbers... Also, make it consistent across
-        # different runs, and across scenarios of different size: that is, if a profile P can be in two scenarios 
-        # S and S', it should have the same index (for the same alternative) in both.
 
         # Counter used to generate the indexes.
         self._counter = 0
@@ -41,3 +37,49 @@ class SATEncodingHandler:
 
         return self._index2profileAlt[abs(i)]
 
+class ASPEncodingHandler:
+
+    def __init__(self):
+
+        self._prof2str = {}
+        self._str2prof = {}
+
+        self._alt2str = {}
+        self._str2alt = {}
+
+        self._out2str = {}
+        self._str2out = {}
+
+    def encode_profile(self, profile):
+        if not profile in self._prof2str:
+            string = 'p' + str(len(self._prof2str))
+            self._prof2str[profile] = string
+            self._str2prof[string] = profile
+
+        return self._prof2str[profile]
+
+    def encode_alternative(self, alternative):
+        if not alternative in self._alt2str:
+            string = 'a_' + str(alternative)
+            self._alt2str[alternative] = string
+            self._str2alt[string] = alternative
+
+        return self._alt2str[alternative]
+
+    def encode_outcome(self, outcome):
+        if not outcome in self._out2str:
+            string = 'o_' + '_'.join(map(str, sorted(outcome)))
+            self._out2str[outcome] = string
+            self._str2out[string] = outcome
+
+        return self._out2str[outcome]
+
+    def decode(self, item: str):
+        if item[0] == 'p':
+            return self._str2prof[item]
+        elif item[0] == 'a':
+            return self._str2alt[item]
+        elif item[0] == 'o':
+            return self._str2out[item]
+        else:
+            raise NotImplementedError()

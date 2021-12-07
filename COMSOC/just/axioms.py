@@ -61,6 +61,32 @@ class AnonymousGoal(AbstractGoalConstraint):
         p, o = self._profile, self._outcome
         return [[encoding.encode(p, a) if a not in o else -encoding.encode(p, a) for a in self.profile.alternatives]]    
 
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the goal rule."""
+        rules = []
+        constraints = []
+
+        # Setting priority (Largest for intraprofile axioms)
+        #rules.append("priority(2, goal(P,O)) :- instance(goal(P,O)), profile(P), outcome(O).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if target outcome is still possible
+        rules.append("localConditionsSatisfied(goal(P,O),N):- profile(P), outcome(O), node(N), statement(N,P,O).")
+
+        ### Description of consequences
+        # Using it actually prevents O from being selected for P
+        constraints.append(":- step(goal(P,O), N1, N2), instance(goal(P,O)), profile(P), outcome(O), node(N1), node(N2), statement(N2,P,O).")
+
+
+        ### Forbid side effects
+        # Sutor, ne ultra crepidam (wrt outcome O)
+        constraints.append(":- step(goal(P,O), N1, N2), instance(goal(P,O)), profile(P), outcome(O), node(N1), node(N2), N1 < N2, statement(N1,P,O1), O1 != O, not statement(N2,P,O1).")
+
+        return [], rules, constraints
+    
+    def as_asp(self, encoding):
+        return [f"goal({encoding.encode_profile(self._profile)},{encoding.encode_outcome(self._outcome)})"]
+
 def GoalConstraint(scenario, profile, outcome):
     return {
         AnonymousScenario : AnonymousGoal

@@ -11,12 +11,13 @@ from collections import defaultdict, Counter
 from math import factorial
 from scipy.special import comb
 
-from COMSOC.voting.utils import SATEncodingHandler
+from COMSOC.voting.encodings import SATEncodingHandler, ASPEncodingHandler
 
 class AnonymousScenario(AbstractScenario):
     """Class representing an anonymous voting scenario"""
 
     SATencoding = SATEncodingHandler()
+    ASPencoding = ASPEncodingHandler()
 
     @classmethod
     def _profileDictFromString(self, description):
@@ -168,7 +169,7 @@ class AnonymousScenario(AbstractScenario):
     @property
     def outcomes(self) -> Iterator:
         """Return all possible voting outcomes for this scenario."""
-        return {AnonymousPreference(outcome) for outcome in powerset(self.alternatives) if outcome}
+        return {AnonymousOutcome(outcome) for outcome in powerset(self.alternatives) if outcome}
 
     def decodeSATModel(self, model: List[int]) -> dict:
         """Given a SAT model (list of non-zero integers), return a SCF that

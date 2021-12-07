@@ -206,13 +206,19 @@ class JustificationProblem(AbstractProblem):
         """Return the given set of axioms."""
         return self._corpus
 
+    @property
+    def goal(self):
+        if not hasattr(self, "_goal"):
+            self._goal = GoalConstraint(self.scenario, self.profile, self.outcome)
+        return self._goal
+    
+
     def _extract(self, instances: Set[Instance], extract, \
             nontriviality, kwargs) -> Iterator:
         """Given a set of instances, iterate over the justifications that can be extracted from this set."""
 
         # Add the goal constraint to the instances.
-        goal = GoalConstraint(self.scenario, self.profile, self.outcome)
-        instances.add(goal)
+        instances.add(self.goal)
 
         if isinstance(extract, list):
             for strat in strategy:
@@ -233,7 +239,7 @@ class JustificationProblem(AbstractProblem):
                 try:
 
                     # We TRY to remove the gaol profile. Note that if this fails, it raises a KeyError, handled below.
-                    MUS.remove(goal)
+                    MUS.remove(self.goal)
 
                     # Construct the explanation. It is made by the regular axiom instances, and for the derivedaxiom instances,
                     # by the instances of the axioms which imply them.

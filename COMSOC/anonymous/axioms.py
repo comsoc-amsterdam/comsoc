@@ -4,6 +4,8 @@ import COMSOC.anonymous.model as model
 from typing import List, Set, Type
 from itertools import permutations, combinations
 
+from COMSOC.helpers import powerset
+
 ########### INTRAPROFILE AXIOMS ################
 
 class AtLeastOne(IntraprofileAxiom):
@@ -15,6 +17,11 @@ class AtLeastOne(IntraprofileAxiom):
 
     def getInstancesMentioning(self, profile) -> Set:
         return {AtLeastOneInstance(profile)}
+
+    def tree_asp(self):
+        """Return facts, rules, constraints for building the ASP tree."""
+        # Nothing.
+        return [], [], []
 
 class AtLeastOneInstance(Instance):
 
@@ -34,6 +41,10 @@ class AtLeastOneInstance(Instance):
         # Return a CNF with a single clause stating that at least one alternative must win
         return [[encoding.encode(self._profile, x) for x in self._profile.alternatives]]
 
+    def as_asp(self, encoding):
+        # Not used
+        return [f"atleastone({encoding.encode_profile(self._profile)})"]
+
     def _isEqual(self, other) -> bool:
         return self._profile == other._profile
 
@@ -52,6 +63,29 @@ class Faithfulness(IntraprofileAxiom):
 
     def getInstancesMentioning(self, profile) -> Set:
         return {FaithfulnessInstance(profile)} if len(profile) == 1 else set()
+
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the Faithfulness rule."""
+        rules = []
+        constraints = []
+
+        # Setting priority (Largest for intraprofile axioms)
+        #rules.append("priority(2, faithfulness(P,O)) :- instance(faithfulness(P,O)), profile(P), outcome(O).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if O is not already the finale outcome for P
+        rules.append("localConditionsSatisfied(faithfulness(P,O),N):- profile(P), outcome(O), node(N), not finaleOutcome(N,P,O).")
+
+
+        ### Description of consequences
+        # Using it actually prevents any outcome different from O to be possible for P if O was possible
+        constraints.append(":- step(faithfulness(P,O), N1, N2), instance(faithfulness(P,O)), profile(P), outcome(O), node(N1), node(N2), N1 < N2, statement(N1,P,O), statement(N2,P,O1), outcome(O1), O1 != O.")
+
+        # Otherwise, if O was not possible, we reach a contradiction and (P,oEmpty) is the only statement in N2 for P
+        constraints.append(":- step(faithfulness(P,O), N1, N2), instance(faithfulness(P,O)), profile(P), outcome(O), node(N1), node(N2), N1 < N2, not statement(N1,P,O), not statement(N2,P,oEmpty).")
+
+
+        return [], rules, constraints
 
 class FaithfulnessInstance(Instance):
 
@@ -78,6 +112,10 @@ class FaithfulnessInstance(Instance):
         # (if it is the top ranked one) or lose (otherwise)
         return [[(1 if x == self._profile.top() else -1) * encoding.encode(self._profile, x)] for x in self._profile.alternatives]
 
+    def as_asp(self, encoding):
+        outcome = model.AnonymousOutcome(self._profile.top())
+        return [f"faithfulness({encoding.encode_profile(self._profile)}, {encoding.encode_outcome(outcome)})"]
+
     def __str__(self):
         return f"In profile ({self._profile}) there is only one voter. Hence, their favorite alternative should win."
 
@@ -100,6 +138,28 @@ class Pareto(IntraprofileAxiom):
             if profile.isParetoDom(x):
                 insts.add(ParetoInstance(profile, x))
         return insts
+
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the Pareto rule."""
+        rules = []
+        constraints = []
+
+        # Setting priority (Largest for intraprofile axioms)
+        #rules.append("priority(3, pareto(P,Y)) :- instance(pareto(P,Y)), profile(P1), alternative(Y).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if P has at least one possible outcome containing Y
+        rules.append("localConditionsSatisfied(pareto(P,Y),N):- profile(P), alternative(Y), node(N), statement(N,P,O), outcome(O), inOutcome(Y,O).")
+
+        ### Description of consequences
+        # Using it actually prevents Y from being in the outcome
+        constraints.append(":- step(pareto(P,Y), N1, N2), instance(pareto(P,Y)), profile(P), alternative(Y), node(N1), node(N2), N1 < N2, statement(N2,P,O), outcome(O), inOutcome(Y,O).")
+
+        ### Forbid side effects
+        # Sutor, ne ultra crepidam (wrt alternative Y)
+        constraints.append(":- step(pareto(P,Y), N1, N2), instance(pareto(P,Y)), profile(P), alternative(Y), node(N1), node(N2), N1 < N2, statement(N1,P,O), not inOutcome(Y,O), not statement(N2,P,O).")
+
+        return [], rules, constraints
 
 class ParetoInstance(Instance):
 
@@ -126,6 +186,9 @@ class ParetoInstance(Instance):
         # The pareto dominated alternative cannot win.
         return [[-encoding.encode(self._profile, self._dominated)]]
 
+    def as_asp(self, encoding):
+        return [f"pareto({encoding.encode_profile(self._profile)}, {encoding.encode_alternative(self._dominated)})"]
+
     def __str__(self):
         return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot win."        
 
@@ -138,6 +201,28 @@ class Cancellation(IntraprofileAxiom):
 
     def getInstancesMentioning(self, profile) -> Set:
         return {CancellationInstance(profile)} if profile.isPerfectTie() else set()
+
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the Cancellation rule."""
+        facts = []
+        rules = []
+        constraints = []
+
+        # Setting priority (Largest for intraprofile axioms)
+        #rules.append("priority(2, cancellation(P)) :- instance(cancellation(P)), profile(P), outcome(O).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if fullOutcome is not already the finale outcome for P
+        rules.append("localConditionsSatisfied(cancellation(P,O),N):- profile(P), fullOutcome(O), node(N), not finaleOutcome(N,P,O).")
+
+        ### Description of consequences
+        # Using it actually prevents any outcome different from fullOutcome to be possible for P if fullOutcome was possible
+        constraints.append(":- step(cancellation(P,O), N1, N2), instance(cancellation(P,O)), profile(P), node(N1), node(N2), N1 < N2, fullOutcome(O), statement(N1,P,O), statement(N2,P,O1), outcome(O1), O != O1.")
+
+        # Otherwise, if fullOutcome was not possible, we reach a contradiction and (P,oEmpty) is the only statement in N2 for P
+        constraints.append(":- step(cancellation(P,O), N1, N2), instance(cancellation(P,O)), profile(P), fullOutcome(O), node(N1), node(N2), N1 < N2, not statement(N1,P,O), not statement(N2,P,oEmpty).")
+
+        return facts, rules, constraints
 
 class CancellationInstance(Instance):
 
@@ -162,6 +247,11 @@ class CancellationInstance(Instance):
     def as_SAT(self, encoding) -> List[List[int]]:
         # All alternatives win (one clause per alternative).
         return [[encoding.encode(self._profile, x)] for x in self._profile.alternatives]
+
+    def as_asp(self, encoding):
+        # Not used.
+        full_outcome = encoding.encode_outcome(model.AnonymousOutcome(self._profile.alternatives))
+        return [f"cancellation({encoding.encode_profile(self._profile)}, {full_outcome})"]
 
     def __str__(self):
         return f"Profile ({self._profile}) is a perfect tie: all alternatives must win here."
@@ -244,6 +334,55 @@ class Neutrality(InterprofileAxiom):
         else:
             return set()
 
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the Neutrality rule."""
+        facts = []
+        rules = []
+        constraints = []
+
+        # Setting priority (Second largest for interprofile axioms)
+        #rules.append("priority(2, neutrality(P1,O1,P2,O2)) :- instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1),  profile(P2), outcome(O2).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable at any time (merging possible outcomes for both profiles wrt perm on alternatives)
+        rules.append("localConditionsSatisfied(neutrality(P1,O1,P2,O2),N):- profile(P1), outcome(O1), profile(P2), outcome(O2), node(N).")
+
+
+        ### Description of consequences
+
+        # Rule can be used if P1 and P2 have been introduced, O1 is possible for P1 or O2 is possible for P2 but not both of them are finale
+        rules.append("canBeUsed(neutrality(P1,O1,P2,O2), N) :- instance(neutrality(P1,O1,P2,O2)), profile(P1), profile(P2), outcome(O1), outcome(O2), node(N), not leaf(N), isIntroduced(P1,N), isIntroduced(P2,N), 1 {statement(N,P1,O1) ; statement(N,P2,O2)}, not 2 {finaleOutcome(N,P1,O1) ; finaleOutcome(N,P2,O2)} 2.")
+
+        # If an instance speaks of only one profile, then, if O1 and O2 are different, none of them can be the real outcome
+        constraints.append(":- step(neutrality(P,O1,P,O2), N1, N2), instance(neutrality(P,O1,P,O2)), profile(P), outcome(O1), outcome(O2), O1 != O2, N1 < N2, 1{statement(N2,P,O1); statement(N2,P,O2)}.")
+
+        # If O1 is a possible outcome for P1 and O2 is a possible outcome for P2, O1 still a possible outcome for P1
+        constraints.append(":- step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2), node(N1), node(N2), N1 < N2, statement(N1,P1,O1), statement(N1,P2,O2), not statement(N2,P1,O1), P1 != P2.")
+        # If O1 is a possible outcome for P1 and O2 is a possible outcome for P2, O2 still a possible outcome for P2
+        constraints.append(":- step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2), node(N1), node(N2), N1 < N2, statement(N1,P1,O1), statement(N1,P2,O2), not statement(N2,P2,O2), P1 != P2.")
+
+        # If O1 was possible for P1 but O2 was not for P2, then O1 it's not possible for P1 anymore
+        constraints.append(":-  step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P1,O1), not statement(N1,P2,O2), statement(N2,P1,O1), P1 != P2.")
+        # If O1 was possible for P1 but O2 was not for P2, then O2 is still not possible for P2
+        constraints.append(":-  step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2), node(N1), node(N2), N1 < N2, statement(N1,P1,O1), not statement(N1,P2,O2), statement(N2,P2,O2), outcome(O), P1 != P2.")
+
+        # If O2 was possible for P2 but O1 was not for P1, then O1 still not possible for P1
+        constraints.append(":-  step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P2,O2), not statement(N1,P1,O1), statement(N2,P1,O1), outcome(O), P1 != P2.")
+        # If O2 was possible for P2 but O1 was not for P1, then O2 is not possible for P2 anymore
+        constraints.append(":-  step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P2,O2), not statement(N1,P1,O1), statement(N2,P2,O2), outcome(O), P1 != P2.")
+
+
+        # Sutor, ne ultra crepidam (wrt to O1 for P1)
+        constraints.append(":- step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P1,O), outcome(O), O1 != O, not statement(N2,P1,O), P1 != P2.")
+
+        # Sutor, ne ultra crepidam (wrt to O2 for P2)
+        constraints.append(":- step(neutrality(P1,O1,P2,O2), N1, N2), instance(neutrality(P1,O1,P2,O2)), profile(P1), outcome(O1), profile(P2), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P2,O), outcome(O), O2 != O, not statement(N2,P2,O), P1 != P2.")
+
+        # Sutor, ne ultra crepidam (wrt a single profile and O1 and O2)
+        constraints.append(":- step(neutrality(P,O1,P,O2), N1, N2), instance(neutrality(P,O1,P,O2)), profile(P), outcome(O1), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P,O), outcome(O), O2 != O, O1 != O, not statement(N2,P,O).")
+
+        return facts, rules, constraints
+
 class NeutralityInstance(Instance):
 
     """Instance of the `Cancellation` axiom."""
@@ -296,6 +435,24 @@ class NeutralityInstance(Instance):
             cnf.append([encoding.encode(self._base, x), -encoding.encode(self._mapped, mapped_x)])
 
         return cnf
+
+    def as_asp(self, encoding):
+
+        asp = []
+
+        base = encoding.encode_profile(self._base)
+        mapped = encoding.encode_profile(self._mapped)
+
+        for outcome in map(model.AnonymousOutcome, powerset(self._base.alternatives)):
+            if outcome:
+                mapped_outcome = model.AnonymousOutcome(self._mapping[a] for a in outcome)
+
+                encoded_outcome = encoding.encode_outcome(outcome)
+                encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
+
+                asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+        
+        return asp
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
@@ -518,6 +675,10 @@ class PositiveResponsiveness(InterprofileAxiom):
 
         return insts
 
+    def tree_asp(self):
+        """Return facts, rules, constraints for building the ASP tree."""
+        pass 
+
 class PositiveResponsivenessInstance(Instance):
 
     """Instance of the `Positive Responsiveness` axiom."""
@@ -711,6 +872,36 @@ class Reinforcement(InterprofileAxiom):
         # Only add one ballot in this heuristic.
         return self._auxGenerateInstances(profile, 1)
 
+    def tree_asp(self):
+        """Return the ASP facts, rules and constraints necessary to encode the Reinforcement rule."""
+        facts = []
+        rules = []
+        constraints = []
+
+        # Setting priority (Second largest for interprofile axioms)
+        #rules.append("priority(2, reinforcement(P1,P2,P)) :- instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P).")
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if P1 and P2 both have a finale outcome MIGHT NOT NECESSARY, and the instersection of these outcomes is not empty
+        rules.append("localConditionsSatisfied(reinforcement(P1,P2,P),N):- profile(P1), outcome(O1), profile(P2), outcome(O2), profile(P), node(N), finaleOutcome(N,P1,O1), finaleOutcome(N,P2,O2), outcome(O), O != oEmpty, isIntersection(O,O1,O2).")
+
+
+        ### Description of consequences
+        # Using it actually prevents any outcome different from F(P1) \cap F(P2) to be possible for P if it was possible
+        constraints.append(":- step(reinforcement(P1,P2,P), N1, N2), instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P), node(N1), node(N2), N1 < N2, finaleOutcome(N,P1,O1), finaleOutcome(N,P2,O2), isIntersection(O,O1,O2), statement(N1,P,O), statement(N2,P,O3), outcome(O3), O3 != O.")
+
+        # Otherwise, if intersection was not possible, we reach a contradiction and (P,oEmpty) is the only statement in N2 for P
+        constraints.append(":- step(reinforcement(P1,P2,P), N1, N2), instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P), node(N1), node(N2), N1 < N2, finaleOutcome(N,P1,O1), finaleOutcome(N,P2,O2), isIntersection(O,O1,O2), not statement(N1,P,O), not statement(N2,P,oEmpty).")
+
+        ### Avoid side effects
+        # Sutor ne ultra crepidam (wrt P1's outcome)
+        constraints.append(":- step(reinforcement(P1,P2,P), N1, N2), instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P), node(N1), node(N2), N1 < N2, statement(N1,P1,O), outcome(O), not statement(N2,P1,O).")
+
+        # Sutor ne ultra crepidam (wrt P2's outcome)
+        constraints.append(":- step(reinforcement(P1,P2,P), N1, N2), instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P), node(N1), node(N2), N1 < N2, statement(N1,P2,O), outcome(O), not statement(N2,P2,O).")
+
+        return facts, rules, constraints
+
 class ReinforcementInstance(Instance):
 
     """Instance of the `Reinforcement` axiom."""
@@ -757,6 +948,11 @@ class ReinforcementInstance(Instance):
                     cnf.append([-literal, encoding.encode(self._part2, x), -encoding.encode(self._part1, y), -encoding.encode(self._part2, y)])
 
         return cnf
+
+    def as_asp(self, encoding):
+        p1, p2 = map(encoding.encode_profile, sorted((self._part1, self._part2)))
+        p = encoding.encode_profile(self._profile)
+        return [f'reinforcement({p1}, {p2}, {p})']
 
     def __str__(self):
         return f"If some alternatives win in both ({self._part1}) and ({self._part2}), they must be the outcome of ({self._profile})."
