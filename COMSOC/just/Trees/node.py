@@ -50,7 +50,8 @@ class Node():
 
         label = "N" + self.id + ":\\n"
 
-        for profile in sorted(self.getMentionedProfiles()):
+        # Sort by length first, then by default order
+        for profile in sorted(self.getMentionedProfiles(), key = lambda p : (len(p), p)):
             outcomes = [statement.getOutcome() for statement in self.getStatementsforProfile(profile)]
             strStatement = f"For profile {profile}, "
             if len(outcomes) == 1:
@@ -59,7 +60,8 @@ class Node():
                 else:
                     strStatement += f"the only possible outcome is {outcomes[0]}."
             else:
-                outcomes = sorted(outcomes, key = len)
+                # Sort by length first, then by alphabetical order
+                outcomes = sorted(outcomes, key = lambda outcome : (len(outcome), ''.join(map(str, outcome))))
                 strStatement += "the possible outcomes are " + ', '.join(map(str, outcomes[:-1])) + f' and {outcomes[-1]}.'
 
             label += strStatement + '\\n'
