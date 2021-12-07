@@ -8,7 +8,7 @@ class ASPTree():
 
     def __init__(self, justification, limit = 0):
         self.justification = justification
-        self.ASPencoding = self.justification.scenario.ASPencoding
+        self.encoding = self.justification.scenario.ASPencoding
 
         self.baseProgram = self.getBaseProgram()
         self.stepProgram = self.getStepProgram()
@@ -30,7 +30,7 @@ class ASPTree():
         self.answerSets = []
 
     def getTree(self, answerSet):
-        tree = ProofTree(answerSet)
+        tree = ProofTree(answerSet, self.encoding)
         return tree.getTreeFromAnswerSet()        
 
     def getTrees(self):
@@ -251,7 +251,7 @@ class ASPTree():
         constraints = []
 
         for profile in self.justification.involved_profiles:
-            facts.append("profile(" + self.ASPencoding.encode_profile(profile) + ").")
+            facts.append("profile(" + self.encoding.encode_profile(profile) + ").")
 
         # Profiles
         #for id in range(self.justificationReaderInterface.getNbProfiles()):
@@ -259,20 +259,20 @@ class ASPTree():
 
         # Alternatives
         for alt in self.justification.scenario.alternatives:
-            facts.append("alternative(" + self.ASPencoding.encode_alternative(alt) + ").")
+            facts.append("alternative(" + self.encoding.encode_alternative(alt) + ").")
 
         # Possible Outcomes
         facts.append("outcome(oEmpty).")
 
         for outcome in self.justification.scenario.outcomes:
-            facts.append("outcome(" + self.ASPencoding.encode_outcome(outcome) + ").")
+            facts.append("outcome(" + self.encoding.encode_outcome(outcome) + ").")
             if len(outcome) == len(self.justification.scenario.alternatives):
-                facts.append("fullOutcome(" + self.ASPencoding.encode_outcome(outcome) + ").")
+                facts.append("fullOutcome(" + self.encoding.encode_outcome(outcome) + ").")
 
         # Link alternatives to outcomes
         for outcome in self.justification.scenario.outcomes:
             for alt in outcome:
-                facts.append("inOutcome(" + self.ASPencoding.encode_alternative(alt) + ", " + self.ASPencoding.encode_outcome(outcome) + ").")
+                facts.append("inOutcome(" + self.encoding.encode_alternative(alt) + ", " + self.encoding.encode_outcome(outcome) + ").")
 
         return facts, rules, constraints
 
@@ -498,7 +498,7 @@ class ASPTree():
 
         # Retrieving instances, and the goal instance
         for instance in chain(self.justification.explanation, [self.justification.goal]):
-            for fact in instance.as_asp(self.ASPencoding):
+            for fact in instance.as_asp(self.encoding):
                 facts.append("instance(" + fact + ").")
                 # Identifying profiles mentionned in the instance
                 for p in re.findall("p\d+", fact):

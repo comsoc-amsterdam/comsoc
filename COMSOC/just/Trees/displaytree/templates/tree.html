@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  {% for line in legend %}
+    line
+  {% endfor %}
   <script type="text/javascript">
     var nodes = new vis.DataSet([
     {% for node in nodes %}

@@ -8,9 +8,10 @@ from .statement import *
 class ProofTree():
     'Represent a proof tree using networkx'
 
-    def __init__(self, answerSet=""):
+    def __init__(self, answerSet="", encoding=None):
         if answerSet != "":
             self.answerSet = answerSet
+            self.encoding = encoding
         self.nodes = {}
         self.edges = {}
         self.proofTree = nx.DiGraph()
@@ -98,8 +99,10 @@ class ProofTree():
             for statementAtom in [str(atom) for atom in self.answerSet if "statement(" + nodeID + "," in str(atom)]:
                 statementAtom = statementAtom.replace("statement(", "")
                 statementAtom = statementAtom.replace(")","")
-                _,profile,outcome = tuple(statementAtom.split(","))
-                statement = Statement(profile,outcome)
+                _, profile, outcome = tuple(statementAtom.split(","))
+
+                statement = Statement(profile,\
+                    '{}' if outcome == 'oEmpty' else self.encoding.decode(outcome))
                 self.nodes[nodeID].addStatement(statement)
 
     def retrieveEdgesFromAnswerSet(self):
@@ -114,8 +117,17 @@ class ProofTree():
         """Extract the steps of the proof associated with each edge."""
 
         for stepAtom in [str(atom) for atom in self.answerSet if "step" in str(atom)]:
-            stepAtom = stepAtom.replace("step(","")
-            tmp = stepAtom.split(',')
-            tmp[-1] = tmp[-1][:-1]
-            edge = self.edges[(tmp[-2],tmp[-1])]
-            edge.linkToStep("".join(stepAtom.split())[:-1])
+            stepAtom = stepAtom.replace("step(","")[:-1]
+            tmp = stepAtom.replace('(', ',').replace(')', ',').replace(', ', ',').split(',')
+            src, dst = tmp[-2], tmp[-1]
+
+            instance = tmp[:-3]
+
+            head, items = instance[0], instance[1:]
+
+            if head == 'intro':
+                instance = f"Consider profile {items[0]}: {self.encoding.decode(items[0])}"
+            else:
+                instance = f"{head}({','.join(map(str, map(lambda i: self.encoding.decode(i) if i[0] != 'p' else i, items)))})"
+            edge = self.edges[(src, dst)]
+            edge.linkToStep(instance)

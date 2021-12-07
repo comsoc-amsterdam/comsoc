@@ -51,21 +51,16 @@ class Node():
         label = "N" + self.id + ":\\n"
 
         for profile in self.getMentionedProfiles():
-            strStatement = "F(" + profile + ") in "
-            strStatement += "{"
+            outcomes = [statement.getOutcome() for statement in self.getStatementsforProfile(profile)]
+            strStatement = f"For profile {profile}, "
+            if len(outcomes) == 1:
+                if outcomes[0] == '{}':
+                    strStatement += "there are no possible outcomes. Contradiction!"
+                else:
+                    strStatement += f"the only possible outcome is {outcomes[0]}."
+            else:
+                strStatement += "the possible outcomes are " + ', '.join(map(str, outcomes[:-1])) + f' and {outcomes[-1]}.'
 
-            for statement in self.getStatementsforProfile(profile):
-                outcome = statement.getOutcome()
-                strStatement += str(outcome) + ", "
-                #outcome = outcome.replace("o","")
-                #if outcome != "Empty":
-                    #outcome = "{" + ",".join([str(c) for c in outcome]) + "}"
-                #else:
-                    #outcome = "{}"
-                #strStatement += outcome +", "
-
-            strStatement = strStatement[:-2]
-            strStatement += "}\\n"
-            label += strStatement
-
+            label += strStatement + '\\n'
+            
         return label
