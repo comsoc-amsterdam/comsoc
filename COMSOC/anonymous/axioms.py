@@ -43,7 +43,8 @@ class AtLeastOneInstance(Instance):
 
     def as_asp(self, encoding):
         # Not used
-        return [f"atleastone({encoding.encode_profile(self._profile)})"]
+        #return [f"atleastone({encoding.encode_profile(self._profile)})"]
+        return []
 
     def _isEqual(self, other) -> bool:
         return self._profile == other._profile
@@ -113,7 +114,7 @@ class FaithfulnessInstance(Instance):
         return [[(1 if x == self._profile.top() else -1) * encoding.encode(self._profile, x)] for x in self._profile.alternatives]
 
     def as_asp(self, encoding):
-        outcome = model.AnonymousOutcome(self._profile.top())
+        outcome = model.AnonymousOutcome({self._profile.top()})
         return [f"faithfulness({encoding.encode_profile(self._profile)}, {encoding.encode_outcome(outcome)})"]
 
     def __str__(self):
@@ -679,7 +680,27 @@ class PositiveResponsiveness(InterprofileAxiom):
 
     def tree_asp(self):
         """Return facts, rules, constraints for building the ASP tree."""
-        pass 
+        facts, rules, constraints = [], [], []
+
+        rules.append("alwaysWinIn(N,X,P) :- node(N), profile(P), alternative(X), C1 = #count {O : statement(N, P, O), outcome(O)}, C2 = #count {O : statement(N, P, O), inOutcome(X, O), outcome(O)}, C1 = C2.")
+
+        rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), alwaysWinIn(N, X, P1).")
+        rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), not statement(N, P2, O).")
+
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), outcome(O), node(N1), N1<N2, node(N2), profile(P2), statement(N1,P2,O), not statement(N2,P2,O), alwaysWinIn(N1, X, P1).")
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), outcome(O), node(N1), N1<N2, node(N2), profile(P2), statement(N2,P2,O1), outcome(O1), O != O1, alwaysWinIn(N1, X, P1).")
+
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), statement(N1,P1,O1), not statement(N2,P1,O1), outcome(O), outcome(O1), node(N1), N1<N2, node(N2), profile(P2), alwaysWinIn(N1, X, P1).")
+
+        #
+
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), outcome(O), node(N1), N1<N2, node(N2), profile(P2), not statement(N1, P2, O), 0 != #count {O1 : outcome(O1), statement(N2,P1,O1), inOutcome(X, O1)}.")
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), outcome(O), node(N1), N1<N2, node(N2), profile(P2), not statement(N1, P2, O), statement(N1, P1, O1), not inOutcome(X, O1), outcome(O1), not statement(N2, P1, O1).")
+
+        constraints.append(":- step(positiveresponsiveness(P1,X,P2,O), N1, N2), outcome(O), node(N1), N1<N2, node(N2), profile(P2), not statement(N1, P2, O), statement(N1, P2, O1), outcome(O1), not statement(N2, P2, O1).")
+
+        return facts, rules, constraints
+        
 
 class PositiveResponsivenessInstance(Instance):
 
@@ -711,6 +732,12 @@ class PositiveResponsivenessInstance(Instance):
                 cnf.append([-encoding.encode(self._base, self._alternative), -encoding.encode(self._raised, a)])
 
         return cnf
+
+    def as_asp(self, encoding):
+        base, raised = map(encoding.encode_profile, (self._base, self._raised))
+        alt = encoding.encode_alternative(self._alternative)
+        outcome = encoding.encode_outcome(model.AnonymousOutcome({self._alternative}))
+        return [f"positiveresponsiveness({base},{alt},{raised},{outcome})"]
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._alternative == other._alternative
