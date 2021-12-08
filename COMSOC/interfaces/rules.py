@@ -38,7 +38,7 @@ class AbstractRule(ABC):
     def __str__(self):
         if self._string is None:
             self._string = "#############################\n"
-            for profile in self.scenario.profiles:
+            for profile in sorted(self.scenario.profiles):
                 self._string += f"F({profile}) ---> {self(profile)}\n"
             self._string += "#############################"
 

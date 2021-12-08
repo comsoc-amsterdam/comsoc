@@ -144,11 +144,11 @@ class AnonymousScenario(AbstractScenario):
 
         # If we have already generated the profiles with exactly n voters, we return that.
         try:
-            return sorted(self._profilesByLength[n])
+            return self._profilesByLength[n]
         # Otherwise, we initalise that, and return it.
         except KeyError:
             self._generateProfilesOfSize(n)
-            return sorted(self._profilesByLength[n])
+            return self._profilesByLength[n]
 
     def profilesUpToSize(self, n: int) -> Iterator:
         """Iterate over all profiles with up to n voters."""
@@ -164,11 +164,7 @@ class AnonymousScenario(AbstractScenario):
     @property
     def preferences(self) -> Iterator:
         """Return all possible preference orders for this scenario."""
-        try:
-            return self._preferences
-        except AttributeError:
-            self._preferences = {AnonymousPreference(perm) for perm in permutations(self.alternatives)}
-            return self._preferences
+        return {AnonymousPreference(perm) for perm in permutations(self.alternatives)}
 
     @property
     def outcomes(self) -> Iterator:
