@@ -1,4 +1,4 @@
-
+import pathlib
 import networkx as nx
 from jinja2 import Environment, FileSystemLoader
 
@@ -9,7 +9,8 @@ class DrawingDynamic():
     def __init__(self, tree):
         self.tree = tree
         
-        templateLoader = FileSystemLoader('./COMSOC/just/Trees/displaytree/templates')
+        self.templates_path = str(pathlib.Path(__file__).parent.resolve()) + '/templates'
+        templateLoader = FileSystemLoader(self.templates_path)
         templateEnv = Environment(loader=templateLoader)
         self.template = templateEnv.get_template('tree.html')
 
@@ -22,4 +23,6 @@ class DrawingDynamic():
         step = nx.get_edge_attributes(self.tree, 'step')
         edgeLabels = {edge: step[edge] for edge in self.tree.edges()}
 
-        return self.template.render(nodes=self.tree.nodes(), edges=self.tree.edges(), nodeLabels=nodeLabels, edgeLabels=edgeLabels)
+        return self.template.render(
+                nodes=self.tree.nodes(), edges=self.tree.edges(),
+                nodeLabels=nodeLabels, edgeLabels=edgeLabels)
