@@ -92,4 +92,7 @@ class Justification:
 
         for tree in trees:
             display = DisplayTreeInterface(tree, display)
-            return display.exportTree(destination)
+            if destination is None:
+                return display.exportTree()
+            else:
+                display.exportTree(destination)

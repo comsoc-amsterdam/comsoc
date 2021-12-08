@@ -18,7 +18,10 @@ class DisplayTreeInterface():
 
         if self.mode == "dynamic":
             self.drawer = DrawingDynamic(self.tree)
-            return self.exportDynamic(dest)
+            if dest is None:
+                return self.exportDynamic(dest)
+            else:
+                self.exportDynamic(dest)
         elif self.mode == "static":
             self.drawer = DrawingStatic(self.tree)
             self.exportStatic(dest)
@@ -44,5 +47,5 @@ class DisplayTreeInterface():
         if dest is not None:
             with open(dest, "w") as file:
                 file.write(html)
-
-        return html
+        else:
+            return html
