@@ -6,7 +6,7 @@ from itertools import chain
 class ASPTree():
     'Encode a justification as an ASP program'
 
-    def __init__(self, justification, limit = 0):
+    def __init__(self, justification, limit = 0, verbose = False):
         self.justification = justification
         self.encoding = self.justification.scenario.ASPencoding
 
@@ -28,6 +28,8 @@ class ASPTree():
 
         self.limit = limit
         self.answerSets = []
+
+        self._verbose = verbose
 
     def getTree(self, answerSet):
         tree = ProofTree(answerSet, self.encoding)
@@ -80,7 +82,8 @@ class ASPTree():
             nodeFacts = str(previous_step) + " < {node(1.." + str(k) +")} <= " + str(k) + ".\n"
             previous_step = k
 
-            print("Step: " + nodeFacts)
+            if self._verbose:
+                print("Step: " + nodeFacts)
             finalBaseProgram = self.baseProgram + nodeFacts
 
             control = clingo.Control();
