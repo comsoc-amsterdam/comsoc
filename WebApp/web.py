@@ -36,11 +36,11 @@ def handle_data():
 
     corpus = {
         theory.axioms.Faithfulness(scenario),
-        #theory.axioms.Reinforcement(scenario),
-        #theory.axioms.Cancellation(scenario),
-        #theory.axioms.Pareto(scenario),
-        #theory.axioms.Neutrality(scenario),
-        #theory.axioms.PositiveResponsiveness(scenario)
+        theory.axioms.Reinforcement(scenario),
+        theory.axioms.Cancellation(scenario),
+        theory.axioms.Pareto(scenario),
+        theory.axioms.Neutrality(scenario),
+        theory.axioms.PositiveResponsiveness(scenario)
     }
 
     problem = JustificationProblem(profile, outcome, corpus)
