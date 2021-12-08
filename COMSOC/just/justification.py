@@ -83,7 +83,8 @@ class Justification:
         generator = ASPTree(self, limit = 1)
         return generator.getTrees()
 
-    def display(self, destination: str, strategy = "ASP", display = "dynamic"):
+    def display(self, destination: str=None, strategy = "ASP", display = "dynamic"):
+        """If destination is unspecified, return it."""
         if strategy == 'ASP':
             trees = self._getTreeASP()
         else:
@@ -91,4 +92,4 @@ class Justification:
 
         for tree in trees:
             display = DisplayTreeInterface(tree, display)
-            display.exportTree(destination)
+            return display.exportTree(destination)

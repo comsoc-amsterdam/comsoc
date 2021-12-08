@@ -2,6 +2,7 @@
 
 from flask import Flask, request, render_template, url_for
 from flask_socketio import SocketIO
+import markupsafe
 
 import sys
 sys.path.insert(0, "../")
@@ -16,7 +17,7 @@ socketio = SocketIO(app)
 
 figures = ['circle_alt', 'triangle_alt', 'square_alt']
 # Uncomment this to have 4 alternatives.
-figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
+# figures = ['circle_alt', 'triangle_alt', 'square_alt', 'pentagon_alt']
 
 @app.route('/')
 def index():
@@ -35,11 +36,11 @@ def handle_data():
 
     corpus = {
         theory.axioms.Faithfulness(scenario),
-        theory.axioms.Reinforcement(scenario),
-        theory.axioms.Cancellation(scenario),
-        theory.axioms.Pareto(scenario),
-        theory.axioms.Neutrality(scenario),
-        theory.axioms.PositiveResponsiveness(scenario)
+        #theory.axioms.Reinforcement(scenario),
+        #theory.axioms.Cancellation(scenario),
+        #theory.axioms.Pareto(scenario),
+        #theory.axioms.Neutrality(scenario),
+        #theory.axioms.PositiveResponsiveness(scenario)
     }
 
     problem = JustificationProblem(profile, outcome, corpus)
@@ -57,6 +58,7 @@ def handle_data():
     if shortest is None:
         return render_template('failure.html')
     else:
+        """
         instances = set()
         for instance in shortest.explanation:
             text = str(instance)
@@ -65,7 +67,13 @@ def handle_data():
 
             instances.add(text)
 
-        return render_template('result.html', explanation = instances)
+        return render_template('result.html', explanation = instances)"""
+        html = justification.display()
+        for figure in figures:
+            #image = markupsafe.Markup(f"<img class='inlineimg' src = {url_for('static', filename=figure + '.svg')} />")
+            html = html.replace(figure, figure[0])
+        return html
 
 if __name__ == '__main__':
-  socketio.run(app, host='127.0.0.1', port=5000)
+    print("Go to http://127.0.0.1:5000/")
+    socketio.run(app, host='127.0.0.1', port=5000)

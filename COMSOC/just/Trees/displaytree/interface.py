@@ -18,7 +18,7 @@ class DisplayTreeInterface():
 
         if self.mode == "dynamic":
             self.drawer = DrawingDynamic(self.tree)
-            self.exportDynamic(dest)
+            return self.exportDynamic(dest)
         elif self.mode == "static":
             self.drawer = DrawingStatic(self.tree)
             self.exportStatic(dest)
@@ -36,12 +36,13 @@ class DisplayTreeInterface():
         plt.clf()
 
     def exportDynamic(self, dest):
-        """Export the tree as a dynamic document located at dest."""
+        """Export the tree as a dynamic document located at dest. If dest=None, return the html instead."""
         assert self.drawer != None, "No drawer defined!"
 
-        file = open(dest, "w")
+        html = self.drawer.getContent()
 
-        fileContent = self.drawer.getContent()
-        file.write(fileContent)
+        if dest is not None:
+            with open(dest, "w") as file:
+                file.write(html)
 
-        file.close()
+        return html
