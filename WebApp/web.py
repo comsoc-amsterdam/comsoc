@@ -58,6 +58,7 @@ def handle_data():
     if shortest is None:
         return render_template('failure.html')
     else:
+        print(shortest)
         """
         instances = set()
         for instance in shortest.explanation:
@@ -68,10 +69,11 @@ def handle_data():
             instances.add(text)
 
         return render_template('result.html', explanation = instances)"""
-        html = justification.display()
+        html = shortest.display()
         for figure in figures:
             #image = markupsafe.Markup(f"<img class='inlineimg' src = {url_for('static', filename=figure + '.svg')} />")
             html = html.replace(figure, figure[0])
+        print("Tree computed...")
         return html
 
 if __name__ == '__main__':
