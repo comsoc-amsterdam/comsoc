@@ -55,7 +55,7 @@ class ASPTree():
 
         up //= 2
 
-        print("Bug here?")
+        print("ASPTree.py: Bug here? The Upper bound is fixed.")
         return 42 #up
 
     def on_model(self, model):
