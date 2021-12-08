@@ -384,6 +384,48 @@ class Neutrality(InterprofileAxiom):
         # Sutor, ne ultra crepidam (wrt a single profile and O1 and O2)
         constraints.append(":- step(neutrality(P,O1,P,O2), N1, N2), instance(neutrality(P,O1,P,O2)), profile(P), outcome(O1), outcome(O2),  node(N1), node(N2), N1 < N2, statement(N1,P,O), outcome(O), O2 != O, O1 != O, not statement(N2,P,O).")
 
+
+        # LEMMAS! 
+
+        # Creation of the Lemma's instances
+        rules.append("""instance(lemmaNeu(P)) :- profile(P), outcome(O1), outcome(O2),
+                        instance(neutrality(P,O1,P,O2)).""")
+
+        rules.append("used(P,lemmaNeu(P)) :- instance(lemmaNeu(P)), profile(P).")
+            
+        # Lemma.
+        # If no outcome O possible for P, st neut(P,O,P,O) => close branch
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if P doesn't have any possible outcome O left st neut(P,O,P,O) is in the explanation
+        rules.append("localConditionsSatisfied(lemmaNeu(P),N):- profile(P), instance(lemmaNeu(P)), node(N), #count {O : outcome(O), statement(N,P,O), instance(neutrality(P,O,P,O))} == 0.")
+
+        ### Description of consequences
+        # Using it closes the branch (no more possible outcomes for P1)
+        constraints.append(":- step(lemmaNeu(P), N1, N2), instance(lemmaNeu(P)), profile(P), node(N1), node(N2), N1 < N2, not statement(N2,P,oEmpty).")
+
+        ## Lemma 2
+
+        # Creation of the Lemma's instances
+        rules.append("instance(lemmaNeuV2(P)) :- profile(P), outcome(O1), outcome(O2), instance(neutrality(P,O1,P,O2)).")
+
+        rules.append("used(P,lemmaNeuV2(P)) :- instance(lemmaNeuV2(P)), profile(P).")
+
+        # Lemma.
+        # If only a single outcome O is possible for p, st neu(p,O,p,O) => assign O to p
+
+        ### Instance might be usable if rule-specific conditions are met
+        # Here, usable if P has a single possible outcome O st neut(P1,O,P2,O) is in the explanation
+        rules.append("localConditionsSatisfied(lemmaNeuV2(P),N):- profile(P), instance(lemmaNeuV2(P)), node(N), #count {outcome(O) : statement(N,P,O), instance(neutrality(P,O,P,O))} == 1.")
+
+        ### Description of consequences
+        # Using it assigns O to both profiles as a final outcome
+        rules.append("""onlyPossible(O,P,N) :- outcome(O), profile(P), node(N), statement(N,P,O),
+                        instance(neutrality(P,O,P,O)), #count {O1 : outcome(O1), statement(N,P,O1),
+                        instance(neutrality(P,O1,P,O1))} == 1.""")
+
+        constraints.append(":- step(lemmaNeuV2(P), N1, N2), instance(lemmaNeuV2(P)), profile(P), node(N1), node(N2), N1 < N2, outcome(O), onlyPossible(O,P,N1), statement(N2,P,O1), outcome(O1), O1 != O.")
+
         return facts, rules, constraints
 
 class NeutralityInstance(Instance):
@@ -448,17 +490,13 @@ class NeutralityInstance(Instance):
 
         for outcome in map(model.AnonymousOutcome, powerset(self._base.alternatives)):
             if outcome:
+
+                encoded_outcome = encoding.encode_outcome(outcome)
+
                 mapped_outcome = model.AnonymousOutcome(self._mapping[a] for a in outcome)
                 encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
                 
-                encoded_outcome = encoding.encode_outcome(outcome)
-
-                if len(self._profiles) == 1:
-                    if mapped_outcome != encoded_outcome:
-                        asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
-                else:
-                    encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
-                    asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+                asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
 
         
         return asp
@@ -688,7 +726,7 @@ class PositiveResponsiveness(InterprofileAxiom):
         """Return facts, rules, constraints for building the ASP tree."""
         facts, rules, constraints = [], [], []
 
-        rules.append("alwaysWinIn(N,X,P) :- node(N), profile(P), alternative(X), C1 = #count {O : statement(N, P, O), outcome(O)}, C2 = #count {O : statement(N, P, O), inOutcome(X, O), outcome(O)}, C1 = C2.")
+        rules.append("alwaysWinIn(N,X,P) :- node(N), profile(P), alternative(X), C1 = #count {outcome(O) : statement(N, P, O)}, C2 = #count {outcome(O) : statement(N, P, O), inOutcome(X, O)}, C1 == C2.")
 
         rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), alwaysWinIn(N, X, P1).")
         rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), not statement(N, P2, O).")
