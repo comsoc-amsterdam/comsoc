@@ -81,6 +81,10 @@ class Justification:
 
     def display(self, destination: str=None, strategy = "ASP", display = "dynamic", verbose = False):
         """If destination is unspecified, return it."""
+
+        if display != 'dynamic' and destination is None:
+            raise ValueError()
+
         if strategy == 'ASP':
             generator = ASPTree(self, limit = 1, verbose = verbose)
             trees = generator.getTrees()

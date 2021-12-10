@@ -8,10 +8,11 @@ from .statement import *
 class ProofTree():
     'Represent a proof tree using networkx'
 
-    def __init__(self, answerSet="", encoding=None):
+    def __init__(self, answerSet="", encoding=None, fact2instance = None):
         if answerSet != "":
             self.answerSet = answerSet
             self.encoding = encoding
+            self.fact2instance = fact2instance
         self.nodes = {}
         self.edges = {}
         self.proofTree = nx.DiGraph()
@@ -117,17 +118,17 @@ class ProofTree():
         """Extract the steps of the proof associated with each edge."""
 
         for stepAtom in [str(atom) for atom in self.answerSet if "step" in str(atom)]:
-            stepAtom = stepAtom.replace("step(","")[:-1]
-            tmp = stepAtom.replace('(', ',').replace(')', ',').replace(', ', ',').split(',')
-            src, dst = tmp[-2], tmp[-1]
+            stepAtom = stepAtom[5:-1]  # remove step(...)
+            fact = re.findall('.+\(.+\)', stepAtom)[0]  # get the fact
+            head = re.findall('[^\(]+', fact)[0]  # get fact head
+            arguments = fact[:-1].replace(head + '(', '').split(',')  # get the arguments
+            src, dst = stepAtom.replace(fact + ',', '').split(',')
 
-            instance = tmp[:-3]
-
-            head, items = instance[0], instance[1:]
+            edge = self.edges[(src, dst)]
 
             if head == 'intro':
-                instance = f"Consider profile {items[0]}: {self.encoding.decode(items[0])}"
+                step = f"Consider profile {arguments[0]}: {self.encoding.decode(arguments[0])}"
             else:
-                instance = f"{head}({','.join(map(str, map(lambda i: self.encoding.decode(i) if i[0] != 'p' else i, items)))})"
-            edge = self.edges[(src, dst)]
-            edge.linkToStep(instance)
+                step = self.fact2instance[fact].from_asp(fact, self.encoding)
+            
+            edge.linkToStep(step)

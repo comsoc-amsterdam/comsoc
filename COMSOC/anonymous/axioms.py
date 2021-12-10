@@ -6,6 +6,8 @@ from itertools import permutations, combinations
 
 from COMSOC.helpers import powerset
 
+import re
+
 ########### INTRAPROFILE AXIOMS ################
 
 class AtLeastOne(IntraprofileAxiom):
@@ -45,6 +47,10 @@ class AtLeastOneInstance(Instance):
         # Not used
         #return [f"atleastone({encoding.encode_profile(self._profile)})"]
         return []
+
+    def from_asp(self, fact : str, encoding) -> str:
+        # Not used.
+        return ""
 
     def _isEqual(self, other) -> bool:
         return self._profile == other._profile
@@ -115,7 +121,11 @@ class FaithfulnessInstance(Instance):
 
     def as_asp(self, encoding):
         outcome = model.AnonymousOutcome({self._profile.top()})
-        return [f"faithfulness({encoding.encode_profile(self._profile)}, {encoding.encode_outcome(outcome)})"]
+        return [f"faithfulness({encoding.encode_profile(self._profile)},{encoding.encode_outcome(outcome)})"]
+
+    def from_asp(self, fact : str, encoding) -> str:
+        alt = self._profile.top()
+        return f"Since {encoding.encode_profile(self._profile)} has only one voter, her favorite alternative, `{alt}`, should be the unique winner."
 
     def __str__(self):
         return f"In profile ({self._profile}) there is only one voter. Hence, their favorite alternative should win."
@@ -188,7 +198,10 @@ class ParetoInstance(Instance):
         return [[-encoding.encode(self._profile, self._dominated)]]
 
     def as_asp(self, encoding):
-        return [f"pareto({encoding.encode_profile(self._profile)}, {encoding.encode_alternative(self._dominated)})"]
+        return [f"pareto({encoding.encode_profile(self._profile)},{encoding.encode_alternative(self._dominated)})"]
+
+    def from_asp(self, fact : str, encoding) -> str:
+        return f"In profile {encoding.encode_profile(self._profile)}, alternative `{self._dominated}` is Pareto-dominated. Hence, it cannot win."
 
     def __str__(self):
         return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot win."        
@@ -252,7 +265,10 @@ class CancellationInstance(Instance):
     def as_asp(self, encoding):
         # Not used.
         full_outcome = encoding.encode_outcome(model.AnonymousOutcome(self._profile.alternatives))
-        return [f"cancellation({encoding.encode_profile(self._profile)}, {full_outcome})"]
+        return [f"cancellation({encoding.encode_profile(self._profile)},{full_outcome})"]
+
+    def from_asp(self, fact : str, encoding) -> str:
+        return f"Profile {encoding.encode_profile(self._profile)} is a perfect tie: all alternatives must win here."
 
     def __str__(self):
         return f"Profile ({self._profile}) is a perfect tie: all alternatives must win here."
@@ -386,12 +402,6 @@ class Neutrality(InterprofileAxiom):
 
 
         # LEMMAS! 
-
-        # Creation of the Lemma's instances
-        rules.append("""instance(lemmaNeu(P)) :- profile(P), outcome(O1), outcome(O2),
-                        instance(neutrality(P,O1,P,O2)).""")
-
-        rules.append("used(P,lemmaNeu(P)) :- instance(lemmaNeu(P)), profile(P).")
             
         # Lemma.
         # If no outcome O possible for P, st neut(P,O,P,O) => close branch
@@ -405,11 +415,6 @@ class Neutrality(InterprofileAxiom):
         constraints.append(":- step(lemmaNeu(P), N1, N2), instance(lemmaNeu(P)), profile(P), node(N1), node(N2), N1 < N2, not statement(N2,P,oEmpty).")
 
         ## Lemma 2
-
-        # Creation of the Lemma's instances
-        rules.append("instance(lemmaNeuV2(P)) :- profile(P), outcome(O1), outcome(O2), instance(neutrality(P,O1,P,O2)).")
-
-        rules.append("used(P,lemmaNeuV2(P)) :- instance(lemmaNeuV2(P)), profile(P).")
 
         # Lemma.
         # If only a single outcome O is possible for p, st neu(p,O,p,O) => assign O to p
@@ -496,10 +501,32 @@ class NeutralityInstance(Instance):
                 mapped_outcome = model.AnonymousOutcome(self._mapping[a] for a in outcome)
                 encoded_mapped_outcome = encoding.encode_outcome(mapped_outcome)
                 
-                asp.append(f"neutrality({base}, {encoded_outcome}, {mapped}, {encoded_mapped_outcome})")
+                asp.append(f"neutrality({base},{encoded_outcome},{mapped},{encoded_mapped_outcome})")
+
+                if len(self._profiles) == 1:  # use lemmas
+                    asp.append(f"lemmaNeu({base})")
+                    asp.append(f"lemmaNeuV2({base})")
+
 
         
         return asp
+
+    def from_asp(self, fact: str, encoding) -> str:
+
+        profiles = list(map(encoding.encode_profile, self._profiles))
+
+        if 'lemmaNeu' in fact:
+            if 'V2' in fact:
+                return f"There is only one outcome available for {profiles[0]} that would not contradict Neutrality."
+            else:
+                return f"Every outcome available for {profiles[0]} would contradict Neutrality."
+
+        outcomes = list(map(encoding.decode, re.findall('o[^,\)]+', fact)))
+
+        if len(set(profiles)) == 1:  # only one profile involved.
+            return f"If {outcomes[0]} were to win in {profiles[0]}, then Neutrality would prescribe for {outcomes[1]} to win (and viceversa). Hence, neither can be the outcome."
+        else:
+            f"By Neutrality, if {outcomes[0]} wins in {profile[0]}, then {outcomes[1]} must win in {profiles[1]} (or viceversa)."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
@@ -591,7 +618,7 @@ class PositiveResponsiveness(InterprofileAxiom):
                             # We pair each ballots (recall that we try every permutation of q_list)
                             for p_ballot, q_ballot in zip(p_list, q_list):
                                 # We don't know yet, so we check.
-                                if direction is 'unk':
+                                if direction == 'unk':
                                     # If the rank of x is lower in p than in q,
                                     # then the support of x has increased in p from q.
                                     if p_ballot.rank(x) < q_ballot.rank(x):
@@ -782,6 +809,11 @@ class PositiveResponsivenessInstance(Instance):
         alt = encoding.encode_alternative(self._alternative)
         outcome = encoding.encode_outcome(model.AnonymousOutcome({self._alternative}))
         return [f"positiveresponsiveness({base},{alt},{raised},{outcome})"]
+
+    def from_asp(self, fact: str, encoding) -> str:
+
+        base, raised = map(encoding.encode_profile, (self._base, self._raised))
+        return f"In profile {raised} alternative {self._alternative} gained support from profile {base}. Hence, if {self._alternative} wins in the latter, it must be the only winner in the former."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._alternative == other._alternative
@@ -1025,7 +1057,18 @@ class ReinforcementInstance(Instance):
     def as_asp(self, encoding):
         p1, p2 = map(encoding.encode_profile, sorted((self._part1, self._part2)))
         p = encoding.encode_profile(self._profile)
-        return [f'reinforcement({p1}, {p2}, {p})']
+        return [f'reinforcement({p1},{p2},{p})']
+
+    def from_asp(self, fact : str, encoding) -> str:
+        p1, p2 = map(encoding.encode_profile, sorted((self._part1, self._part2)))
+        p = encoding.encode_profile(self._profile)
+        if self._part1 != self._part2:
+            return f"If some alternatives win in both {p1} and {p2}, they must be the outcome of {p}."
+        else:
+            return f"Profile {p} can be obtained by duplicating {p1}. Thus their outcomes must be the same."
 
     def __str__(self):
-        return f"If some alternatives win in both ({self._part1}) and ({self._part2}), they must be the outcome of ({self._profile})."
+        if self._part1 != self._part2:
+            return f"If some alternatives win in both ({self._part1}) and ({self._part2}), they must be the outcome of ({self._profile})."
+        else:
+            return f"Profile ({self._profile}) can be obtained by duplicating ({self._part1}). Thus their outcomes must be the same."

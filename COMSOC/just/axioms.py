@@ -87,6 +87,10 @@ class AnonymousGoal(AbstractGoalConstraint):
     def as_asp(self, encoding):
         return [f"goal({encoding.encode_profile(self._profile)},{encoding.encode_outcome(self._outcome)})"]
 
+    def from_asp(self, fact : str, encoding) -> str:
+        profile = encoding.encode_profile(self._profile)
+        return f"Let us assume, for the sake of the contradiction, that {self._outcome} is NOT the outcome for {profile}."
+
 def GoalConstraint(scenario, profile, outcome):
     return {
         AnonymousScenario : AnonymousGoal

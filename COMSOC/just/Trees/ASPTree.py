@@ -32,7 +32,7 @@ class ASPTree():
         self._verbose = verbose
 
     def getTree(self, answerSet):
-        tree = ProofTree(answerSet, self.encoding)
+        tree = ProofTree(answerSet, self.encoding, self.fact2instance)
         return tree.getTreeFromAnswerSet()        
 
     def getTrees(self):
@@ -499,10 +499,13 @@ class ASPTree():
         rules = []
         constraints = []
 
+        self.fact2instance = {}
+
         # Retrieving instances, and the goal instance
         for instance in chain(self.justification.explanation, [self.justification.goal]):
             for fact in instance.as_asp(self.encoding):
                 facts.append("instance(" + fact + ").")
+                self.fact2instance[fact] = instance
                 # Identifying profiles mentionned in the instance
                 for p in re.findall("p\d+", fact):
                     facts.append("used(" + p + "," + fact +").")

@@ -71,8 +71,8 @@ def handle_data():
         return render_template('result.html', explanation = instances)"""
         html = shortest.display()
         for figure in figures:
-            #image = markupsafe.Markup(f"<img class='inlineimg' src = {url_for('static', filename=figure + '.svg')} />")
-            html = html.replace(figure, figure[0])
+            image = markupsafe.Markup(f"<img class='inlineimg' src = {url_for('static', filename=figure + '.svg')} />")
+            html = html.replace(figure, figure[0])#image)
         print("Tree computed...")
         return html
 
