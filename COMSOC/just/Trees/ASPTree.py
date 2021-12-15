@@ -36,7 +36,7 @@ class ASPTree():
         return tree.getTreeFromAnswerSet()        
 
     def getTrees(self):
-        for answerSet in self.getAnswerSets():
+        for answerSet in self.getAnswerSetsIncremental():
             yield self.getTree(answerSet)
 
     def getUpperBoundNumberNodes(self):
@@ -136,8 +136,8 @@ class ASPTree():
                 control.release_external(
                 clingo.Function("query", [clingo.Number(step - 1)])
                 )
-                parts.append(("step", [step]))
-                parts.append(("check", [step]))
+                parts.append(("step", [clingo.Number(step)]))
+                parts.append(("check", [clingo.Number(step)]))
                 control.cleanup()
                 control.ground(parts)
                 print("Grounding [step {}]..".format(step))
@@ -160,7 +160,7 @@ class ASPTree():
             step += 1
 
         #answer = control.solve(on_model=self.on_model)
-
+        
         return self.answerSets
 
     def getBaseProgram(self):
@@ -313,6 +313,8 @@ class ASPTree():
         facts = []
         rules = []
         constraints = []
+
+        rules.append("alwaysWinIn(N,X,P) :- node(N), profile(P), alternative(X), C1 = #count {outcome(O) : statement(N, P, O)}, C2 = #count {outcome(O) : statement(N, P, O), inOutcome(X, O)}, C1 == C2.")
 
         # True iff P has a single (non empty) outcome available in node N
         rules.append("outcomeFixed(P,N) :- node(N), profile(P), #count {outcome(O): outcome(O), O != oEmpty, statement(N,P,O)} = 1.")
