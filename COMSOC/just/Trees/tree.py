@@ -33,7 +33,7 @@ class ProofTree():
     def addNode(self, id):
         """Add node id to the tree"""
 
-        node = Node(id)
+        node = Node(id, self.encoding)
         self.nodes[id] = node
 
     def addStatement(self, id, statement):
@@ -90,7 +90,7 @@ class ProofTree():
         for nodeAtom in [str(atom) for atom in self.answerSet if "node" in str(atom)]:
             nodeNumber = nodeAtom.replace("node(",'')
             nodeNumber = nodeNumber.replace(")",'')
-            node = Node(nodeNumber)
+            node = Node(nodeNumber, self.encoding)
             self.nodes[nodeNumber] = node
 
     def retrieveStatementsFromAnswerSet(self):
@@ -127,8 +127,17 @@ class ProofTree():
             edge = self.edges[(src, dst)]
 
             if head == 'intro':
-                step = f"Consider profile {arguments[0]}: {self.encoding.decode(arguments[0])}"
-            else:
-                step = self.fact2instance[fact].from_asp(fact, self.encoding)
+                step = f"Consider profile {arguments[0]}: {self.encoding.decode(arguments[0])}."
+            elif head == 'branching':
+                profile, outcome, direction = arguments
+                if direction == 'left':
+                    step = f"Case: Let us assume that {self.encoding.decode(outcome)} is the outcome for {profile}."
+                else:
+                    step = f"Case: Let us assume that {self.encoding.decode(outcome)} is NOT the outcome for {profile}."
+            else:   
+                try :
+                    step = self.fact2instance[fact].from_asp(fact, self.encoding)
+                except KeyError:
+                    step = fact
             
             edge.linkToStep(step)

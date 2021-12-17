@@ -36,7 +36,7 @@ class ASPTree():
         return tree.getTreeFromAnswerSet()        
 
     def getTrees(self):
-        for answerSet in self.getAnswerSetsIncremental():
+        for answerSet in self.getAnswerSets():
             yield self.getTree(answerSet)
 
     def getUpperBoundNumberNodes(self):
@@ -123,8 +123,6 @@ class ASPTree():
         # Only retrieve limit answer sets
         control.configuration.solve.models = self.limit  # pylint: disable=no-member
 
-
-
         # The incremental (or multi-shot) solving process
         timed_out = False
         result, step = None, 0
@@ -160,8 +158,27 @@ class ASPTree():
             step += 1
 
         #answer = control.solve(on_model=self.on_model)
-        
-        return self.answerSets
+
+        """control = clingo.Control()
+        control.add("base", [], self.baseProgram)
+        control.add("step", ["t"], "node(t).")
+        control.ground([("base", [])])
+
+        # Take optimisation statement into account
+        control.configuration.solve.opt_mode = "optN"
+        # Only retrieve limit answer sets
+        control.configuration.solve.models = self.limit
+
+        for t in range(1, self.max_t +1):
+            control.ground([("step", [clingo.Number(t)])])
+
+            # Call the clingo solver, passing on the function on_model for when an answer set is found
+            answer = control.solve(on_model=self.on_model)
+
+            if answer.satisfiable == True:
+                break
+
+        return self.answerSets"""
 
     def getBaseProgram(self):
         """ Return the ASP base program, used for incremental solving."""

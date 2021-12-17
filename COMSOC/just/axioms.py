@@ -149,7 +149,7 @@ class Symmetry(DerivedAxiom):
     def getInstancesMentioning(self, profile):
 
         insts = set()
-        
+
         ballots = list(profile.uniqueBallots())
         profile_dict = profile.as_dict()
 

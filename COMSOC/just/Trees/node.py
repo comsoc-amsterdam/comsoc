@@ -3,9 +3,10 @@
 class Node():
     'Represent a node in a proof tree.'
 
-    def __init__(self, id):
+    def __init__(self, id, encoding):
         self.id = id
         self.statements = []
+        self.encoding = encoding
 
     def __hash__(self):
         return int(self.id)
@@ -48,10 +49,12 @@ class Node():
     def getLabel(self):
         """Return the string used to annotate the node when drawing it."""
 
-        label = "N" + self.id + ":\\n"
+        #label = "N" + self.id + ":\\n"
+        label = ""
 
         # Sort by length first, then by default order
         for profile in sorted(self.getMentionedProfiles(), key = lambda p : (len(p), p)):
+            label += f"{profile}: {self.encoding.decode(profile)}\\n"
             outcomes = [statement.getOutcome() for statement in self.getStatementsforProfile(profile)]
             strStatement = f"For profile {profile}, "
             if len(outcomes) == 1:
@@ -64,6 +67,6 @@ class Node():
                 outcomes = sorted(outcomes, key = lambda outcome : (len(outcome), ''.join(map(str, outcome))))
                 strStatement += "the possible outcomes are " + ', '.join(map(str, outcomes[:-1])) + f' and {outcomes[-1]}.'
 
-            label += strStatement + '\\n'
+            label += strStatement + '\\n\\n'
 
         return label
