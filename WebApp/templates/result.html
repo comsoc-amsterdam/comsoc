@@ -3,13 +3,35 @@
   <head>
     <title>Automated Justification</title>
     <link rel="stylesheet" href={{url_for('static', filename='style.css')}}/>
+      <script type="text/javascript">
+
+        class TreeNode {
+        constructor(value) {
+          this.reachedBy = ''
+          this.value = value;
+          this.descendants = [];
+          this.parent = null;
+          }
+        }
+
+        {% for node in nodes %}
+        const N{{node.id}} = new TreeNode('{{nodeLabels[node]}}');
+        {% endfor %}
+
+        {% for edge in edges %}
+        N{{edge[0].id}}.descendants.push(N{{edge[1].id}});
+        N{{edge[1].id}}.reachedBy = '{{edgeLabels[edge]}}';
+        N{{edge[1].id}}.parent = N{{edge[0].id}};
+        {% endfor %}
+
+        var curr = N{{ root.id }};
+      </script>
+      <script src="{{url_for('static', filename='result.js')}}"></script>
   </head>
   <body>
-    <h1>Justification Found</h1>
-    <ul>
-        {% for instance in explanation %}
-            <li>{{instance|safe}}</li>
-        {% endfor %}
-    </ul> 
+     <p id="content">{{nodeLabels[root]}}</p>
+     <button type="button" onClick="render_prev()">prev</button>
+          <button type="button" onClick="render_next()">next</button>
+
   </body>
 </html>
