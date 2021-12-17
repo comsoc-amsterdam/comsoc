@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Automated Justification</title>
+    <link rel="stylesheet" href={{url_for('static', filename='style.css')}}/>
+    <script type="text/javascript">
+      candidates = [];
+      {% for candidate in candidates %} candidates.push('{{candidate}}'); {% endfor %}
+    </script>
+    <script src="{{url_for('static', filename='buildprofile.js')}}"></script>
+  </head>
+  <body>
+    <h1>Build a profile</h1>
+    <button type="button" onclick="add_ballot();">add ballot</button>
+    <div id="ballots">
+    </div>
+    <button type="button" onclick="submit();">submit</button>
+  </body>
+</html>
