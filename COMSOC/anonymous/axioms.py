@@ -753,8 +753,6 @@ class PositiveResponsiveness(InterprofileAxiom):
         """Return facts, rules, constraints for building the ASP tree."""
         facts, rules, constraints = [], [], []
 
-        rules.append("alwaysWinIn(N,X,P) :- node(N), profile(P), alternative(X), C1 = #count {outcome(O) : statement(N, P, O)}, C2 = #count {outcome(O) : statement(N, P, O), inOutcome(X, O)}, C1 == C2.")
-
         rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), alwaysWinIn(N, X, P1).")
         rules.append("localConditionsSatisfied(positiveresponsiveness(P1,X,P2,O), N):- profile(P1), alternative(X), profile(P2), node(N), outcome(O), not statement(N, P2, O).")
 
@@ -1006,7 +1004,7 @@ class Reinforcement(InterprofileAxiom):
         constraints.append(":- step(reinforcement(P1,P2,P), N1, N2), instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P), node(N1), node(N2), N1 < N2, statement(N1,P2,O), outcome(O), not statement(N2,P2,O).")
 
         return facts, rules, constraints
-
+        
 class ReinforcementInstance(Instance):
 
     """Instance of the `Reinforcement` axiom."""
