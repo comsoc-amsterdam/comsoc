@@ -39,12 +39,17 @@ class AnonymousScenario(AbstractScenario):
                 else:
                     ballot = AnonymousPreference(x for x in countBallotString.split('>'))
                     count = 1
-                profile_dict[ballot] = count
+                if not ballot in profile_dict:
+                    profile_dict[ballot] = 0
+                profile_dict[ballot] += count
         else:
             profile_dict = {}
             for ballot_str, count in Counter(description.split(',')).items():
                 ballot = AnonymousPreference(x for x in ballot_str.split('>'))
-                profile_dict[ballot] = count
+                
+                if not ballot in profile_dict:
+                    profile_dict[ballot] = 0
+                profile_dict[ballot] += count
         
         return profile_dict
 
