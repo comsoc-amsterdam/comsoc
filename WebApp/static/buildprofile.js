@@ -85,5 +85,46 @@ function submit() {
       }
     }
   }
-  post('/result', {profile : profile_str});
+
+  if (profile_str == "") {
+    return;
+  }
+
+  result = {"profile" : profile_str}
+
+  all_axioms = document.getElementById("axioms").getElementsByTagName('input');
+  checked_axioms = [];
+
+  for (var i = 0; i < all_axioms.length; i++) {
+    if (all_axioms[i].checked) {
+      checked_axioms.push(all_axioms[i]);
+    }
+  }
+
+  if (checked_axioms.length <= 0) {
+    return;
+  }
+
+  for (var i = 0; i < checked_axioms.length; i++) {
+    result["axiom_" + checked_axioms[i].id] = checked_axioms[i].id
+  }
+
+  all_outcomes = document.getElementById("outcome").getElementsByTagName('input');
+  checked_outcomes = [];
+
+  for (var i = 0; i < all_outcomes.length; i++) {
+    if (all_outcomes[i].checked) {
+      checked_outcomes.push(all_outcomes[i]);
+    }
+  }
+
+  if (checked_outcomes.length <= 0) {
+    return;
+  }
+
+  for (var i = 0; i < checked_outcomes.length; i++) {
+    result["outcome_" + checked_outcomes[i].id] = checked_outcomes[i].id
+  }
+
+  post('/result', result);
 }

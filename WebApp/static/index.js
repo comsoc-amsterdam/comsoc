@@ -59,6 +59,7 @@ function remove(to_delete) {
 }
 
 function submit() {
+
   candidates = document.getElementById("candidates").getElementsByTagName('span');
 
   if (candidates.length <= 0) {
@@ -68,7 +69,7 @@ function submit() {
   result = {};
 
   for (var i = 0; i < candidates.length; i++) {
-    result[candidates[i].id] = candidates[i].id
+    result["candidate_" + candidates[i].id] = candidates[i].id
   }
 
   post('/buildprofile', result)

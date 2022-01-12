@@ -14,6 +14,20 @@
     <button type="button" onclick="add_ballot();">add ballot</button>
     <div id="ballots">
     </div>
+      Choose axioms
+      <div id="axioms">
+      {% for axiom in axioms %}
+        <input type="checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+        <label for="{{axiom}}">{{axiom}}</label><br>
+      {% endfor %}
+      </div>
+      Choose outcomes
+      <div id="outcome">
+      {% for candidate in candidates %}
+        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
+        <label for="{{candidate}}">{{candidate}}</label><br>
+      {% endfor %}
+      </div>
     <button type="button" onclick="submit();">submit</button>
   </body>
 </html>
