@@ -38,7 +38,13 @@ function add_candidate() {
 
   var new_candidate = document.getElementById("addCandidate").value;
 
-  new_node = htmlToElement("<span id=" + new_candidate + ">" + new_candidate + "<button type=\"button\" onclick=\"remove(" + new_candidate + ");\">x</button><br></span>");
+  if (new_candidate == "") {
+    return;
+  }
+
+  document.getElementById("addCandidate").value = "";
+
+  new_node = htmlToElement("<span id=" + new_candidate + "><p class=\"boxed\">" + new_candidate + "</p><button class=\"button-2\" role=\"button\" onclick=\"remove(" + new_candidate + ");\">-</button><br></span>");
 
   for (var i = 0; i < candidates.length; i++) {
     if (candidates[i].id == new_candidate) {

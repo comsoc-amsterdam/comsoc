@@ -1,74 +1,64 @@
 body {
-    margin: 5% auto;
-    width: 638px;
-    background-color: #002b36;
-    color: #93A1A1;
-    text-rendering: optimizeLegibility;
+    text-align: center;
 }
 
-.position {
-    margin: 1%;
+#input-stuff {
+    margin-bottom: 5%;
 }
 
-#increase {
-    color: #859900;
+.button-1, .button-2 {
+  background-color: #EA4C89;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
-#decrease {
-    color: #dc322f;
+#addCandidate, .boxed {
+  background-color: #79E200;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: 20%;
 }
 
-#increase, #decrease {
-    margin: 10px;
-    top: 50%;
-    -ms-transform: translateY(-40%);
-    transform: translateY(-40%);
-    font-weight: bold;
-}
-
-button {
-    background:none;
-    border:none;
-    margin:0;
-    padding:0;
-    color: #93A1A1;
-    cursor: pointer;
-    font-size: 30px;
-    text-rendering: optimizeLegibility;
-}
-
-#selectables {
-    margin: 20% auto;
-    text-align: right;
-}
-
-ul {
-    list-style: none;
-    padding: 2px;
-}
-
-ul li {
-    margin-bottom: 20px;
-}
-
-ul li:before {
-  content: ">  ";
-}
-
-.inlineimg {
-    height: 1em; 
-    width: 1em
-}
-
-img {
-    cursor: pointer;
-}
-
-button:hover {
-    text-decoration: underline;
-}
-
-.dulled {
-    opacity: 0.4;
-    filter: alpha(opacity=40); /* msie */
+.button-1:hover,
+.button-1:focus {
+  background-color: #F082AC;
 }

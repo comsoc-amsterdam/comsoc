@@ -7,11 +7,11 @@
   </head>
   <body>
     <h1>Welcome!</h1>
-      <textarea id="addCandidate" name="addCandidate" rows="1">Candidate</textarea> <button id="add" type="button" onclick="add_candidate();">Add!</button>
+      <div id="input-stuff">
+      <input id="addCandidate" type="text" placeholder="Candidate"/><button class="button-1" id="add" role="button" onclick="add_candidate();">Add</button>
+      </div>
+      <h2>Current candidates:</h2>
       <div id="candidates">
-      {% for candidate in candidates %}
-      <span id="{{candidate}}">{{candidate}}<button type="button" onclick="remove({{candidate}});">x</button></span><br>
-      {% endfor %}
       </div>
       <button id="submit" type="button" onclick="submit();">submit</button>
     </body>
