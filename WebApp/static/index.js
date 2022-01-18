@@ -30,7 +30,7 @@ function htmlToElement(html) {
 
 function add_candidate() {
 
-  candidates = document.getElementById("candidates").getElementsByTagName('span');
+  candidates = document.getElementById("candidates").getElementsByTagName('div');
 
   if (candidates.length >= 4) {
     return;
@@ -44,20 +44,35 @@ function add_candidate() {
 
   document.getElementById("addCandidate").value = "";
 
-  new_node = htmlToElement("<span id=" + new_candidate + "><p class=\"boxed\">" + new_candidate + "</p><button class=\"button-2\" role=\"button\" onclick=\"remove(" + new_candidate + ");\">-</button><br></span>");
+  new_node = htmlToElement("<div class=\"a-candidate-div\" id=" + new_candidate + "><label><span class=\"a-candidate-span\">"+ new_candidate + "</span></label><button class=\"a-candidate-button\" onclick=\"remove(" + new_candidate + ");\">x</button></div>");
+  new_node.style.opacity = 0;
+
+  var added = 0;
 
   for (var i = 0; i < candidates.length; i++) {
-    if (candidates[i].id == new_candidate) {
+    if (candidates[i].id.toLowerCase() == new_candidate.toLowerCase()) {
       return;
     }
-    if (candidates[i].id >  new_candidate) {
-
+    if (candidates[i].id.toLowerCase() > new_candidate.toLowerCase()) {
       document.getElementById("candidates").insertBefore(new_node, candidates[i]);
-      return;
+      added = 1;
+      break;
     }
   }
+  
+  if (added == 0) {
+    document.getElementById("candidates").appendChild(new_node);
+  }
 
-  document.getElementById("candidates").appendChild(new_node);
+  var steps = 0;
+    var timer = setInterval(function() {
+        steps++;
+        new_node.style.opacity = 0.05 * steps;
+        if(steps >= 20) {
+            clearInterval(timer);
+            timer = undefined;
+        }
+  }, 20);
 }
 
 function remove(to_delete) {
@@ -66,7 +81,7 @@ function remove(to_delete) {
 
 function submit() {
 
-  candidates = document.getElementById("candidates").getElementsByTagName('span');
+  candidates = document.getElementById("candidates").getElementsByTagName('div');
 
   if (candidates.length <= 0) {
     return;

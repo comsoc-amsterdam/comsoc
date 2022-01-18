@@ -6,13 +6,14 @@
     <script src="{{url_for('static', filename='index.js')}}"></script>
   </head>
   <body>
-    <h1>Welcome!</h1>
-      <div id="input-stuff">
-      <input id="addCandidate" type="text" placeholder="Candidate"/><button class="button-1" id="add" role="button" onclick="add_candidate();">Add</button>
-      </div>
-      <h2>Current candidates:</h2>
-      <div id="candidates">
-      </div>
-      <button id="submit" type="button" onclick="submit();">submit</button>
+    <h1>Add candidates</h1>
+    <label class="custom-field">
+    <input id="addCandidate" type="text" placeholder="&nbsp;"/>
+    <span class="placeholder">Candidate</span>
+    <button id="addButton" onclick="add_candidate();">Add</button>
+    </label>
+    <div id="candidates">
+    </div>
+    <button id="submit" type="button" onclick="submit();">Next</button>
     </body>
 </html>

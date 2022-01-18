@@ -1,21 +1,81 @@
 body {
-    text-align: center;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  font-size: 16px;
+  background-color: #D6D6D6;
 }
 
-#input-stuff {
-    margin-bottom: 5%;
+h1 {
+  color: #7F7E7E;
 }
 
-.button-1, .button-2 {
-  background-color: #EA4C89;
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+
+.custom-field {
+  position: relative;
+  font-size: 14px;
+  border-top: 20px solid transparent;
+  margin-bottom: 5px;
+  --field-padding: 12px;
+}
+
+.custom-field input {
+  border: none;
+  -webkit-appearance: none;
+  -ms-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: #f2f2f2;
+  padding: var(--field-padding);
+  border-radius: 3px;
+  width: 250px;
+  outline: none;
+  font-size: 14px;
+}
+
+.custom-field .placeholder {
+  position: absolute;
+  left: var(--field-padding);
+  width: calc(100% - (var(--field-padding) * 2));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  top: 22px;
+  line-height: 100%;
+  transform: translateY(-50%);
+  color: #aaa;
+  transition: 
+    top 0.3s ease,
+    color 0.3s ease,
+    font-size 0.3s ease;
+}
+
+.custom-field input.dirty + .placeholder,
+.custom-field input:focus + .placeholder,
+.custom-field input:not(:placeholder-shown) + .placeholder {
+  top: -10px;
+  font-size: 10px;
+  color: #222;
+}
+
+button {
+  white-space: break-spaces;
+}
+
+#addButton, #submit {  
   border-style: none;
   box-sizing: border-box;
   color: #FFFFFF;
   cursor: pointer;
   display: inline-block;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
   height: 40px;
   line-height: 20px;
   list-style: none;
@@ -30,35 +90,46 @@ body {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+  border-radius: 3px;
 }
 
-#addCandidate, .boxed {
-  background-color: #79E200;
-  border-style: none;
-  box-sizing: border-box;
-  color: #FFFFFF;
+#addButton {
+    background-color: #EA4C89;
+}
+
+#submit {  
+  background-color: #AA6C39;
+  margin-top: 1%;
+  margin-left: 250px;
+}
+
+#candidates {
+  margin-top: 3%;
+  width: 310px;
+  height: 160px;
+  background-color: #aaa;
+  border-radius: 7px;
+}
+
+.a-candidate-div {
+  width: 310px;
+  height: 40px;
+  background-color: #C2C2C2;
+  border: solid #aaa 0.3em;
+  border-radius: 7px;
+}
+
+.a-candidate-span {
+  float: left;
+  margin-left: 7px;
+  margin-top: 7px;
+}
+.a-candidate-button {
+  float: right;
+  margin-right: 7px;
+  border: none;
+  background-color: inherit;
+  cursor: pointer;
   display: inline-block;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  height: 40px;
-  line-height: 20px;
-  list-style: none;
-  margin: 0;
-  outline: none;
-  padding: 10px 16px;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  transition: color 100ms;
-  vertical-align: baseline;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: 20%;
-}
-
-.button-1:hover,
-.button-1:focus {
-  background-color: #F082AC;
+  margin-top: 7px;
 }

@@ -74,5 +74,5 @@ def result():
 
 if __name__ == '__main__':
     ip, port = '127.0.0.1', 5000
-    print(f"Go to http://{ip}:{port}/")
+    #print(f"Go to http://{ip}:{port}/")
     socketio.run(app, host=ip, port=port)
