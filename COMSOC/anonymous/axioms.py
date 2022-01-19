@@ -526,7 +526,7 @@ class NeutralityInstance(Instance):
         if len(set(profiles)) == 1:  # only one profile involved.
             return f"If {outcomes[0]} were to win in {profiles[0]}, then Neutrality would prescribe for {outcomes[1]} to win (and viceversa). Hence, neither can be the outcome."
         else:
-            f"By Neutrality, if {outcomes[0]} wins in {profile[0]}, then {outcomes[1]} must win in {profiles[1]} (or viceversa)."
+            f"By Neutrality, if {outcomes[0]} wins in {profiles[0]}, then {outcomes[1]} must win in {profiles[1]} (or viceversa)."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
