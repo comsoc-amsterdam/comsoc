@@ -102,7 +102,7 @@ def result():
 
     try:
         result = compute_justification.delay(profile_name, axioms, outcome_names)
-        result = result.get(timeout=30)
+        result = result.get(timeout=60)
     except TimeoutError:
         return render_template('failure.html')
 

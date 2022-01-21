@@ -2,13 +2,13 @@
 <html>
   <head>
     <title>Automated Justification</title>
-    <link rel="stylesheet" href={{url_for('static', filename='style.css')}}/>
+    <link rel="stylesheet" href={{url_for('static', filename='index.css')}}/>
     <script src="{{url_for('static', filename='index.js')}}"></script>
   </head>
   <body>
     <h1>Add candidates</h1>
     <label class="custom-field">
-    <input id="addCandidate" type="text" placeholder="&nbsp;"/>
+    <input id="addCandidate" type="text" placeholder="&nbsp;" onkeyup="if(event.keyCode===13){add_candidate();}"/>
     <span class="placeholder">Candidate</span>
     <button id="addButton" onclick="add_candidate();">Add</button>
     </label>

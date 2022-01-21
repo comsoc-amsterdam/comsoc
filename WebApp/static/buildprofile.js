@@ -28,10 +28,15 @@ function post(path, params, method='post') {
   form.submit();
 }
 
+var rank_color = {0: "#008000", 1: "#595300", 2: "#a62d00", 3: "#ff0000"}
+
 function rank(candidate_button) {
   var ballot = candidate_button.parentElement.parentElement;
   var ranked = ballot.getElementsByClassName("ranked")[0];
-  ranked.appendChild(htmlToElement("<button type=\"button\" onclick=\"derank(this);\">" + candidate_button.innerHTML + "</button>"));
+  var button = htmlToElement("<button class=\"derank-button\" type=\"button\" onclick=\"derank(this);\">" + candidate_button.innerHTML + "</button>");
+  var rank = ranked.getElementsByClassName("derank-button").length;
+  button.style.backgroundColor = rank_color[rank];
+  ranked.appendChild(button);
   candidate_button.remove();
 }
 
@@ -39,36 +44,76 @@ function derank(candidate_button) {
   var ballot = candidate_button.parentElement.parentElement;
   deranked = ballot.getElementsByClassName("deranked")[0];
   deranked_candidates = deranked.getElementsByTagName("button");
-  new_candidate = htmlToElement("<button type=\"button\" onclick=\"rank(this);\">" + candidate_button.innerHTML + "</button>");
+  new_candidate = htmlToElement("<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + candidate_button.innerHTML + "</button>");
+
+  var inserted = 0;
+
   for (var i = 0; i < deranked_candidates.length; i++) {
-    if (deranked_candidates[i].innerHTML >  candidate_button.innerHTML) {
+    if (deranked_candidates[i].innerHTML > candidate_button.innerHTML) {
       deranked.insertBefore(new_candidate, deranked_candidates[i]);
-      candidate_button.remove();
-      return;
+      inserted = 1;
+      break;
     }
   }
 
-  deranked.appendChild(new_candidate);
+  if (inserted == 0)
+    deranked.appendChild(new_candidate);
+
   candidate_button.remove();
+
+  ranked_candidates = ballot.getElementsByClassName("derank-button");
+
+  for (var i = 0; i < ranked_candidates.length; i++) {
+    ranked_candidates[i].style.backgroundColor = rank_color[i];
+  }
+}
+
+
+function decrease_count(object) {
+  var button = object.parentNode;
+  number = button.getElementsByClassName("number")[0];
+  value = parseInt(number.innerHTML);
+  if (value == 1) {
+    button.parentNode.remove();
+  }
+  else {
+    number.innerHTML = value - 1;
+  }
+}
+
+function increase_count(object) {
+  var button = object.parentNode;
+  number = button.getElementsByClassName("number")[0];
+  value = parseInt(number.innerHTML);
+  number.innerHTML = value + 1;
+}
+
+function get_number_button() {
+  button = "<div class=\"number-selector\"><span class=\"decreaser\" onclick=\"decrease_count(this);\"><</span>"
+  button += "<span class=\"number\">1</span><span class=\"increaser\" onclick=\"increase_count(this);\">></span></div>"
+  return button
 }
 
 function add_ballot() {
   ballots = document.getElementById("ballots");
-  html = "<div><input type=\"number\" value=\"1\" min=\"1\"> rank these: <span class=\"deranked\"> ";
+  html = "<div class=\"ballot\"><div class=\"candidates\"><div class=\"deranked\">";
   for (var i = 0; i < candidates.length; i++) {
-    html += "<button type=\"button\" onclick=\"rank(this);\">" + candidates[i] + "</button>";
+    html += "<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + candidates[i] + "</button>";
   }
-  html += "</span> ranked: <span class=\"ranked\"> </span> <button type=\"button\" onclick=\"this.parentNode.remove();\">remove</button></div>";
-  ballots.appendChild((htmlToElement(html)));
+  html += "</div><div class=\"ranked\"></div></div>" + get_number_button() + "</div>";
+  ballot = (htmlToElement(html));
+  button_size = ballot.getElementsByClassName("candidates")[0].getElementsByClassName("deranked")[0].style.height;
+  ballot.getElementsByClassName("candidates")[0].style.height = (candidates.length * (40 + 5*2)) + "px";
+  ballots.appendChild(ballot);
 }
 
 function submit() {
-  ballots = document.getElementById("ballots").getElementsByTagName("div");
+  ballots = document.getElementsByClassName("ballot");
   profile_str = "";
   if (ballots.length > 0) {
     for (var i = 0; i < ballots.length; i++) {
       ballot = ballots[i];
-      number = ballot.getElementsByTagName("input")[0].value;
+      number = parseInt(ballot.getElementsByClassName("number-selector")[0].getElementsByClassName("number")[0].innerHTML);
       ranked_candidates = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
       if (ranked_candidates.length < candidates.length) {
         return;

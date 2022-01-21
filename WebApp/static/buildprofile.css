@@ -1,0 +1,67 @@
+body {
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  font-size: 16px;
+  background-color: #D6D6D6;
+}
+
+h1 {
+  color: #7F7E7E;
+}
+
+.candidates {
+  display: inline-block;
+  background-color: #ccc;
+  border-radius: 3px;
+  width: 660px;
+}
+
+.number-selector {
+  margin-left: 310px;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.increaser, .decreaser {
+  cursor: pointer;
+}
+
+.deranked, .ranked {
+  width: 300px;
+  display: inline;
+}
+
+.deranked {
+  float: left;
+}
+
+.ranked {
+  float: right;
+}
+
+.rank-button, .derank-button {  
+  height: 40px;
+  width: 300px;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.rank-button {
+  background-color: grey;
+  margin-right: 20px;
+  margin-left: 10px;
+}
+
+.derank-button {
+  margin-left: -10px;
+}
+
