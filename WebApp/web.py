@@ -1,4 +1,26 @@
-#!/usr/bin/python
+### FOR MULTIPLE WORKERS... ###
+
+from celery import Celery
+from celery.exceptions import TimeoutError
+import billiard
+
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        backend=app.config['CELERY_RESULT_BACKEND'],
+        broker=app.config['CELERY_BROKER_URL']
+    )
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
+###############################
 
 from flask import Flask, request, render_template, url_for
 from flask_socketio import SocketIO
@@ -11,32 +33,25 @@ from COMSOC.problems import JustificationProblem
 from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 
 
-app = Flask(__name__)
-socketio = SocketIO(app)
+flask_app = Flask(__name__)
+flask_app.config.update(
+    CELERY_BROKER_URL='redis://localhost:6379',
+    CELERY_RESULT_BACKEND='redis://localhost:6379'
+)
+celery = make_celery(flask_app)
 
 axiom_names = sorted("Pareto, Reinforcement, Faithfulness, Neutrality, Cancellation, PositiveResponsiveness".split(', '))
 
-@app.route('/')
+@flask_app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/buildprofile', methods=["POST"])
+@flask_app.route('/buildprofile', methods=["POST"])
 def buildprofile():
     return render_template('buildprofile.html', candidates = list(request.form.values()), axioms = axiom_names)
 
-@app.route('/result', methods=["POST"])
-def result():
-    profile_name = None
-    axioms = []
-    outcome_names = set()
-
-    for key, value in request.form.items():
-        if key == "profile":
-            profile_name = value
-        elif key[:6] == "axiom_":
-            axioms.append(value)
-        elif key[:8] == "outcome_":
-            outcome_names.add(value)
+@celery.task()
+def compute_justification(profile_name, axioms, outcome_names):
 
     voters = 0
     candidates = None
@@ -65,14 +80,30 @@ def result():
             shortest = justification
         else:
             shortest = min((shortest, justification), key = lambda j : (len(j.involved_profiles), len(j)))
-            
+
     if shortest is None:
         return render_template('failure.html')
     else:
-        return shortest.display()
+        return shortest.display(verbose = True)
 
+@flask_app.route('/result', methods=["POST"])
+def result():
+    profile_name = None
+    axioms = []
+    outcome_names = []
 
-if __name__ == '__main__':
-    ip, port = '127.0.0.1', 5000
-    #print(f"Go to http://{ip}:{port}/")
-    socketio.run(app, host=ip, port=port)
+    for key, value in request.form.items():
+        if key == "profile":
+            profile_name = value
+        elif key[:6] == "axiom_":
+            axioms.append(value)
+        elif key[:8] == "outcome_":
+            outcome_names.append(value)
+
+    try:
+        result = compute_justification.delay(profile_name, axioms, outcome_names)
+        result.get(timeout=10)
+    except TimeoutError:
+        return "Timeout"
+
+    return "Done"
