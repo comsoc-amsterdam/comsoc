@@ -50,7 +50,7 @@ def index():
 def buildprofile():
     return render_template('buildprofile.html', candidates = list(request.form.values()), axioms = axiom_names)
 
-@celery.task()
+@celery.task(name='uwsgi_file_web.compute_justification')
 def compute_justification(profile_name, axioms, outcome_names):
 
     voters = 0
@@ -84,7 +84,7 @@ def compute_justification(profile_name, axioms, outcome_names):
     if shortest is None:
         return render_template('failure.html')
     else:
-        return shortest.display(verbose = True)
+        return shortest.display()
 
 @flask_app.route('/result', methods=["POST"])
 def result():
@@ -102,8 +102,8 @@ def result():
 
     try:
         result = compute_justification.delay(profile_name, axioms, outcome_names)
-        result.get(timeout=10)
+        result = result.get(timeout=30)
     except TimeoutError:
-        return "Timeout"
+        return render_template('failure.html')
 
-    return "Done"
+    return result

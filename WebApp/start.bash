@@ -1,0 +1,1 @@
+celery -A wsgi.celery worker & uwsgi --http 127.0.0.1:49162 --wsgi-file wsgi.py --callable flask_app
