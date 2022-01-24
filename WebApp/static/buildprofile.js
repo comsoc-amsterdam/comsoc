@@ -127,7 +127,7 @@ function submit() {
     for (var i = 0; i < ballots.length; i++) {
       ballot = ballots[i];
       number = ballot.getElementsByClassName("quantity")[0].value;
-      if (number < 0) {
+      if (number <= 0) {
         return;
       }
       ranked_candidates = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
