@@ -3,6 +3,7 @@
   <head>
     <title>Automated Justification</title>
     <link rel="stylesheet" href={{url_for('static', filename='buildprofile.css')}}/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
     <script type="text/javascript">
       candidates = [];
       {% for candidate in candidates %} candidates.push('{{candidate}}'); {% endfor %}
@@ -11,23 +12,25 @@
   </head>
   <body>
     <h1>Build a profile</h1>
-    <button type="button" onclick="add_ballot();">add ballot</button>
+    <div id="addButtonContainer"><button id="addBallotButton" type="button" onclick="add_ballot();">add ballot</button></div>
     <div id="ballots">
     </div>
-      Choose axioms
-      <div id="axioms">
-      {% for axiom in axioms %}
-        <input type="checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
-        <label for="{{axiom}}">{{axiom}}</label><br>
-      {% endfor %}
-      </div>
-      Choose outcomes
-      <div id="outcome">
-      {% for candidate in candidates %}
-        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
-        <label for="{{candidate}}">{{candidate}}</label><br>
-      {% endfor %}
-      </div>
-    <button type="button" onclick="submit();">submit</button>
+    <hr>
+    <h2>Choose outcomes</h2>
+    <div id="outcome">
+    {% for candidate in candidates %}
+      <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
+      <label for="{{candidate}}">{{candidate}}</label><br>
+    {% endfor %}
+    </div>
+    <hr>
+    <h2>Choose axioms</h2>
+    <div id="axioms">
+    {% for axiom in axioms %}
+      <input type="checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+      <label for="{{axiom}}">{{axiom}}</label><br>
+    {% endfor %}
+    </div>
+    <button id="submit" type="button" onclick="submit();">submit</button>
   </body>
 </html>

@@ -4,10 +4,58 @@ body {
   font-family: sans-serif;
   font-size: 16px;
   background-color: #D6D6D6;
+  margin-left: 300px;
+  margin-right: 275px;
 }
 
-h1 {
+#ballots {
+  min-height: 75px;
+}
+
+h1, h2 {
   color: #7F7E7E;
+}
+
+#outcome, #axioms {
+  margin-left: 20px;
+}
+
+#addBallotButton, #submit {  
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  margin-right: 10px;
+}
+
+#addButtonContainer {
+  text-align: right;
+}
+
+#addBallotButton {
+  background-color: #EA4C89;
+}
+
+#submit {
+  margin-top: 50px;
+  background-color: #AA6C39;
 }
 
 .candidates {
@@ -17,11 +65,85 @@ h1 {
   width: 660px;
 }
 
-.number-selector {
-  margin-left: 310px;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
+input[type="number"] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.handle-ballot, .ballot {
+  width: 660px;
+}
+
+.ballot {
+  margin-bottom: 20px;
+}
+
+#ballots {
+  margin: 0 auto;
+  width: 660px;
+}
+
+.ballot-remove {
+  border: none;
+  background-color: inherit;
+  cursor: pointer;
+  display: inline-block;
+  float: right;
+  margin-top: 2px;
+}
+
+.number-input {
+  border: 2px solid #ddd;
+  display: inline-flex;
+  float: left;
+}
+
+.number-input,
+.number-input * {
+  box-sizing: border-box;
+}
+
+.number-input button {
+  outline:none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+}
+
+.number-input button:after {
+  display: inline-block;
+  position: absolute;
+  font-family: "Font Awesome 5 Free"; 
+  font-weight: 900;
+  content: '\f077';
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+.number-input button.plus:after {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.number-input input[type=number] {
+  max-width: 2.5rem;
+  padding: .25rem;
+  border: solid #ddd;
+  border-width: 0 2px;
+  font-size: 1rem;
+  height: 1.5rem;
+  font-weight: bold;
+  text-align: center;
 }
 
 .increaser, .decreaser {
@@ -65,3 +187,15 @@ h1 {
   margin-left: -10px;
 }
 
+label {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#outcome {
+  margin-bottom: 20px;
+}
+
+#submit {
+  float: right;
+}
