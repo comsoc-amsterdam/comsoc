@@ -93,7 +93,7 @@ function get_number_button() {
   button += "<button onclick=\"this.parentNode.querySelector('input[type=number]').stepDown()\" class=\"minus\"></button>";
   button += "<input class=\"quantity\" min=\"1\" name=\"quantity\" value=\"1\" type=\"number\">";
   button += "<button onclick=\"this.parentNode.querySelector('input[type=number]').stepUp()\" class=\"plus\"></button>";
-  button += "</div>";
+  button += "</div><img src=\"https://cdn.icon-icons.com/icons2/1674/PNG/512/person_110935.png\" class=\"person-icon\"/>";
   return button;
 }
 

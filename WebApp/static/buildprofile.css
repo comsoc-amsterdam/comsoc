@@ -1,23 +1,26 @@
 body {
-  justify-content: center;
-  align-items: center;
   font-family: sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   background-color: #D6D6D6;
-  margin-left: 300px;
-  margin-right: 275px;
+  margin-left: 380px;
+  margin-right: 380px;
+  background: linear-gradient(90deg, #fefbd8 84.5%, #618685 15.5%);
 }
 
-#ballots {
-  min-height: 75px;
+html {overflow-y: scroll;}
+
+h1 {
+  margin-top: 75px;
 }
 
-h1, h2 {
+p {
+  width: 650px;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+h1, h2, h3 {
   color: #7F7E7E;
-}
-
-#outcome, #axioms {
-  margin-left: 20px;
 }
 
 #addBallotButton, #submit {  
@@ -32,7 +35,6 @@ h1, h2 {
   margin: 0;
   outline: none;
   padding: 10px 16px;
-  position: relative;
   text-align: center;
   text-decoration: none;
   transition: color 100ms;
@@ -40,29 +42,54 @@ h1, h2 {
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  border-radius: 3px;
-  margin-bottom: 20px;
-  margin-right: 10px;
-}
-
-#addButtonContainer {
-  text-align: right;
+  border-radius: 50px;
+  position: fixed;
+  width: 100px;
+  right: 45px;
 }
 
 #addBallotButton {
-  background-color: #EA4C89;
+  background-color: #36486b;
+  top: 130px;
 }
 
-#submit {
-  margin-top: 50px;
-  background-color: #AA6C39;
+#checkboxes {
+  content: "";
+  display: table;
+  clear: both;
+  width: 650px;
+}
+
+#outcome-title, #corpus-title, #outcome, #axioms {
+  float: left;
+}
+
+#outcome {
+  height: 80px;
+}
+
+#axioms {
+  height: 70px;
+}
+
+#outcome, #outcome-title, #axioms {
+  width: 32%;
+}
+
+#axioms {
+  column-count: 2;
+  column-fill: auto;
+  width: 66%;
+  height: ;
+}
+
+#corpus-title {
+  width: 66%;
 }
 
 .candidates {
   display: inline-block;
-  background-color: #ccc;
-  border-radius: 3px;
-  width: 660px;
+  width: 650px;
 }
 
 input[type="number"] {
@@ -77,16 +104,17 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .handle-ballot, .ballot {
-  width: 660px;
+  width: 650px;
 }
 
 .ballot {
   margin-bottom: 20px;
+  position: relative;
 }
 
 #ballots {
   margin: 0 auto;
-  width: 660px;
+  width: 650px;
 }
 
 .ballot-remove {
@@ -179,12 +207,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .rank-button {
   background-color: grey;
-  margin-right: 20px;
-  margin-left: 10px;
-}
-
-.derank-button {
-  margin-left: -10px;
+  margin-right: 100px;
 }
 
 label {
@@ -197,5 +220,14 @@ label {
 }
 
 #submit {
-  float: right;
+  bottom: 130px;
+  background-color: #4040a1;
+}
+
+.person-icon {
+  left: -5%;
+  position: absolute;
+  top: -6.5%;
+  transform: translate(-50%, 0.75rem);
+  width: 35px;
 }

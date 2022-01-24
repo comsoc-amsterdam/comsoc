@@ -12,25 +12,34 @@
   </head>
   <body>
     <h1>Build a profile</h1>
-    <div id="addButtonContainer"><button id="addBallotButton" type="button" onclick="add_ballot();">add ballot</button></div>
-    <div id="ballots">
+    <p>Insert the preferences of the voters. To add a new ballot, click on "Add ballot". Click on the alternatives on the left to rank them; you can click on an already-ranked alternative to remove it. The number on the topleft of a ballot indicates the number of voters expressing that ballot.</p>
+    <button id="addBallotButton" type="button" onclick="add_ballot();">add ballot</button>
+
+    <div id="checkboxes">
+    <div id="titles">
+      <h3 id="outcome-title">Choose outcome:</h3>
+      <h3 id="corpus-title">Choose corpus:</h3>
+      <span class="empty"/>
     </div>
-    <hr>
-    <h2>Choose outcomes</h2>
     <div id="outcome">
     {% for candidate in candidates %}
       <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
       <label for="{{candidate}}">{{candidate}}</label><br>
     {% endfor %}
     </div>
-    <hr>
-    <h2>Choose axioms</h2>
     <div id="axioms">
     {% for axiom in axioms %}
-      <input type="checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+      <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
       <label for="{{axiom}}">{{axiom}}</label><br>
     {% endfor %}
     </div>
+    </div>
+
+
+
+    <div id="ballots">
+    </div>
+
     <button id="submit" type="button" onclick="submit();">submit</button>
   </body>
 </html>
