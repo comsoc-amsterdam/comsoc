@@ -127,7 +127,7 @@ class ProofTree():
             edge = self.edges[(src, dst)]
 
             if head == 'intro':
-                step = f"Consider profile {arguments[0]}: {self.encoding.decode(arguments[0])}."
+                step = f"Consider profile {arguments[0]}:\n{self.encoding.decode(arguments[0])}"
             elif head == 'branching':
                 profile, outcome, direction = arguments
                 if direction == 'left':

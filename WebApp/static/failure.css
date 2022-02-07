@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+  font-size: 70%;
+  background-color: #fefbd8;
+  margin-left: 26%;
+  margin-right: 26%;
+}
+
+
+h1 {
+  margin-top: 11.5%;
+}
+
+p {
+  width: 100%;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+h1, h2, h3 {
+  color: #7F7E7E;
+}

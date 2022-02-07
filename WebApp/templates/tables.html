@@ -1,0 +1,36 @@
+<table>
+<tr>
+  <th class="hidden-cell"></th>
+  {% for outcome in pretty_outcomes %}
+  <th>{{outcome | safe}}</th>
+  {% endfor %}
+</tr>
+{% for profile in all_profiles %}
+  {% if profile in current_profiles %}
+    <tr {% if profile in contradictions %} style="color: red" {% endif %}>
+      <td class="profile-cell">
+        <div class="tooltip">
+        {{profile}}
+        <div class="tooltiptext">
+          <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
+        </div> 
+      </div>
+      </td>
+      {% for outcome in all_outcomes %}
+        {% if outcome in outcomes[profile] %}
+        <td style="color: green;">&#10004;</td>
+        {% else %}
+        <td style="color: red;">&#10007;</td>
+          {% endif %}
+        {% endfor %}
+    </tr>
+  {% else %}
+    <tr>
+    <td class="profile-cell"><span class="unused-profile">{{profile}}</span></td>
+    {% for outcome in all_outcomes %}
+      <td></td>
+    {% endfor %}
+    </tr>
+  {% endif %}
+{% endfor %}
+</table>

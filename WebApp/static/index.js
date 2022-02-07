@@ -21,6 +21,11 @@ function post(path, params, method='post') {
   form.submit();
 }
 
+function handle_keypress() {
+  if(document.getElementById("addCandidate").value === "") submit();
+  else add_candidate();
+}
+
 function htmlToElement(html) {
     var template = document.createElement('template');
     html = html.trim(); // Never return a text node of whitespace as the result

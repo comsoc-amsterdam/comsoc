@@ -83,19 +83,19 @@ class Justification:
         if strategy == 'ASP':
             generator = ASPTree(self, limit = 1, verbose = verbose)
             trees = generator.getTrees()
+            return trees, generator.encoding
         else:
             raise NotImplementedError("Display strategy not implemented.")
-
-        return trees
 
     def display(self, destination: str=None, strategy = "ASP", display = "dynamic", verbose = False):
         """If destination is unspecified, return it."""
 
-        if display != 'dynamic' and destination is None:
+        if not display in ['dynamic', 'website'] and destination is None:
             raise ValueError()
 
-        for tree in self.getTrees(strategy, verbose):
-            display = DisplayTreeInterface(tree, display)
+        trees, encoding = self.getTrees(strategy, verbose)
+        for tree in trees:
+            display = DisplayTreeInterface(tree, encoding, display)
             if destination is None:
                 return display.exportTree(None)
             else:

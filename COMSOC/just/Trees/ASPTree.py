@@ -2,13 +2,14 @@ import clingo
 from .tree import ProofTree
 import re
 from itertools import chain
+from COMSOC.voting.encodings import ASPEncodingHandler
 
 class ASPTree():
     'Encode a justification as an ASP program'
 
     def __init__(self, justification, limit = 0, verbose = False):
         self.justification = justification
-        self.encoding = self.justification.scenario.ASPencoding
+        self.encoding = ASPEncodingHandler()
 
         self.baseProgram = self.getBaseProgram()
         self.stepProgram = self.getStepProgram()

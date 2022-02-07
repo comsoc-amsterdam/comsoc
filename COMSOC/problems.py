@@ -83,18 +83,25 @@ class DecisionProblem(AbstractProblem):
             if self.is_sub_problem(other) and other.hasSolution():
                 return other.solve()
 
+    def _apply_strategy(self, strategy: str, kwargs: dict):
+        if strategy == 'ignore':
+                return True
+        elif strategy == 'from_folder':
+            result = self._check_from_folder(kwargs['nb_folder'])
+            if result is not None:
+                return result
+
+        return None
+
     def _get_solution(self, strategies: List[str], kwargs: dict):
         for strat in strategies:
-            if strat == 'ignore':
-                return True
-            elif strat == 'from_folder':
-                result = self._check_from_folder(kwargs['nb_folder'])
-                if result is not None:
-                    return result
-            else:
-                reasoner = self._get_reasoner(strategies)
-                if reasoner is not None:
-                    return self._apply_reasoner(reasoner)
+            result = self._apply_strategy(strat, kwargs)
+            if result is not None:
+                return result
+
+            reasoner = self._get_reasoner(strategies)
+            if reasoner is not None:
+                return self._apply_reasoner(reasoner)
 
         raise NotImplementedError("No strategy worked", strategies)
 
@@ -130,8 +137,21 @@ class CheckAxioms(DecisionProblem):
 
     """Problem: Check if a set of axioms is consistent."""
 
+    def _known_faults(self):
+        scenario = getScenario(self._axioms)
+        names = set(map(str, self._axioms))
+        return scenario.nVoters < 3 or ("Condorcet" not in names) or ("Reinforcement" not in names)
+        
     def _apply_reasoner(self, reasoner):
         return reasoner.checkAxioms(self._axioms)
+
+    def _apply_strategy(self, strategy: str, kwargs: dict):
+        if strategy == 'known_faults':
+            result = self._known_faults()
+            return result
+        else:
+            return super()._apply_strategy(strategy, kwargs)
+
 
 class FindRule(DecisionProblem):
 

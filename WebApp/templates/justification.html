@@ -1,0 +1,217 @@
+<style type="text/css">
+
+    button {  
+      border-style: none;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: inline-block;
+      height: 3.5vw;
+      line-height: 3.5%;
+      list-style: none;
+      margin: 0;
+      outline: none;
+      text-decoration: none;
+      transition: color 100ms;
+      vertical-align: baseline;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      border-radius: 50px;
+      position: fixed;
+      width: 7vw;
+      right: 3.5%;
+      font-size: 1vw;
+    }
+
+    #prev {
+        background-color: #36486b;
+        top: 20.5%;
+    }
+
+    #next {
+        bottom: 20.5%;
+        background-color: #4040a1;
+    }
+
+    body {
+      font-family: sans-serif;
+      background-color: #D6D6D6;
+      background: linear-gradient(90deg, #fefbd8 84.5%, #618685 15.5%);
+    }
+
+    table {
+      font-family: Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      font-size: 75%;
+    }
+
+    table td, table th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    table tr:nth-child(even){background-color: #f2f2f2;}
+
+    table tr:hover {background-color: #ddd;}
+
+    table th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      background-color: #04AA6D;
+      color: white;
+    }    
+
+    th, td {
+        text-align: center;
+    }
+
+    .hidden-cell {
+        visibility: hidden;
+        border: none;
+    }
+
+    .unused-profile {
+        opacity: 0.5;
+    }
+
+    .profile-cell {
+        background-color: #fefbd8;
+        border: none;
+    }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+
+  .tooltiptext {
+    width: max-content; 
+    max-width: 600px;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    /* Position the tooltip */
+    position: absolute;
+    display: block;
+    z-index: 1;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+  .tooltipcontent {
+    margin: 5px;
+  }
+  
+  #description{
+    font-size: 16px;
+    text-align: justify;
+    text-justify: inter-word;
+    left: 7%;
+    width: 30%;
+    top: 15%;
+    position: fixed;
+  }
+
+    #image, #outcomes-table {
+        position: fixed;
+    }
+
+    #outcomes-table {
+        top: 40%;
+    }
+
+    #image {
+        bottom: 9.75%;
+        left: 50%;
+        transform: translate(-50%, 0);
+    }
+</style>
+
+<script type="text/javascript">
+  var pngs = {};
+  var labels = {};
+  var outcomes = {};
+  var profiles = {};
+  var tables = {};
+  {% for node in nodes %}
+    pngs.{{node}} = "{{pngs[node]}}";
+    labels.{{node}} = "{{labels[node]|safe}}";
+    tables.{{node}} = "{{tables[node]|safe}}";
+    outcomes.{{node}} = {};
+    profiles.{{node}} = [];
+    {% for profile in profiles[node] %}
+        profiles["{{node}}"].push("{{profile}}")
+        outcomes["{{node}}"]["{{profile}}"] = [];
+        {% for outcome in outcomes[node][profile] %}
+            outcomes["{{node}}"]["{{profile}}"].push("{{outcome}}");
+        {% endfor %}
+    {% endfor %}
+  {% endfor %}
+  var current = 1;
+  var max = {{len_nodes}};
+  var min = 1;
+</script>
+
+<p id="description">{{labels[nodes[0]]}}</p>
+
+<div id="outcomes-table"></div>
+
+<script type="text/javascript">document.getElementById("outcomes-table").innerHTML = tables["{{nodes[0]}}"];</script>
+
+<div id="image">
+    <img src="data:image/png;base64,{{pngs[nodes[0]]}}", usemap="#G"/>
+    {{map | safe}}    
+</div>
+
+<button onclick="prev();" id="prev">back</button>
+<button onclick="next();" id="next">next</button>
+
+<script type="text/javascript">
+
+function change_image(node) {
+    document.getElementById("image").getElementsByTagName("img")[0].src = "data:image/png;base64," + pngs[node];
+    document.getElementById("description").innerHTML = labels[node];
+
+    document.getElementById("outcomes-table").innerHTML = tables[node];
+}
+
+function click_node(event, id) {
+    event.preventDefault();
+
+    var node = "N" + id.slice(-1);
+    change_image(node);
+    current = parseInt(id.slice(-1));
+}
+
+var areas = document.getElementsByTagName('area');
+for (var i = 0; i < areas.length; i++) {
+    areas[i].setAttribute('onclick', 'click_node(event, \"' + areas[i].id + '\");')
+}
+
+function next() {
+    if (current < max) {
+        current = current + 1;
+        var node = "N" + current;
+        change_image(node);
+    }
+}
+
+function prev() {
+    if (current > min) {
+        current = current - 1;
+        var node = "N" + current;
+        change_image(node);
+    }
+}
+
+</script>

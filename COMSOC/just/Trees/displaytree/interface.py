@@ -1,5 +1,6 @@
 from .drawingstatic import *
 from .drawingdynamic import *
+from .drawingwebsite import *
 
 import matplotlib.pyplot as plt
 
@@ -8,10 +9,11 @@ import sys
 class DisplayTreeInterface():
     'Interface class used to handle the display of a proof tree'
 
-    def __init__(self, tree, mode="static"):
+    def __init__(self, tree, encoding, mode="static"):
         self.tree = tree
         self.drawer = None
         self.mode = mode
+        self.encoding = encoding
 
     def exportTree(self, dest):
         "Export the tree to a file located at dest."
@@ -25,6 +27,9 @@ class DisplayTreeInterface():
         elif self.mode == "static":
             self.drawer = DrawingStatic(self.tree)
             self.exportStatic(dest)
+        elif self.mode == "website":
+            self.drawer = DrawingWebsite(self.tree, self.encoding)
+            return self.drawer.drawTree()
         else:
             sys.exit("Drawing mode unknown!")
 

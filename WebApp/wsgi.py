@@ -23,10 +23,11 @@ def make_celery(app):
 ###############################
 
 from flask import Flask, request, render_template, url_for
-from flask_socketio import SocketIO
 
 import sys
 sys.path.append("..") 
+
+import re
 
 import COMSOC.anonymous as theory
 from COMSOC.problems import JustificationProblem
@@ -40,7 +41,7 @@ flask_app.config.update(
 )
 celery = make_celery(flask_app)
 
-axiom_names = sorted("Pareto, Reinforcement, Faithfulness, Neutrality, Cancellation, PositiveResponsiveness".split(', '))
+axiom_names = sorted("Pareto, Reinforcement, Faithfulness, Neutrality, Cancellation, PositiveResponsiveness, Condorcet".split(', '))
 
 @flask_app.route('/')
 def index():
@@ -49,6 +50,38 @@ def index():
 @flask_app.route('/buildprofile', methods=["POST"])
 def buildprofile():
     return render_template('buildprofile.html', candidates = list(request.form.values()), axioms = axiom_names)
+
+def make_tables(nodes, all_outcomes, profiles, profile_texts, outcomes):
+    tables = {}
+    pretty_outcomes = []
+    for outcome in all_outcomes:
+        pretty_outcomes.append(str(outcome).replace('{', '').replace('}', '').replace(', ', '<br>'))
+
+    pretty_profiles = {}
+    for node in nodes:
+        for p in profiles[node]:
+            if p not in pretty_profiles:
+                pretty_profiles[p] = prettify_label(profile_texts[p])
+
+    all_profiles = sorted(pretty_profiles.keys())
+
+    for node in nodes:
+        contradictions = {profile for profile in profiles[node] if "{}" in outcomes[node][profile]}
+        tables[node] = latexify(render_template("tables.html", all_outcomes=all_outcomes,\
+            current_profiles=profiles[node], node=node, outcomes=outcomes[node], contradictions=contradictions,\
+            pretty_outcomes=pretty_outcomes, pretty_profiles=pretty_profiles,\
+            all_profiles = all_profiles).replace('\n', '   ').replace("\"", "\\\""))
+    return tables
+
+def latexify(text):
+    for profile in re.findall('p\d+', text):
+        text = text.replace(profile, f'R<sub>{profile[1:]}</sub>')
+    return text
+
+def prettify_label(text):
+    text = text.replace('>',' ≻ ').replace('\n', '<br>').replace(', #', '<br>#')
+    text = re.sub(r"#(\d+):", r"#\1: ", text)
+    return latexify(text)
 
 @celery.task(name='uwsgi_file_web.compute_justification')
 def compute_justification(profile_name, axioms, outcome_names):
@@ -73,7 +106,7 @@ def compute_justification(profile_name, axioms, outcome_names):
                                                       QuasiTiedLoser(scenario)}
 
     shortest = None
-    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "ignore"], depth = 3, heuristics = True, maximum = 100, \
+    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = 5, \
                                       derivedAxioms = derived, nb_folder = '../knownbases'):
         
         if shortest is None:
@@ -84,7 +117,17 @@ def compute_justification(profile_name, axioms, outcome_names):
     if shortest is None:
         return render_template('failure.html')
     else:
-        return shortest.display()
+        print(shortest)
+        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes = shortest.display(display = 'website')
+        all_outcomes = sorted(scenario.outcomes, key = lambda out: (len(out), str(out)))
+        tables = make_tables(sorted_nodes, all_outcomes, profiles, profile_texts, outcomes)
+
+        for key, value in labels.items():
+            labels[key] = prettify_label(value)
+
+        return render_template('justification.html', len_nodes = len(sorted_nodes), outcomes=outcomes,\
+            labels=labels, profiles=profiles, nodes=sorted_nodes, pngs=pngs,\
+            map=cmap, all_outcomes=all_outcomes, tables=tables)
 
 @flask_app.route('/result', methods=["POST"])
 def result():
