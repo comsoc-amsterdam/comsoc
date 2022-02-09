@@ -1,7 +1,7 @@
 import argparse
 import atexit
 import copy
-import multiprocessing
+import billiard as multiprocessing
 import os
 import select
 import signal
