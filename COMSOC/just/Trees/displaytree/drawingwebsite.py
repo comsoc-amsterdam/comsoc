@@ -5,9 +5,10 @@ import networkx as nx
 class DrawingWebsite():
     'Handle the drawing of a proof tree as dynamic document.'
 
-    def __init__(self, tree, encoding):
+    def __init__(self, tree, justification, encoding):
         self.tree = tree
         self.encoding = encoding
+        self.justification = justification
 
     def drawTree(self):
         """Return the content of a file necessary to draw the proof tree."""
@@ -59,9 +60,10 @@ class DrawingWebsite():
             g.node(n.id, style="solid")
         
         sorted_nodes = list(nx.topological_sort(self.tree))
-        labels[sorted_nodes[0]] = "We are going to prove our goal by contradiction. That is, we will show that, if we assume that the target outcome does not win in the given profile, we will reach a contradiction (i.e., we will have a profile with no possible outcomes)."
+        o, p = self.justification.outcome, self.encoding.encode_profile(self.justification.profile)
+        labels[sorted_nodes[0]] = f"We are going to prove our goal by contradiction. That is, we will show that, if we assume that {o} is not the outcome for {p}, we will reach a contradiction (i.e., we will have a profile with no possible outcomes). For each profile involved in the justification, in the table below, we show the possible outcomes."
         labels[sorted_nodes[-1]] += " Contradiction!"
 
         cmap = g.pipe(format = 'cmapx').decode('utf-8')
 
-        return pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes
+        return pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, p

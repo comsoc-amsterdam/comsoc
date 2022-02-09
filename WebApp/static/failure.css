@@ -15,6 +15,7 @@ p {
   width: 100%;
   text-align: justify;
   text-justify: inter-word;
+  font-size: 15px;
 }
 
 h1, h2, h3 {

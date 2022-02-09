@@ -9,11 +9,12 @@ import sys
 class DisplayTreeInterface():
     'Interface class used to handle the display of a proof tree'
 
-    def __init__(self, tree, encoding, mode="static"):
+    def __init__(self, tree, justification, encoding, mode="static"):
         self.tree = tree
         self.drawer = None
         self.mode = mode
         self.encoding = encoding
+        self.justification = justification
 
     def exportTree(self, dest):
         "Export the tree to a file located at dest."
@@ -28,7 +29,7 @@ class DisplayTreeInterface():
             self.drawer = DrawingStatic(self.tree)
             self.exportStatic(dest)
         elif self.mode == "website":
-            self.drawer = DrawingWebsite(self.tree, self.encoding)
+            self.drawer = DrawingWebsite(self.tree, self.justification, self.encoding)
             return self.drawer.drawTree()
         else:
             sys.exit("Drawing mode unknown!")

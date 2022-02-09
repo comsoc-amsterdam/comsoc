@@ -95,7 +95,7 @@ class Justification:
 
         trees, encoding = self.getTrees(strategy, verbose)
         for tree in trees:
-            display = DisplayTreeInterface(tree, encoding, display)
+            display = DisplayTreeInterface(tree, self, encoding, display)
             if destination is None:
                 return display.exportTree(None)
             else:

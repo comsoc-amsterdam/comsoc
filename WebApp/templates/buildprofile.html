@@ -11,35 +11,14 @@
     <script src="{{url_for('static', filename='buildprofile.js')}}"></script>
   </head>
   <body>
-    <h1>Build a profile</h1>
-    <p>Insert the preferences of the voters. To add a new ballot, click on "Add ballot". Click on the alternatives on the left to rank them; you can click on an already-ranked alternative to remove it. The number on the topleft of a ballot indicates the number of voters expressing that ballot.</p>
-    <button id="addBallotButton" type="button" onclick="add_ballot();">add ballot</button>
-
-    <div id="checkboxes">
-    <div id="titles">
-      <h3 id="outcome-title">Choose outcome:</h3>
-      <h3 id="corpus-title">Choose corpus:</h3>
-      <span class="empty"/>
-    </div>
-    <div id="outcome">
-    {% for candidate in candidates %}
-      <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
-      <label for="{{candidate}}">{{candidate}}</label><br>
-    {% endfor %}
-    </div>
-    <div id="axioms">
-    {% for axiom in axioms %}
-      <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
-      <label for="{{axiom}}">{{axiom}}</label><br>
-    {% endfor %}
-    </div>
-    </div>
-
-
+    <h1>Automated Justification</h1>
+    <h2>Build a profile</h2>
+    <p>Insert the preferences of the voters. To add a new ballot, click on "Add voter preference". Click on the alternatives on the left to rank them; you can click on an already-ranked alternative to remove it. The number on the topleft of a ballot indicates the number of voters expressing that ballot.</p>
+    <button id="addBallotButton" type="button" onclick="add_ballot();">Add voter<br>preference</button>
 
     <div id="ballots">
     </div>
 
-    <button id="submit" type="button" onclick="submit();">submit</button>
+    <button id="submit" type="button" onclick="submit();">Next</button>
   </body>
 </html>

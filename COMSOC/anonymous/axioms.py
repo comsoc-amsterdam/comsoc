@@ -125,7 +125,7 @@ class FaithfulnessInstance(Instance):
         return [f"faithfulness({encoding.encode_profile(self._profile)},{encoding.encode_outcome(outcome)})"]
 
     def from_asp(self, fact : str, encoding) -> str:
-        return f"Since {encoding.encode_profile(self._profile)} has only one voter, her favorite alternative, {self._winner}, should be the unique winner."
+        return f"Since {encoding.encode_profile(self._profile)} has only one voter, by Faithfulness, her favorite alternative, {self._winner}, should be the unique winner."
 
     def __str__(self):
         return f"In profile ({self._profile}) there is only one voter. Hence, their favorite alternative should win."
@@ -267,7 +267,7 @@ class CancellationInstance(Instance):
         return [f"cancellation({encoding.encode_profile(self._profile)},{full_outcome})"]
 
     def from_asp(self, fact : str, encoding) -> str:
-        return f"Profile {encoding.encode_profile(self._profile)} is a perfect tie: all alternatives must win here."
+        return f"Profile {encoding.encode_profile(self._profile)} is a perfect tie: by Cancellation, all alternatives must win here."
 
     def __str__(self):
         return f"Profile ({self._profile}) is a perfect tie: all alternatives must win here."
@@ -332,10 +332,10 @@ class CondorcetInstance(Instance):
         return [f"condorcet({encoding.encode_profile(self._profile)},{outcome})"]
 
     def from_asp(self, fact : str, encoding) -> str:
-        return f"Alternative {self._winner} is the Condorcet winner of Profile {encoding.encode_profile(self._profile)}. Hence, it must be the unique winner."
+        return f"Alternative {self._winner} is the Condorcet winner of profile {encoding.encode_profile(self._profile)}. Hence, it must be the unique winner."
 
     def __str__(self):
-        return f"Alternative {self._winner} is the Condorcet winner of Profile {self._profile}. Hence, it must be the unique winner."
+        return f"Alternative {self._winner} is the Condorcet winner of profile {self._profile}. Hence, it must be the unique winner."
 
 ########### INTERPROFILE AXIOMS ################
 
@@ -878,7 +878,7 @@ class PositiveResponsivenessInstance(Instance):
     def from_asp(self, fact: str, encoding) -> str:
 
         base, raised = map(encoding.encode_profile, (self._base, self._raised))
-        return f"In profile {raised} alternative {self._alternative} gained support from profile {base}. Hence, if {self._alternative} is a (tied) winner in the latter, it must be the only winner in the former."
+        return f"In profile {raised} alternative {self._alternative} gained support from profile {base}. Hence, by Responsiveness, if {self._alternative} is a (tied) winner in the latter, it must be the only winner in the former."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._alternative == other._alternative
@@ -1128,9 +1128,9 @@ class ReinforcementInstance(Instance):
         p1, p2 = map(encoding.encode_profile, sorted((self._part1, self._part2)))
         p = encoding.encode_profile(self._profile)
         if self._part1 != self._part2:
-            return f"Notice that, if we merge profiles {p1} and {p2}, we obtain {p}. Hence, the alternatives that win both under {p1} and {p2} must be the winners of {p}."
+            return f"Notice that, if we merge profiles {p1} and {p2}, we obtain {p}. Hence, by Reinforcement, the alternatives that win both under {p1} and {p2} must be the winners of {p}."
         else:
-            return f"Profile {p} can be obtained by duplicating {p1}. Thus, their outcomes must be the same."
+            return f"Profile {p} can be obtained by duplicating {p1}. Thus, by Reinforcement, their outcomes must be the same."
 
     def __str__(self):
         if self._part1 != self._part2:

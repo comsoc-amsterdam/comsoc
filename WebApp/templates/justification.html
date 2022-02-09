@@ -1,16 +1,40 @@
 <style type="text/css">
 
+    body {
+      font-family: sans-serif;
+      font-size: 70%;
+      background-color: #D6D6D6;
+      margin-left: 26%;
+      margin-right: 26%;
+      background: linear-gradient(90deg, #fefbd8 84.5%, #618685 15.5%);
+    }
+    h1 {
+      margin-top: 11.5%;
+    }
+
+    h1, h2, h3 {
+      color: #7F7E7E;
+    }
+
+    #description {
+      width: 100%;
+      text-align: justify;
+      text-justify: inter-word;
+      font-size: 15px;
+      min-height: 150px;
+    }
+
     button {  
-      border-style: none;
+        border-style: none;
       box-sizing: border-box;
       color: #FFFFFF;
       cursor: pointer;
       display: inline-block;
-      height: 3.5vw;
-      line-height: 3.5%;
+      height: 4vw;
       list-style: none;
       margin: 0;
       outline: none;
+      text-align: center;
       text-decoration: none;
       transition: color 100ms;
       vertical-align: baseline;
@@ -19,31 +43,26 @@
       touch-action: manipulation;
       border-radius: 50px;
       position: fixed;
-      width: 7vw;
-      right: 3.5%;
+      width: 9vw;
+      right: 3%;
       font-size: 1vw;
     }
 
     #prev {
         background-color: #36486b;
-        top: 20.5%;
+        top: 15%;
     }
 
     #next {
-        bottom: 20.5%;
+        bottom: 15%;
         background-color: #4040a1;
     }
 
-    body {
-      font-family: sans-serif;
-      background-color: #D6D6D6;
-      background: linear-gradient(90deg, #fefbd8 84.5%, #618685 15.5%);
-    }
-
     table {
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: sans-serif;
       border-collapse: collapse;
       font-size: 75%;
+      width: 100%;
     }
 
     table td, table th {
@@ -58,7 +77,7 @@
     table th {
       padding-top: 12px;
       padding-bottom: 12px;
-      background-color: #04AA6D;
+      background-color: #36486b;
       color: white;
     }    
 
@@ -78,6 +97,7 @@
     .profile-cell {
         background-color: #fefbd8;
         border: none;
+        cursor: default;
     }
 
   .tooltip {
@@ -93,41 +113,43 @@
   
   .tooltip .tooltiptext {
     visibility: hidden;
-    background-color: black;
+    opacity: 0;
+    background-color: #618685;
     color: #fff;
     text-align: center;
     border-radius: 6px;
-    padding: 5px 0;
     /* Position the tooltip */
+    transition: opacity 0.3s ease-in-out;
     position: absolute;
     display: block;
     z-index: 1;
+    left: 110%;
+    top: 110%;
   }
   
   .tooltip:hover .tooltiptext {
     visibility: visible;
+    opacity: 1;
   }
 
   .tooltipcontent {
-    margin: 5px;
-  }
-  
-  #description{
-    font-size: 16px;
-    text-align: justify;
-    text-justify: inter-word;
-    left: 7%;
-    width: 30%;
-    top: 15%;
-    position: fixed;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
-    #image, #outcomes-table {
+    #image {
         position: fixed;
     }
 
     #outcomes-table {
-        top: 40%;
+        width: 106%;
+        margin-left: -37px;
+        overflow: hidden;
+        height: 225px;
+    }
+
+    #outcomes-table:hover {
+        overflow-x: auto;
     }
 
     #image {
@@ -162,7 +184,9 @@
   var min = 1;
 </script>
 
-<p id="description">{{labels[nodes[0]]}}</p>
+<h1>Automated Justification</h1>
+
+<p id="description">{{labels[nodes[0]]|safe}}</p>
 
 <div id="outcomes-table"></div>
 
@@ -173,8 +197,8 @@
     {{map | safe}}    
 </div>
 
-<button onclick="prev();" id="prev">back</button>
-<button onclick="next();" id="next">next</button>
+<button onclick="prev();" id="prev">Previous step</button>
+<button onclick="next();" id="next">Next step</button>
 
 <script type="text/javascript">
 

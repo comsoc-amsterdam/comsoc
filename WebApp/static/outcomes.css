@@ -1,0 +1,127 @@
+body {
+  font-family: sans-serif;
+  font-size: 70%;
+  background-color: #D6D6D6;
+  margin-left: 26%;
+  margin-right: 26%;
+  background: linear-gradient(90deg, #fefbd8 84.5%, #618685 15.5%);
+}
+
+h1 {
+  margin-top: 11.5%;
+}
+
+
+h1, h2, h3 {
+  color: #7F7E7E;
+}
+
+#submit {
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  height: 4vw;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  border-radius: 50px;
+  position: fixed;
+  width: 9vw;
+  right: 3%;
+  font-size: 1vw;
+  bottom: 15%;
+  background-color: #4040a1;
+}
+
+.candidates {
+  display: inline-block;
+  width: 100%;
+}
+
+label {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#outcome {
+  margin-bottom: 3.5%;
+}
+
+#checkboxes {
+  content: "";
+  display: table;
+  clear: both;
+  width: 100%;
+}
+
+#outcome-title, #corpus-title, #outcome, #axioms {
+  float: left;
+}
+
+#outcome {
+  height: 80px;
+}
+
+#axioms {
+  height: 80px;
+}
+
+#outcome, #outcome-title, #axioms {
+  width: 33.3%;
+}
+
+#axioms {
+  column-count: 2;
+  column-fill: auto;
+  width: 66.6%;
+}
+
+#corpus-title {
+  width: 66%;
+}
+
+p, #the-profile {
+  text-align: justify;
+  text-justify: inter-word;
+  font-size: 15px;
+  width: 100%;
+}
+
+/*        */
+
+.hovertext {
+  position: relative;
+  border-bottom: 1px dotted black;
+}
+
+.hovertext:before {
+  content: attr(data-hover);
+  visibility: hidden;
+  opacity: 0;
+  width: 140px;
+  background-color: #618685;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px;
+  transition: opacity 0.3s ease-in-out;
+
+  position: absolute;
+  z-index: 1;
+  left: 110%;
+  top: 110%;
+}
+
+.hovertext:hover:before {
+  opacity: 1;
+  visibility: visible;
+}

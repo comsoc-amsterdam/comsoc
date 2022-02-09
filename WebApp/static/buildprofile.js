@@ -104,7 +104,7 @@ function add_ballot() {
 
   html += "<div class=\"handle-ballot\">";
   html += get_number_button();
-  html += "<button class=\"ballot-remove\" onclick=\"this.parentNode.parentNode.remove();\">x</button>";
+  html += "<button class=\"ballot-remove\" onclick=\"this.parentNode.parentNode.remove();\">&times;</button>";
   html += "</div>";
 
   html += "<div class=\"candidates\"><div class=\"deranked\">";
@@ -118,6 +118,18 @@ function add_ballot() {
   ballot.getElementsByClassName("candidates")[0].style.height = (candidates.length * (40 + 5*2)) + "px";
 
   ballots.insertBefore(ballot, ballots.firstChild);
+}
+
+function bad_candidate(candidate) {
+  if (candidate == "" || candidate.length > 10) {
+      return true;
+  }
+
+  if (! /^[a-zA-Z]+$/.test(candidate)) {
+    return true;
+  }
+
+  return false;
 }
 
 function submit() {
@@ -136,6 +148,9 @@ function submit() {
       }
       profile_str += number + ":";
       for (var j = 0; j < ranked_candidates.length; j++) {
+        if (bad_candidate(ranked_candidates[j].innerHTML)) {
+          return;
+        }
         profile_str += ranked_candidates[j].innerHTML;
         if (j < ranked_candidates.length - 1) {
           profile_str += '>';
@@ -151,41 +166,5 @@ function submit() {
     return;
   }
 
-  result = {"profile" : profile_str}
-
-  all_axioms = document.getElementById("axioms").getElementsByTagName('input');
-  checked_axioms = [];
-
-  for (var i = 0; i < all_axioms.length; i++) {
-    if (all_axioms[i].checked) {
-      checked_axioms.push(all_axioms[i]);
-    }
-  }
-
-  if (checked_axioms.length <= 0) {
-    return;
-  }
-
-  for (var i = 0; i < checked_axioms.length; i++) {
-    result["axiom_" + checked_axioms[i].id] = checked_axioms[i].id
-  }
-
-  all_outcomes = document.getElementById("outcome").getElementsByTagName('input');
-  checked_outcomes = [];
-
-  for (var i = 0; i < all_outcomes.length; i++) {
-    if (all_outcomes[i].checked) {
-      checked_outcomes.push(all_outcomes[i]);
-    }
-  }
-
-  if (checked_outcomes.length <= 0) {
-    return;
-  }
-
-  for (var i = 0; i < checked_outcomes.length; i++) {
-    result["outcome_" + checked_outcomes[i].id] = checked_outcomes[i].id
-  }
-
-  post('/result', result);
+  post('/outcomes', {"profile" : profile_str});
 }

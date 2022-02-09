@@ -15,6 +15,7 @@ p {
   width: 100%;
   text-align: justify;
   text-justify: inter-word;
+  font-size: 15px;
 }
 
 h1, h2, h3 {
@@ -27,8 +28,7 @@ h1, h2, h3 {
   color: #FFFFFF;
   cursor: pointer;
   display: inline-block;
-  height: 3.5vw;
-  line-height: 3.5%;
+  height: 4vw;
   list-style: none;
   margin: 0;
   outline: none;
@@ -41,52 +41,19 @@ h1, h2, h3 {
   touch-action: manipulation;
   border-radius: 50px;
   position: fixed;
-  width: 7vw;
-  right: 3.5%;
+  width: 9vw;
+  right: 3%;
   font-size: 1vw;
 }
 
 #addBallotButton {
   background-color: #36486b;
-  top: 20.5%;
+  top: 15%;
 }
 
 #submit {
-  bottom: 20.5%;
+  bottom: 15%;
   background-color: #4040a1;
-}
-
-#checkboxes {
-  content: "";
-  display: table;
-  clear: both;
-  width: 100%;
-}
-
-#outcome-title, #corpus-title, #outcome, #axioms {
-  float: left;
-}
-
-#outcome {
-  height: 80px;
-}
-
-#axioms {
-  height: 80px;
-}
-
-#outcome, #outcome-title, #axioms {
-  width: 33.3%;
-}
-
-#axioms {
-  column-count: 2;
-  column-fill: auto;
-  width: 66.6%;
-}
-
-#corpus-title {
-  width: 66%;
 }
 
 .candidates {

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Automated Justification</title>
+    <link rel="stylesheet" href={{url_for('static', filename='outcomes.css')}}/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+    <script src="{{url_for('static', filename='outcomes.js')}}"></script>
+    <script type="text/javascript">var profile_name="{{profile_name|safe}}";</script>
+  </head>
+  <body>
+    <h1>Automated Justification</h1>
+
+    <p>Here is the profile of preferences you have specified, <i>R<sup>*</sup></i>:</p>
+
+    <div id="the-profile">{{profile_text|safe}}</div>
+
+    <p>We will now ask the computer to find a justification for an outcome. First, choose the outcome (you can indicate a tie by ticking multiple winners). Then, choose the normative principles you want the computer to use in the justification.</p>
+
+    <div id="checkboxes">
+    <div id="titles">
+      <h3 id="outcome-title">Select the winners:</h3>
+      <h3 id="corpus-title">Select the normative principles:</h3>
+      <span class="empty"/>
+    </div>
+    <div id="outcome">
+    {% for candidate in candidates %}
+      <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
+      <label for="{{candidate}}">{{candidate}}</label><br>
+    {% endfor %}
+    </div>
+    <div id="axioms">
+    {% for axiom in axiom_names %}
+          <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+          <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
+            <label for="{{axiom}}">{{axiom}}</label>
+          </span>
+          <br>
+    {% endfor %}
+    </div>
+    </div>
+
+    <button id="submit" type="button" onclick="submit();">Submit</button>
+  </body>
+</html>
