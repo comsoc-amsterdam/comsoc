@@ -11,3 +11,7 @@ and
     celery -A wsgi.celery worker
 
 Then, you should connect to http://127.0.0.1:5000/
+
+If you get an error message saying "Error 111 connecting to localhost:6379. Connection refused.", try:
+
+    sudo apt-get install redis-server
