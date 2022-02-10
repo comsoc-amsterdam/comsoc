@@ -352,7 +352,7 @@ class AnonymousProfile(AbstractProfile):
     def prettify(self):
         result = ""
         for ballot, count in sorted(self._profile.items()):
-            result += "#" + str(count) + ": "
+            result += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#" + str(count) + ": "
             for alt in ballot:
                 result += '<i>' + alt + '</i> ≻ '
             result = result[:-3] # remove extra ' > '
