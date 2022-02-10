@@ -100,7 +100,7 @@ function submit() {
 
   candidates = document.getElementById("candidates").getElementsByTagName('div');
 
-  if (candidates.length <= 0) {
+  if (candidates.length < 2) {
     return;
   }
 
