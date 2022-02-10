@@ -118,7 +118,7 @@ def outcomes():
     return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
         candidates = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
 
-def make_tables(nodes, all_outcomes, profiles, profile_texts, outcomes):
+def make_tables(nodes, all_outcomes, profiles, profile_texts, outcomes, target_outcome):
     tables = {}
     pretty_outcomes = []
     for outcome in all_outcomes:
@@ -130,10 +130,16 @@ def make_tables(nodes, all_outcomes, profiles, profile_texts, outcomes):
 
     for node in nodes:
         contradictions = {profile for profile in profiles[node] if "{}" in outcomes[node][profile]}
+
+        greenify = False
+        if all_profiles[0] in outcomes[node].keys():
+            if len(outcomes[node][all_profiles[0]]) == 1 and target_outcome in outcomes[node][all_profiles[0]]:
+                greenify = True
+
         tables[node] = render_template("tables.html", all_outcomes=all_outcomes,\
             current_profiles=profiles[node], node=node, outcomes=outcomes[node], contradictions=contradictions,\
             pretty_outcomes=pretty_outcomes, pretty_profiles=profile_texts,\
-            all_profiles = all_profiles).replace('\n', '   ').replace("\"", "\\\"")
+            all_profiles = all_profiles, greenify = greenify).replace('\n', '   ').replace("\"", "\\\"")
 
     return tables
 
@@ -163,9 +169,9 @@ def compute_justification(profile_name, axioms, outcome_names):
         return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms)
     else:
-        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes = shortest.display(display = 'website')
+        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, target_outcome = shortest.display(display = 'website')
         all_outcomes = sorted(scenario.outcomes, key = lambda out: (len(out), str(out)))
-        tables = make_tables(sorted_nodes, all_outcomes, profiles, profile_texts, outcomes)
+        tables = make_tables(sorted_nodes, all_outcomes, profiles, profile_texts, outcomes, target_outcome)
 
         return render_template('justification.html', len_nodes = len(sorted_nodes), outcomes=outcomes,\
             labels=labels, profiles=profiles, nodes=sorted_nodes, pngs=pngs,\

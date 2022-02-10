@@ -9,7 +9,7 @@
   {% if profile in current_profiles %}
     <tr {% if profile in contradictions %} style="color: red" {% endif %}>
       <td class="profile-cell">
-        <div class="tooltip">
+        <div class="tooltip" {% if profile == all_profiles[0] and greenify %} style="color: green" {% endif %}>
         {{profile | safe}}
         <div class="tooltiptext">
           <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
