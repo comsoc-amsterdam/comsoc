@@ -99,6 +99,10 @@ p, #the-profile {
   width: 100%;
 }
 
+#the-profile {
+  margin-left: 25px;
+}
+
 #loading {
   text-align: center;
   font-size: 20px;

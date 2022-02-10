@@ -128,7 +128,7 @@ class ProofTree():
 
             if head == 'intro':
                 profile = self.encoding.prettify_profile(arguments[0])
-                step = f"Consider profile {profile}:<br>{self.encoding.decode(arguments[0]).prettify()}"
+                step = f"Consider profile {profile}:<br><div class=\\\"a-profile\\\">{self.encoding.decode(arguments[0]).prettify()}</div>"
             elif head == 'branching':
                 profile, outcome, direction = arguments
                 profile = self.encoding.prettify_profile(profile)
