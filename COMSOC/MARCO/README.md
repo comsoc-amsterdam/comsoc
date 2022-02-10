@@ -1,3 +1,5 @@
+[marco.py has been changed: we use `import billiard as multiprocessing` instead of `import multiprocessing`]
+
 MARCO: an efficient MUS and MSS/MCS enumeration tool
 ====================================================
 
