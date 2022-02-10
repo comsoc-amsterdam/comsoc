@@ -6,14 +6,17 @@ body {
   background: linear-gradient(90deg, white 84.5%, #2C3E50 15.5%);
 }
 
+input, textarea, button {font-family: inherit}
+
 #h1-container {
   text-align: center;
   margin-top: 27px;
+  margin-left: 18.7%;
 }
 
 h1 {
   font-size: 28px;
-  color: #7F7E7E;
+  color: #7F7E7E;  
 }
 
 #submit {
@@ -40,7 +43,6 @@ h1 {
   font-size: 1vw;
   bottom: 15%;
   background-color: #D6743C;
-  font-family: "IBM Plex Serif";
 }
 
 .candidates {

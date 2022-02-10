@@ -39,7 +39,6 @@ class DrawingWebsite():
                                 removable_nodes.add(child)  # trivial contradiction
                 elif len(neighs) == 0:  # empty list: leaf of a tree
                     labels[m] += " Contradiction!"
-                    print(m.id)
                     is_there_a_contradiction = True
 
         for node in removable_nodes:
@@ -98,4 +97,4 @@ class DrawingWebsite():
 
         cmap = g.pipe(format = 'cmapx').decode('utf-8')
 
-        return pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes
+        return pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, o

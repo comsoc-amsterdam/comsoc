@@ -28,14 +28,28 @@ function post(path, params, method='post') {
   form.submit();
 }
 
-var rank_color = {0: "#008000", 1: "#595300", 2: "#a62d00", 3: "#ff0000"}
+// RANK COLORS
+  if (candidates.length > 1) {
+    var colorInterpolator = d3.interpolateRgb("green", "red");
+
+    steps = candidates.length;
+
+    var colorArray = d3.range(0, (1 + 1 / steps), 1 / (steps - 1)).map(function(d) {
+      return colorInterpolator(d)
+    });
+
+  } else {
+    colorArray = ["green"];
+  }
+
 
 function rank(candidate_button) {
   var ballot = candidate_button.parentElement.parentElement;
   var ranked = ballot.getElementsByClassName("ranked")[0];
   var button = htmlToElement("<button class=\"derank-button\" type=\"button\" onclick=\"derank(this);\">" + candidate_button.innerHTML + "</button>");
   var rank = ranked.getElementsByClassName("derank-button").length;
-  button.style.backgroundColor = rank_color[rank];
+
+  button.style.backgroundColor = colorArray[rank];
   ranked.appendChild(button);
   candidate_button.remove();
 }
@@ -64,7 +78,7 @@ function derank(candidate_button) {
   ranked_candidates = ballot.getElementsByClassName("derank-button");
 
   for (var i = 0; i < ranked_candidates.length; i++) {
-    ranked_candidates[i].style.backgroundColor = rank_color[i];
+    ranked_candidates[i].style.backgroundColor = colorArray[i];
   }
 }
 

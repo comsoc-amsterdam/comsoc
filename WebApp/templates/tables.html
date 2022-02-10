@@ -9,7 +9,7 @@
   {% if profile in current_profiles %}
     <tr {% if profile in contradictions %} style="color: red" {% endif %}>
       <td class="profile-cell">
-        <div class="tooltip" {% if profile == all_profiles[0] and greenify %} style="color: green" {% endif %}>
+        <div class="tooltip" {% if profile == all_profiles[0] and greenify %} style="color: green" {% endif %} onclick="">
         {{profile | safe}}
         <div class="tooltiptext">
           <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
@@ -25,12 +25,28 @@
         {% endfor %}
     </tr>
   {% else %}
-    <tr>
-    <td class="profile-cell"><span class="unused-profile">{{profile|safe}}</span></td>
-    {% for outcome in all_outcomes %}
-      <td></td>
-    {% endfor %}
-    </tr>
+    {% if profile == all_profiles[0] %}
+          <tr>
+            <td class="profile-cell"><span class="unused-profile">
+              <div class="tooltip" onclick="">
+                {{profile | safe}}
+                <div class="tooltiptext">
+                  <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
+                </div> 
+              </div>
+            </span></td>
+            {% for outcome in all_outcomes %}
+              <td></td>
+            {% endfor %}
+            </tr>
+    {% else %}
+      <tr>
+        <td class="profile-cell"><span class="unused-profile">{{profile|safe}}</span></td>
+        {% for outcome in all_outcomes %}
+          <td></td>
+        {% endfor %}
+      </tr>
+    {% endif %}
   {% endif %}
 {% endfor %}
 </table>
