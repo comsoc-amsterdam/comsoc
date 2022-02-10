@@ -127,13 +127,15 @@ class ProofTree():
             edge = self.edges[(src, dst)]
 
             if head == 'intro':
-                step = f"Consider profile {arguments[0]}:\n{self.encoding.decode(arguments[0])}"
+                profile = self.encoding.prettify_profile(arguments[0])
+                step = f"Consider profile {profile}:<br>{self.encoding.decode(arguments[0]).prettify()}"
             elif head == 'branching':
                 profile, outcome, direction = arguments
+                profile = self.encoding.prettify_profile(profile)
                 if direction == 'left':
-                    step = f"Case: Let us assume that {self.encoding.decode(outcome)} is the outcome for {profile}."
+                    step = f"Case: Let us assume that {self.encoding.decode(outcome).prettify()} is the outcome for {profile}."
                 else:
-                    step = f"Case: Let us assume that {self.encoding.decode(outcome)} is NOT the outcome for {profile}."
+                    step = f"Case: Let us assume that {self.encoding.decode(outcome).prettify()} is <i>not</i> the outcome for {profile}."
             else:   
                 try :
                     step = self.fact2instance[fact].from_asp(fact, self.encoding)

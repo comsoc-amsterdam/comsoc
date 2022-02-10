@@ -349,6 +349,16 @@ class AnonymousProfile(AbstractProfile):
     def __str__(self):
         return self._name
 
+    def prettify(self):
+        result = ""
+        for ballot, count in sorted(self._profile.items()):
+            result += "#" + str(count) + ": "
+            for alt in ballot:
+                result += '<i>' + alt + '</i> ≻ '
+            result = result[:-3] # remove extra ' > '
+            result += '<br>'
+        return result[:-4]  # remove last <br>
+
     def __eq__(self, other):
         """Check whether this profile is the same as another."""
         return self._profile == other._profile

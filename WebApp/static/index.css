@@ -3,13 +3,14 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: sans-serif;
+  font-family: 'IBM Plex Sans';
   font-size: 14px;
-  background-color: #fefbd8;
+  background-color: white;
 }
 
 h1 {
   color: #7F7E7E;
+  font-size: 28px;
 }
 
 *, *::before, *::after {
@@ -66,6 +67,7 @@ h1 {
 
 button {
   white-space: break-spaces;
+  font-family: "IBM Plex Serif";
 }
 
 #addButton, #submit {  
@@ -92,17 +94,17 @@ button {
 }
 
 #addButton {
-    background-color: #36486b;
+    background-color: #617487;
 }
 
 #submit {  
-  background-color: #4040a1;
+  background-color: #0C2032;
   margin-top: 1%;
   margin-left: 250px;
 }
 
 #candidates {
-  margin-top: 3%;
+  margin-top: 1.5%;
   width: 310px;
   height: 160px;
   background-color: #aaa;
@@ -158,8 +160,6 @@ button {
   border: none;
   padding: 0!important;
   /*optional*/
-  font-family: arial, sans-serif;
-  /*input has OS specific font-family*/
   color: #069;
   text-decoration: underline;
   cursor: pointer;

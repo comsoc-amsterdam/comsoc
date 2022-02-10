@@ -10,7 +10,7 @@
     <tr {% if profile in contradictions %} style="color: red" {% endif %}>
       <td class="profile-cell">
         <div class="tooltip">
-        {{profile}}
+        {{profile | safe}}
         <div class="tooltiptext">
           <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
         </div> 
@@ -26,7 +26,7 @@
     </tr>
   {% else %}
     <tr>
-    <td class="profile-cell"><span class="unused-profile">{{profile}}</span></td>
+    <td class="profile-cell"><span class="unused-profile">{{profile|safe}}</span></td>
     {% for outcome in all_outcomes %}
       <td></td>
     {% endfor %}

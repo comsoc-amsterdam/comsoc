@@ -10,7 +10,7 @@ class ASPTree():
     def __init__(self, justification, limit = 0, verbose = False):
         self.justification = justification
         self.encoding = ASPEncodingHandler()
-        self.encoding.encode_profile(justification.profile)  # by doing so, it sets it as "p0"
+        self.encoding.encode_profile(justification.profile)  # by doing so, it sets it as "p0" (it's the first one)
 
         self.baseProgram = self.getBaseProgram()
         self.stepProgram = self.getStepProgram()

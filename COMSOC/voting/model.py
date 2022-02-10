@@ -35,5 +35,8 @@ class VotingOutcome(AbstractOutcome, frozenset):
     def __str__(self):
         return '{' + ', '.join(map(str, sorted(self))) + '}'
 
+    def prettify(self):
+        return '{' + ', '.join(map(lambda a: f'<i>{a}</i>', sorted(self))) + '}'
+
     def asp_fact(self):
         return 'o' + ','.join(map(str, sorted(self)))

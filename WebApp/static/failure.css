@@ -1,23 +1,31 @@
 body {
-  font-family: sans-serif;
-  font-size: 70%;
-  background-color: #fefbd8;
-  margin-left: 26%;
+  font-family: 'IBM Plex Sans';
+  font-size: 16px;
+  background-color: white;
+  margin-left: 15%;
   margin-right: 26%;
 }
 
+#h1-container {
+  text-align: center;
+  margin-top: 27px;
+}
+
+h1, h2 {
+  color: #7F7E7E;
+}
 
 h1 {
-  margin-top: 11.5%;
+  font-size: 28px;
 }
 
 p {
   width: 100%;
   text-align: justify;
   text-justify: inter-word;
-  font-size: 15px;
+  margin-bottom: 1%;
 }
 
-h1, h2, h3 {
-  color: #7F7E7E;
+#profile {
+  margin-left: 20px;
 }

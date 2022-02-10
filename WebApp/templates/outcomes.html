@@ -4,11 +4,14 @@
     <title>Automated Justification</title>
     <link rel="stylesheet" href={{url_for('static', filename='outcomes.css')}}/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="{{url_for('static', filename='outcomes.js')}}"></script>
     <script type="text/javascript">var profile_name="{{profile_name|safe}}";</script>
   </head>
   <body>
-    <h1>Automated Justification</h1>
+    <div id="h1-container"><h1>Automated Justification</h1></div>
+
+    <div id="true-content">
 
     <p>Here is the profile of preferences you have specified, <i>R<sup>*</sup></i>:</p>
 
@@ -18,8 +21,8 @@
 
     <div id="checkboxes">
     <div id="titles">
-      <h3 id="outcome-title">Select the winners:</h3>
-      <h3 id="corpus-title">Select the normative principles:</h3>
+      <h3 id="outcome-title">Winners:</h3>
+      <h3 id="corpus-title">Principles:</h3>
       <span class="empty"/>
     </div>
     <div id="outcome">
@@ -39,6 +42,10 @@
     </div>
     </div>
 
-    <button id="submit" type="button" onclick="submit();">Submit</button>
+    <button id="submit" type="button" onclick="submit();">submit</button>
+    </div>
+
+    <div id="loading">Looking for a justification... Please wait.</div>
+
   </body>
 </html>

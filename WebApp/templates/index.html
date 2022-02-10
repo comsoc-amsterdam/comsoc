@@ -3,6 +3,7 @@
   <head>
     <title>Automated Justification</title>
     <link rel="stylesheet" href={{url_for('static', filename='index.css')}}/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
   </head>
   <body>
     <h1>Automated Justification</h1>
@@ -10,11 +11,11 @@
     <label class="custom-field">
     <input id="addCandidate" type="text" placeholder="&nbsp;" onkeyup="if(event.keyCode===13){handle_keypress();}"/>
     <span class="placeholder">Alternative</span>
-    <button id="addButton" onclick="add_candidate();">Add</button>
+    <button id="addButton" onclick="add_candidate();">add</button>
     </label>
     <div id="candidates">
     </div>
-    <button id="submit" type="button" onclick="submit();">Next</button>
+    <button id="submit" type="button" onclick="submit();">next</button>
 
 
     <div id="links"><ul id="links-list">
@@ -28,29 +29,29 @@
           <div class="modal-content">
             <span class="close">&times;</span>
             <h2>About</h2>
-            <p>This demo illustrates our research on computing and explaining normatively grounded justifications for collective decisions. Read the <a href="temporary-link-to-demo-abstract">demo description</a> to find out more. For an easy-going introduction to the topic, watch <a href="https://www.youtube.com/watch?v=HexNGGnujzU">this video</a>.</p>
+            <p>This demo illustrates our research on computing and explaining normatively grounded justifications for collective decisions. Read the <a href="temporary-link-to-demo-abstract" target="_blank">demo description</a> to find out more. For an easy-going introduction to the topic, watch <a href="https://www.youtube.com/watch?v=HexNGGnujzU" target="_blank">this video</a>.</p>
 
             <p>For in-depth information about our research, consult these papers:</p>
 
             <ul>
 
-            <li> Boixel, Endriss. <a href="https://ifaamas.org/Proceedings/aamas2020/pdfs/p168.pdf">Automated Justification of Collective Decisions via Constraint  Solving</a>. AAMAS-2020.
+            <li> Boixel, Endriss. <a href="https://ifaamas.org/Proceedings/aamas2020/pdfs/p168.pdf" target="_blank">Automated Justification of Collective Decisions via Constraint  Solving</a>. AAMAS-2020.
 
-            <li> Boixel, De Haan. <a href="https://ojs.aaai.org/index.php/AAAI/article/view/16656/16463">On the Complexity of Finding Justifications for Collective Decisions</a>. AAAI-2021.
+            <li> Boixel, De Haan. <a href="https://ojs.aaai.org/index.php/AAAI/article/view/16656/16463" target="_blank">On the Complexity of Finding Justifications for Collective Decisions</a>. AAAI-2021.
 
-            <li> Boixel, Endriss, De Haan. <a href="https://staff.science.uva.nl/u.endriss/pubs/files/BoixelEtAlAAAI2022.pdf">A Calculus for Computing Structured Justifications for Election Outcomes</a>. AAAI-2022.
+            <li> Boixel, Endriss, De Haan. <a href="https://staff.science.uva.nl/u.endriss/pubs/files/BoixelEtAlAAAI2022.pdf" target="_blank">A Calculus for Computing Structured Justifications for Election Outcomes</a>. AAAI-2022.
 
-            <li> Nardi, Boixel, Endriss. <a href="https://staff.science.uva.nl/u.endriss/pubs/files/NardiEtAlAAMAS2022.pdf">A Graph-Based Algorithm for the Automated Justification of Collective Decisions</a>. AAMAS-2022.
+            <li> Nardi, Boixel, Endriss. <a href="https://staff.science.uva.nl/u.endriss/pubs/files/NardiEtAlAAMAS2022.pdf" target="_blank">A Graph-Based Algorithm for the Automated Justification of Collective Decisions</a>. AAMAS-2022.
 
             </ul>
 
-            <p>This is an open-source project. You will find our code at <a href="https://github.com/comsoc-amsterdam/comsoc">this GitHub repository</a>.</p>
+            <p>This is an open-source project. You will find our code at <a href="https://github.com/comsoc-amsterdam/comsoc" target="_blank">this GitHub repository</a>.</p>
 
-            <p>Brought to you by the <a href="https://staff.science.uva.nl/u.endriss/group.php">Computational Social Choice Group</a> at the ILLC, University of Amsterdam.</p>
+            <p>Brought to you by the <a href="https://staff.science.uva.nl/u.endriss/group.php" target="_blank">Computational Social Choice Group</a> at the ILLC, University of Amsterdam.</p>
           </div>
 
         </div></li>
-        <li class="links-list-li"><button id="example" onclick="example();">Example profile</button></li>
+        <li class="links-list-li"><button id="example" onclick="example();">Example</button></li>
       </ul></div>
     <script src="{{url_for('static', filename='index.js')}}"></script>
     </body>

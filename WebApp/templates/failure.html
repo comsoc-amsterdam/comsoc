@@ -2,10 +2,20 @@
 <html>
   <head>
     <title>Automated Justification</title>
-    <link rel="stylesheet" href={{url_for('static', filename='index.css')}}/>
+    <link rel="stylesheet" href={{url_for('static', filename='failure.css')}}/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
   </head>
   <body>
-    <h1>Automated Justification</h1>
-    <h2>No Justification Found.</h2>
+    <div id="h1-container"><h1>Automated Justification</h1></div>
+    <h2>Timeout!</h2>
+    <p>No justification was found for outcome {{outcome|safe}} for profile <i>R<sup>*</sup></i>:</p>
+    <p id="profile">{{profile_text|safe}}</p>
+    <p>Using the following principles:
+    <ul>
+      {% for axiom in axioms %}
+      <li>{{axiom}}</li>
+      {% endfor %}
+    </ul></p>
+    <p>This might be due to one of two reasons: either the normative principles selected simply cannot justify the desired outcome, or the bound on the search depth for this demonstration tool happens to be too low for this particular example.</p>
   </body>
 </html>

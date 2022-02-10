@@ -50,13 +50,22 @@ class ASPEncodingHandler:
         self._out2str = {}
         self._str2out = {}
 
-    def encode_profile(self, profile):
+    def prettify_profile(self, profile):
+        num = profile[1:]
+        return f"<i>R</i><sub>{num}</sub>" if int(num) != 0 else f"<i>R</i><sup>*</sup>"  # assumption: 0 is the goal profile.
+
+    def encode_profile(self, profile, prettify = False):
         if not profile in self._prof2str:
             string = 'p' + str(len(self._prof2str))
             self._prof2str[profile] = string
             self._str2prof[string] = profile
 
-        return self._prof2str[profile]
+        result = self._prof2str[profile]
+
+        if prettify:
+            result = self.prettify_profile(result)
+
+        return result
 
     def encode_alternative(self, alternative):
         if not alternative in self._alt2str:
