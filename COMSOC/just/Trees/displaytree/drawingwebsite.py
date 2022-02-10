@@ -13,9 +13,39 @@ class DrawingWebsite():
     def drawTree(self):
         """Return the content of a file necessary to draw the proof tree."""
 
-        pngs, outcomes, labels, profiles = {}, {}, {}, {}
-
         steps = nx.get_edge_attributes(self.tree, 'step')
+
+        labels = {}
+
+        ## Clean graph (remove unused contradictions, prettify labels for contradictions)
+        
+        removable_nodes = set()
+        is_there_a_contradiction = False
+        for e in self.tree.edges():
+            n, m = e
+            
+            labels[m] = steps[e]
+
+            if m not in removable_nodes:  # we don't care about the labels of this nodes
+                neighs = list(self.tree.neighbors(m))
+
+                if len(neighs) == 1:
+                    child = neighs[0]
+                    if not list(self.tree.neighbors(child)):  # only child is a leaf.
+                        if len(m.statements) == 1:  # there is only one possible outcome
+                            s = m.statements[0]
+                            # there is only the target outcome for the given profile
+                            if s.getProfile() == 'p0' and s.getOutcome() == self.justification.outcome:
+                                removable_nodes.add(child)  # trivial contradiction
+                elif len(neighs) == 0:  # empty list: leaf of a tree
+                    labels[m] += " Contradiction!"
+                    print(m.id)
+                    is_there_a_contradiction = True
+
+        for node in removable_nodes:
+            self.tree.remove_node(node)
+
+        ### Build graph
 
         g = graphviz.Digraph('G')
         g.attr('node', shape='circle', label="", width="0.25")
@@ -27,13 +57,12 @@ class DrawingWebsite():
         for n in self.tree.nodes():
             g.node(n.id, URL=n.id)
 
-        profile_texts = {}
-        
         for e in self.tree.edges():
             n, m = e
             g.edge(n.id, m.id)
-            
-            labels[m] = steps[e]
+
+
+        pngs, outcomes, profile_texts, profiles = {}, {}, {}, {}
 
         for n in self.tree.nodes():
 
@@ -62,8 +91,10 @@ class DrawingWebsite():
         
         sorted_nodes = list(nx.topological_sort(self.tree))
         o, p = self.justification.outcome, self.encoding.encode_profile(self.justification.profile, prettify = True)
-        labels[sorted_nodes[0]] = f"We are going to prove our goal by contradiction. That is, we will show that, if we assume that {o.prettify()} is <i>not</i> the outcome for {p}, we will reach a contradiction (i.e., we will have a profile with no possible outcomes). For each profile involved in the justification, in the table below, we show the possible outcomes."
-        labels[sorted_nodes[-1]] += " Contradiction!"
+        if is_there_a_contradiction:
+            labels[sorted_nodes[0]] = f"We will show that if we assume that {o.prettify()} is <i>not</i> the outcome for {p}, we will reach a contradiction (i.e., we will have a profile with no possible outcomes). For each profile involved in the justification, in the table below, we show the possible outcomes."
+        else:
+            labels[sorted_nodes[0]] = f"We are going to show that {o.prettify()} must be the outcome for {p}. For each profile involved in the justification, in the table below, we show the possible outcomes."
 
         cmap = g.pipe(format = 'cmapx').decode('utf-8')
 
