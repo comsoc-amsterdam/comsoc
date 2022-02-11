@@ -7,7 +7,7 @@ from COMSOC.voting.encodings import ASPEncodingHandler
 class ASPTree():
     'Encode a justification as an ASP program'
 
-    def __init__(self, justification, limit = 0, verbose = False):
+    def __init__(self, justification, limit = 0, verbose = False, prettify = False):
         self.justification = justification
         self.encoding = ASPEncodingHandler()
         self.encoding.encode_profile(justification.profile)  # by doing so, it sets it as "p0" (it's the first one)
@@ -32,10 +32,11 @@ class ASPTree():
         self.answerSets = []
 
         self._verbose = verbose
+        self._prettify = prettify
 
     def getTree(self, answerSet):
         tree = ProofTree(answerSet, self.encoding, self.fact2instance)
-        return tree.getTreeFromAnswerSet()        
+        return tree.getTreeFromAnswerSet(self._prettify)        
 
     def getTrees(self):
         for answerSet in self.getAnswerSets():
@@ -57,7 +58,6 @@ class ASPTree():
 
         up //= 2
 
-        print("ASPTree.py: Bug here? The Upper bound is fixed.")
         return 42 #up
 
     def on_model(self, model):

@@ -48,7 +48,7 @@ class AtLeastOneInstance(Instance):
         #return [f"atleastone({encoding.encode_profile(self._profile)})"]
         return []
 
-    def from_asp(self, fact : str, encoding) -> str:
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
         # Not used.
         return ""
 
@@ -124,8 +124,12 @@ class FaithfulnessInstance(Instance):
         outcome = model.AnonymousOutcome({self._winner})
         return [f"faithfulness({encoding.encode_profile(self._profile)},{encoding.encode_outcome(outcome)})"]
 
-    def from_asp(self, fact : str, encoding) -> str:
-        return f"Since {encoding.encode_profile(self._profile, prettify = True)} has only one voter, by Faithfulness, her favourite alternative, <i>{self._winner}</i>, should be the unique winner."
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        profile = encoding.encode_profile(self._profile, prettify = prettify)
+        if prettify:
+            return f"Since {profile} has only one voter, by Faithfulness, her favourite alternative, <i>{self._winner}</i>, should be the unique winner."
+        else:
+            return f"Since {profile} has only one voter, by Faithfulness, her favourite alternative, {self._winner}, should be the unique winner."
 
     def __str__(self):
         return f"In profile ({self._profile}) there is only one voter. Hence, their favourite alternative should win."
@@ -200,8 +204,12 @@ class ParetoInstance(Instance):
     def as_asp(self, encoding):
         return [f"pareto({encoding.encode_profile(self._profile)},{encoding.encode_alternative(self._dominated)})"]
 
-    def from_asp(self, fact : str, encoding) -> str:
-        return f"In profile {encoding.encode_profile(self._profile, prettify = True)}, alternative <i>{self._dominated}</i> is Pareto-dominated. Hence, it cannot be among the winners."
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        profile = encoding.encode_profile(self._profile, prettify = prettify)
+        if prettify:
+            return f"In profile {prettify}, alternative <i>{self._dominated}</i> is Pareto-dominated. Hence, it cannot be among the winners."
+        else:
+            return f"In profile {prettify}, alternative {self._dominated} is Pareto-dominated. Hence, it cannot be among the winners."
 
     def __str__(self):
         return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot win."        
@@ -266,8 +274,8 @@ class CancellationInstance(Instance):
         full_outcome = encoding.encode_outcome(model.AnonymousOutcome(self._profile.alternatives))
         return [f"cancellation({encoding.encode_profile(self._profile)},{full_outcome})"]
 
-    def from_asp(self, fact : str, encoding) -> str:
-        return f"Profile {encoding.encode_profile(self._profile, prettify = True)} is a perfect tie: by Cancellation, all alternatives must win here."
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        return f"Profile {encoding.encode_profile(self._profile, prettify = prettify)} is a perfect tie: by Cancellation, all alternatives must win here."
 
     def __str__(self):
         return f"Profile ({self._profile}) is a perfect tie: all alternatives must win here."
@@ -331,8 +339,12 @@ class CondorcetInstance(Instance):
         outcome = encoding.encode_outcome(model.AnonymousOutcome({self._winner}))
         return [f"condorcet({encoding.encode_profile(self._profile)},{outcome})"]
 
-    def from_asp(self, fact : str, encoding) -> str:
-        return f"Alternative <i>{self._winner}</i> is the Condorcet winner of profile {encoding.encode_profile(self._profile, prettify = True)}. Hence, it must be the unique winner."
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        profile = encoding.encode_profile(self._profile, prettify = prettify)
+        if prettify:
+            return f"Alternative <i>{self._winner}</i> is the Condorcet winner of profile {profile}. Hence, it must be the unique winner."
+        else:
+            return f"Alternative {self._winner} is the Condorcet winner of profile {profile}. Hence, it must be the unique winner."
 
     def __str__(self):
         return f"Alternative {self._winner} is the Condorcet winner of profile {self._profile}. Hence, it must be the unique winner."
@@ -575,9 +587,9 @@ class NeutralityInstance(Instance):
         
         return asp
 
-    def from_asp(self, fact: str, encoding) -> str:
+    def from_asp(self, fact: str, encoding, prettify = False) -> str:
 
-        profiles = list(map(lambda x: encoding.encode_profile(x, prettify = True), self._profiles))
+        profiles = list(map(lambda x: encoding.encode_profile(x, prettify = prettify), self._profiles))
 
         if 'lemmaNeu' in fact:
             if 'V2' in fact:
@@ -589,11 +601,14 @@ class NeutralityInstance(Instance):
 
         if len(set(profiles)) == 1:  # only one profile involved.
             if len(outcomes[0]) == 1 and len(outcomes[1]) == 1:
-                return f"If <i>{list(outcomes[0])[0]}</i> was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}<i/> (and vice versa). Hence, neither can be the unique winners."
+                if prettify:
+                    return f"If <i>{list(outcomes[0])[0]}</i> was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}</i> (and vice versa). Hence, neither can be the unique winners."
+                else:
+                    return f"If {list(outcomes[0])[0]} was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to {list(outcomes[1])[0]} (and vice versa). Hence, neither can be the unique winners."
             else:
                 return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and vice versa). Hence, neither set can be the outcome."
         else:
-            return f"By Neutrality, if {outcomes[0].prettify()} is the outcome for {profiles[0]}, then {outcomes[1].prettify()} must be the outcome of {profiles[1]} (or vice versa)."
+            return f"By Neutrality, if {outcomes[0].prettify() if prettify else outcomes[0]} is the outcome for {profiles[0]}, then {outcomes[1].prettify() if prettify else outcomes[0]} must be the outcome of {profiles[1]} (or vice versa)."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
@@ -875,10 +890,13 @@ class PositiveResponsivenessInstance(Instance):
         outcome = encoding.encode_outcome(model.AnonymousOutcome({self._alternative}))
         return [f"positiveresponsiveness({base},{alt},{raised},{outcome})"]
 
-    def from_asp(self, fact: str, encoding) -> str:
+    def from_asp(self, fact: str, encoding, prettify = False) -> str:
 
-        base, raised = map(lambda x : encoding.encode_profile(x, prettify = True), (self._base, self._raised))
-        return f"In profile {raised} alternative <i>{self._alternative}</i> gained support relative to profile {base}. Hence, by Responsiveness, if <i>{self._alternative}</i> is a (tied) winner in the latter, it must be the only winner in the former."
+        base, raised = map(lambda x : encoding.encode_profile(x, prettify = prettify), (self._base, self._raised))
+        if prettify:
+            return f"In profile {raised} alternative <i>{self._alternative}</i> gained support relative to profile {base}. Hence, by Responsiveness, if <i>{self._alternative}</i> is a (tied) winner in the latter, it must be the only winner in the former."
+        else:
+            return f"In profile {raised} alternative {self._alternative} gained support relative to profile {base}. Hence, by Responsiveness, if {self._alternative} is a (tied) winner in the latter, it must be the only winner in the former."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._alternative == other._alternative
@@ -1124,9 +1142,9 @@ class ReinforcementInstance(Instance):
         p = encoding.encode_profile(self._profile)
         return [f'reinforcement({p1},{p2},{p})']
 
-    def from_asp(self, fact : str, encoding) -> str:
-        p1, p2 = map(lambda x : encoding.encode_profile(x, prettify = True), sorted((self._part1, self._part2)))
-        p = encoding.encode_profile(self._profile, prettify = True)
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        p1, p2 = map(lambda x : encoding.encode_profile(x, prettify = prettify), sorted((self._part1, self._part2)))
+        p = encoding.encode_profile(self._profile, prettify = prettify)
         if self._part1 != self._part2:
             return f"Observe that, when we merge profiles {p1} and {p2}, we obtain {p}. Hence, by Reinforcement, the alternatives that win both under {p1} and {p2} must be the winners of {p}."
         else:

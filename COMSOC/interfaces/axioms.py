@@ -132,5 +132,5 @@ class Instance(ABC):
     def as_asp(self, encoding) -> List[str]:
         pass
 
-    def from_asp(self, fact : str, encoding) -> str:
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
         pass

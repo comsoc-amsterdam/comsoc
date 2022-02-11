@@ -79,9 +79,9 @@ class Justification:
     def __len__(self):
         return len(self._explanation)
 
-    def getTrees(self, strategy = "ASP", verbose = False):
+    def getTrees(self, strategy = "ASP", verbose = False, prettify = False):
         if strategy == 'ASP':
-            generator = ASPTree(self, limit = 1, verbose = verbose)
+            generator = ASPTree(self, limit = 1, verbose = verbose, prettify = prettify)
             trees = generator.getTrees()
             return trees, generator.encoding
         else:
@@ -93,7 +93,7 @@ class Justification:
         if not display in ['dynamic', 'website'] and destination is None:
             raise ValueError()
 
-        trees, encoding = self.getTrees(strategy, verbose)
+        trees, encoding = self.getTrees(strategy, verbose, prettify = (display == 'website'))
         for tree in trees:
             display = DisplayTreeInterface(tree, self, encoding, display)
             if destination is None:

@@ -87,9 +87,13 @@ class AnonymousGoal(AbstractGoalConstraint):
     def as_asp(self, encoding):
         return [f"goal({encoding.encode_profile(self._profile)},{encoding.encode_outcome(self._outcome)})"]
 
-    def from_asp(self, fact : str, encoding) -> str:
-        profile = encoding.encode_profile(self._profile, prettify = True)
-        return f"Let us assume, for the sake of contradiction, that {self._outcome.prettify()} is <i>not</i> the outcome for {profile}."
+    def from_asp(self, fact : str, encoding, prettify = False) -> str:
+        profile = encoding.encode_profile(self._profile, prettify = prettify)
+        outcome = self._outcome.prettify() if prettify else self._outcome
+        if prettify:
+            return f"Let us assume, for the sake of contradiction, that {outcome} is <i>not</i> the outcome for {profile}."
+        else:
+            return f"Let us assume, for the sake of contradiction, that {outcome} is NOT the outcome for {profile}."
 
 def GoalConstraint(scenario, profile, outcome):
     return {

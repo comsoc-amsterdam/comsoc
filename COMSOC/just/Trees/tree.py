@@ -67,13 +67,13 @@ class ProofTree():
 
     ### Working with Answer Sets ###
 
-    def getTreeFromAnswerSet(self):
+    def getTreeFromAnswerSet(self, prettify = False):
         """Transform the self answer set to a tree."""
 
         self.retrieveNodesFromAnswerSet()
         self.retrieveStatementsFromAnswerSet()
         self.retrieveEdgesFromAnswerSet()
-        self.retrieveStepsFromAnswerSet()
+        self.retrieveStepsFromAnswerSet(prettify)
 
         for nodeID in self.nodes.keys():
             self.proofTree.add_node(self.nodes[nodeID])
@@ -114,7 +114,7 @@ class ProofTree():
             edge = Edge(self.nodes[src], self.nodes[dest])
             self.edges[(src,dest)] = edge
 
-    def retrieveStepsFromAnswerSet(self):
+    def retrieveStepsFromAnswerSet(self, prettify = False):
         """Extract the steps of the proof associated with each edge."""
 
         for stepAtom in [str(atom) for atom in self.answerSet if "step" in str(atom)]:
@@ -127,18 +127,26 @@ class ProofTree():
             edge = self.edges[(src, dst)]
 
             if head == 'intro':
-                profile = self.encoding.prettify_profile(arguments[0])
-                step = f"Consider profile {profile}:<br><div class=\\\"a-profile\\\">{self.encoding.decode(arguments[0]).prettify()}</div>"
+                profile = self.encoding.prettify_profile(arguments[0]) if prettify else arguments[0]
+                if prettify:
+                    step = f"Consider profile {profile}:<br><div class=\\\"a-profile\\\">{self.encoding.decode(arguments[0]).prettify()}</div>"
+                else:
+                    step = f"Consider profile {profile}: {self.encoding.decode(arguments[0])}"
             elif head == 'branching':
                 profile, outcome, direction = arguments
-                profile = self.encoding.prettify_profile(profile)
+                if prettify:
+                    profile = self.encoding.prettify_profile(profile)
+                    outcome = self.encoding.decode(outcome).prettify() if prettify else self.encoding.decode(outcome)
                 if direction == 'left':
-                    step = f"Case: Let us assume that {self.encoding.decode(outcome).prettify()} is the outcome for {profile}."
+                    step = f"Case: Let us assume that {outcome} is the outcome for {profile}."
                 else:
-                    step = f"Case: Let us assume that {self.encoding.decode(outcome).prettify()} is <i>not</i> the outcome for {profile}."
+                    if prettify:
+                        step = f"Case: Let us assume that {outcome} is <i>not</i> the outcome for {profile}."
+                    else:
+                        step = f"Case: Let us assume that {outcome} is NOT the outcome for {profile}."
             else:   
                 try :
-                    step = self.fact2instance[fact].from_asp(fact, self.encoding)
+                    step = self.fact2instance[fact].from_asp(fact, self.encoding, prettify)
                 except KeyError:
                     step = fact
             
