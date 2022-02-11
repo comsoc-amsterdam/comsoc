@@ -25,7 +25,7 @@ h1 {
   color: #FFFFFF;
   cursor: pointer;
   display: inline-block;
-  height: 3vw;
+  height: 6.5%;
   list-style: none;
   margin: 0;
   outline: none;
@@ -38,10 +38,10 @@ h1 {
   touch-action: manipulation;
   border-radius: 50px;
   position: fixed;
-  width: 7vw;
+  width: 8%;
   right: 3.7%;
-  font-size: 1vw;
-  bottom: 15%;
+  top: 75%;
+  font-size: 1.5em;
   background-color: #D6743C;
 }
 
