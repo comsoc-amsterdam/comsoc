@@ -207,9 +207,9 @@ class ParetoInstance(Instance):
     def from_asp(self, fact : str, encoding, prettify = False) -> str:
         profile = encoding.encode_profile(self._profile, prettify = prettify)
         if prettify:
-            return f"In profile {prettify}, alternative <i>{self._dominated}</i> is Pareto-dominated. Hence, it cannot be among the winners."
+            return f"In profile {profile}, alternative <i>{self._dominated}</i> is Pareto-dominated. Hence, it cannot be among the winners."
         else:
-            return f"In profile {prettify}, alternative {self._dominated} is Pareto-dominated. Hence, it cannot be among the winners."
+            return f"In profile {profile}, alternative {self._dominated} is Pareto-dominated. Hence, it cannot be among the winners."
 
     def __str__(self):
         return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot win."        
