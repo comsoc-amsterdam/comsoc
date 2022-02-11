@@ -589,11 +589,11 @@ class NeutralityInstance(Instance):
 
         if len(set(profiles)) == 1:  # only one profile involved.
             if len(outcomes[0]) == 1 and len(outcomes[1]) == 1:
-                return f"If <i>{list(outcomes[0])[0]}</i> was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}</> (and viceversa). Hence, neither can be the unique winners."
+                return f"If <i>{list(outcomes[0])[0]}</i> was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}<i/> (and vice versa). Hence, neither can be the unique winners."
             else:
-                return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and viceversa). Hence, neither set can be the outcome."
+                return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and vice versa). Hence, neither set can be the outcome."
         else:
-            return f"By Neutrality, if {outcomes[0].prettify()} is the outcome for {profiles[0]}, then {outcomes[1].prettify()} must be the outcome of {profiles[1]} (or viceversa)."
+            return f"By Neutrality, if {outcomes[0].prettify()} is the outcome for {profiles[0]}, then {outcomes[1].prettify()} must be the outcome of {profiles[1]} (or vice versa)."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
