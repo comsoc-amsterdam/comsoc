@@ -156,6 +156,7 @@ function submit() {
       ballot = ballots[i];
       number = ballot.getElementsByClassName("quantity")[0].value;
       if (number <= 0) {
+        swal("Ballot counts must be positive!");
         return;
       }
       ranked_candidates = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
