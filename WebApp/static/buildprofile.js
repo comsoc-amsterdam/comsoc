@@ -111,6 +111,14 @@ function get_number_button() {
   return button;
 }
 
+function remove_ballot(ballot) {
+  ballot.remove();
+  var ballots = document.getElementsByClassName("ballot");
+  if (ballots.length == 0) {
+    document.getElementById("submit").style.visibility = "hidden";
+  }
+}
+
 function add_ballot() {
   ballots = document.getElementById("ballots");
 
@@ -118,7 +126,7 @@ function add_ballot() {
 
   html += "<div class=\"handle-ballot\">";
   html += get_number_button();
-  html += "<button class=\"ballot-remove\" onclick=\"this.parentNode.parentNode.remove();\">&times;</button>";
+  html += "<button class=\"ballot-remove\" onclick=\"remove_ballot(this.parentNode.parentNode);\">&times;</button>";
   html += "</div>";
 
   html += "<div class=\"candidates\"><div class=\"deranked\">";
@@ -132,18 +140,12 @@ function add_ballot() {
   ballot.getElementsByClassName("candidates")[0].style.height = (candidates.length * (40 + 5*2)) + "px";
 
   ballots.insertBefore(ballot, ballots.firstChild);
+
+  document.getElementById("submit").style.visibility = "visible";
 }
 
 function bad_candidate(candidate) {
-  if (candidate == "" || candidate.length > 10) {
-      return true;
-  }
-
-  if (! /^[a-zA-Z]+$/.test(candidate)) {
-    return true;
-  }
-
-  return false;
+    return (! /^[a-zA-Z]+$/.test(candidate));
 }
 
 function submit() {
@@ -158,6 +160,7 @@ function submit() {
       }
       ranked_candidates = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
       if (ranked_candidates.length < candidates.length) {
+        swal("You have some unranked alternatives!");
         return;
       }
       profile_str += number + ":";

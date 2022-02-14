@@ -59,6 +59,7 @@ h1 {
 #submit {
   top: 75%;
   background-color: #D6743C;
+  visibility: hidden;
 }
 
 .candidates {
