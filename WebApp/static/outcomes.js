@@ -41,7 +41,6 @@ function count_checkboxes() {
 
   for (var i = 0; i < all_outcomes.length; i++) {
     if (all_outcomes[i].checked) checked_outcomes++;
-
   }
 
   if (checked_axioms == 0 || checked_outcomes == 0) {
