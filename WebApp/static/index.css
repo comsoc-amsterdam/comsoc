@@ -105,6 +105,8 @@ button {
   background-color: #0C2032;
   margin-top: 1%;
   margin-left: 250px;
+  opacity: 0;
+  cursor: default;
 }
 
 #candidates {

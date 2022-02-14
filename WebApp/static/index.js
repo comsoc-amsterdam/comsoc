@@ -48,7 +48,15 @@ function add_candidate() {
   var new_candidate = document.getElementById("addCandidate").value;
 
   if (bad_candidate(new_candidate)) {
+    swal("Bad alternative name!");
     return;
+  }
+
+  // Candidate accepted
+
+  if (candidates.length == 1) {
+    document.getElementById("submit").style.opacity = "1";
+    document.getElementById("submit").style.cursor = "pointer";
   }
 
   if (candidates.length == 3) {
@@ -93,6 +101,13 @@ function remove(to_delete) {
   document.getElementById("addButton").style.opacity = "1";
   document.getElementById("addButton").style.cursor = "pointer";
   to_delete.remove();
+
+  candidates = document.getElementById("candidates").getElementsByTagName('div');
+
+  if (candidates.length < 2) {
+    document.getElementById("submit").style.opacity = "0";
+    document.getElementById("submit").style.cursor = "default";
+  }
 }
 
 function submit() {
