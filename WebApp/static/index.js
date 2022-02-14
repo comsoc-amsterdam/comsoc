@@ -51,6 +51,11 @@ function add_candidate() {
     return;
   }
 
+  if (candidates.length == 3) {
+    document.getElementById("addButton").style.opacity = "0.5";
+    document.getElementById("addButton").style.cursor = "default";
+  }
+
   document.getElementById("addCandidate").value = "";
 
   new_node = htmlToElement("<div class=\"a-candidate-div\" id=" + new_candidate + "><label><span class=\"a-candidate-span\">"+ new_candidate + "</span></label><button class=\"a-candidate-button\" onclick=\"remove(" + new_candidate + ");\">x</button></div>");
@@ -85,6 +90,8 @@ function add_candidate() {
 }
 
 function remove(to_delete) {
+  document.getElementById("addButton").style.opacity = "1";
+  document.getElementById("addButton").style.cursor = "pointer";
   to_delete.remove();
 }
 
