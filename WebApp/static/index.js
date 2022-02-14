@@ -41,11 +41,11 @@ function add_candidate() {
 
   candidates = document.getElementById("candidates").getElementsByTagName('div');
 
-  if (candidates.length >= 4) {
+  var new_candidate = document.getElementById("addCandidate").value;
+
+  if (new_candidate.length == 0) {
     return;
   }
-
-  var new_candidate = document.getElementById("addCandidate").value;
 
   if (bad_candidate(new_candidate)) {
     swal("Bad alternative name!");
