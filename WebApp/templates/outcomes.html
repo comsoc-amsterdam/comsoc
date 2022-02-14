@@ -20,26 +20,35 @@
     <p>We will now ask the computer to find a justification for an outcome. First, choose the outcome (you can indicate a tie by ticking multiple winners). Then, choose the normative principles you want the computer to use in the justification.</p>
 
     <div id="checkboxes">
-    <div id="titles">
-      <h3 id="outcome-title">Winners:</h3>
-      <h3 id="corpus-title">Principles:</h3>
-      <span class="empty"/>
-    </div>
-    <div id="outcome">
-    {% for candidate in candidates %}
-      <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
-      <label for="{{candidate}}"><i>{{candidate}}</i></label><br>
-    {% endfor %}
-    </div>
-    <div id="axioms">
-    {% for axiom in axiom_names %}
-          <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
-          <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
-            <label for="{{axiom}}" onclick="">{{axiom}}</label>
-          </span>
-          <br>
-    {% endfor %}
-    </div>
+      <div id="titles">
+        <h3 id="outcome-title">Winners:</h3>
+        <h3 id="corpus-title">Principles:</h3>
+        <span class="empty"/>
+      </div>
+      <div id="outcome">
+      {% for candidate in candidates %}
+        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
+        <label for="{{candidate}}"><i>{{candidate}}</i></label><br>
+      {% endfor %}
+      </div>
+      <div id="axioms-1">
+      {% for axiom in axiom_names[:4] %}
+            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+            <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
+              <label for="{{axiom}}" onclick="">{{axiom}}</label>
+            </span>
+            <br>
+      {% endfor %}
+      </div>
+      <div id="axioms-2">
+      {% for axiom in axiom_names[4:] %}
+            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+            <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
+              <label for="{{axiom}}" onclick="">{{axiom}}</label>
+            </span>
+            <br>
+      {% endfor %}
+      </div>
     </div>
 
     <button id="submit" type="button" onclick="submit();">submit</button>
