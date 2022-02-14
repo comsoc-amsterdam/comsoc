@@ -93,7 +93,7 @@ function submit() {
     result["outcome_" + checked_outcomes[i].id] = checked_outcomes[i].id
   }
 
-  document.getElementById("true-content").remove();
+  document.getElementById("true-content").style.visibility = "hidden";
   document.getElementById("loading").style.visibility = "visible";
 
   post('/result', result);

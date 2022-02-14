@@ -4,6 +4,7 @@ body {
   margin-left: 15%;
   margin-right: 26%;
   background: linear-gradient(90deg, white 84.5%, #2C3E50 15.5%);
+  position: relative;
 }
 
 input, textarea, button {font-family: inherit}
@@ -79,11 +80,11 @@ p, #the-profile {
 }
 
 #loading {
-  text-align: center;
   font-size: 20px;
   visibility: hidden;
-  margin-top: 10%;
-  margin-left: 20%;
+  position: absolute;
+  top: 80px;
+  left: 36.5%;
 }
 
 /*        */
