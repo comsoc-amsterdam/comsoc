@@ -27,6 +27,8 @@ from flask_mail import Mail, Message
 
 from secret import password
 
+import base64
+
 import sys
 sys.path.append("..") 
 
@@ -95,7 +97,14 @@ def buildprofile():
 
 @flask_app.route('/feedback', methods=["POST"])
 def feedback():
-    message = f"understandability: {request.form['understandability']}\nconvincingess: {request.form['convincingness']}\n\n{request.form['feedback']}"
+    message = f"understandability: {request.form['understandability']}\nconvincingess: {request.form['convincingness']}\n\n"
+    if request.form['feedback'] != '':
+        message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
+    message += "Please find the justification file attached."
+
+    message = message.replace('\n', '\r\n')  # email-specific endline char
+
+    justification = base64.b64decode(request.form["justification"]).decode("utf-8")
 
     try:
         with flask_app.app_context():
@@ -103,6 +112,7 @@ def feedback():
                           sender=flask_app.config.get("MAIL_USERNAME"),
                           recipients=["olivieronardi@pm.me"],
                           body=message)
+            msg.attach("justification.html", "text/html", justification)
             mail.send(msg)
     except Exception as e:
         print(e)
@@ -169,13 +179,15 @@ def compute_justification(profile_name, axioms, outcome_names):
         return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms)
     else:
-        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, target_outcome = shortest.display(display = 'website')
+        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, target_outcome, html = shortest.display(display = 'website')
         all_outcomes = sorted(scenario.outcomes, key = lambda out: (len(out), str(out)))
         tables = make_tables(sorted_nodes, all_outcomes, profiles, profile_texts, outcomes, target_outcome)
 
+        html_encoded = base64.b64encode(html.encode()).decode("utf-8")
+
         return render_template('justification.html', len_nodes = len(sorted_nodes), outcomes=outcomes,\
             labels=labels, profiles=profiles, nodes=sorted_nodes, pngs=pngs,\
-            map=cmap, all_outcomes=all_outcomes, tables=tables)
+            map=cmap, all_outcomes=all_outcomes, tables=tables, justification = html_encoded)
 
 @flask_app.route('/result', methods=["POST"])
 def result():
