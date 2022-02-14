@@ -81,10 +81,10 @@ p, #the-profile {
 
 #loading {
   font-size: 20px;
-  visibility: hidden;
   position: absolute;
   top: 80px;
   left: 36.5%;
+  visibility: hidden;
 }
 
 /*        */

@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="{{url_for('static', filename='outcomes.js')}}"></script>
     <script type="text/javascript">var profile_name="{{profile_name|safe}}";</script>
+    <script type="text/javascript">window.onunload = function(){};</script> <!-- reload the page when the back button is pressed on firefox -->
   </head>
   <body>
+
     <div id="h1-container"><h1>Automated Justification</h1></div>
 
     <div id="true-content">
@@ -27,13 +29,13 @@
       </div>
       <div id="outcome">
       {% for candidate in candidates %}
-        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}" onclick="count_checkboxes();">
+        <input autocomplete='off' type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}" onclick="count_checkboxes();">
         <label for="{{candidate}}"><i>{{candidate}}</i></label><br>
       {% endfor %}
       </div>
       <div id="axioms-1">
       {% for axiom in axiom_names[:4] %}
-            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
+            <input autocomplete='off' type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
@@ -42,7 +44,7 @@
       </div>
       <div id="axioms-2">
       {% for axiom in axiom_names[4:] %}
-            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
+            <input autocomplete='off' type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
@@ -55,7 +57,5 @@
     </div>
 
     <div id="loading">Looking for a justification... Please wait.</div>
-
-  <script>count_checkboxes();</script> <!-- if we reload the page, make sure the button is correctly displayed -->
   </body>
 </html>
