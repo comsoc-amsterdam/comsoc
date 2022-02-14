@@ -102,7 +102,7 @@ def feedback():
         message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
     message += "Please find the justification file attached."
 
-    message = message.replace('\n', '\r\n')  # email-specific endline char
+    message = message.replace('\n', '<br>')  # email-specific endline char
 
     justification = base64.b64decode(request.form["justification"]).decode("utf-8")
 
