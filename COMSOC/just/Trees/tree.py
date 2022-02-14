@@ -70,6 +70,10 @@ class ProofTree():
     def getTreeFromAnswerSet(self, prettify = False):
         """Transform the self answer set to a tree."""
 
+        self.nodes = {}
+        self.edges = {}
+        self.proofTree = nx.DiGraph()
+
         self.retrieveNodesFromAnswerSet()
         self.retrieveStatementsFromAnswerSet()
         self.retrieveEdgesFromAnswerSet()

@@ -34,9 +34,12 @@ class ASPTree():
         self._verbose = verbose
         self._prettify = prettify
 
+    def getProofTrees(self):
+        return (ProofTree(answerSet, self.encoding, self.fact2instance) for answerSet in self.getAnswerSets()), self.encoding
+
     def getTree(self, answerSet):
         tree = ProofTree(answerSet, self.encoding, self.fact2instance)
-        return tree.getTreeFromAnswerSet(self._prettify)        
+        return tree.getTreeFromAnswerSet(self._prettify)    
 
     def getTrees(self):
         for answerSet in self.getAnswerSets():

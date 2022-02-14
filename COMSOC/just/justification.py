@@ -79,11 +79,10 @@ class Justification:
     def __len__(self):
         return len(self._explanation)
 
-    def getTrees(self, strategy = "ASP", verbose = False, prettify = False):
+    def getTrees(self, strategy = "ASP", verbose = False):
         if strategy == 'ASP':
-            generator = ASPTree(self, limit = 1, verbose = verbose, prettify = prettify)
-            trees = generator.getTrees()
-            return trees, generator.encoding
+            generator = ASPTree(self, limit = 1, verbose = verbose)
+            return generator.getProofTrees()
         else:
             raise NotImplementedError("Display strategy not implemented.")
 
@@ -93,10 +92,15 @@ class Justification:
         if not display in ['dynamic', 'website'] and destination is None:
             raise ValueError()
 
-        trees, encoding = self.getTrees(strategy, verbose, prettify = (display == 'website'))
+        trees, encoding = self.getTrees(strategy, verbose)
         for tree in trees:
-            display = DisplayTreeInterface(tree, self, encoding, display)
-            if destination is None:
-                return display.exportTree(None)
+            if display == "website":
+                website_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = True), self, encoding, "website")
+                dynamic_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = False), self, encoding, "dynamic")
+                return tuple(list(website_display.exportTree(None)) + [dynamic_display.exportTree(None)])
             else:
-                display.exportTree(destination)
+                display = DisplayTreeInterface(tree, self, encoding, display)
+                if destination is None:
+                    return display.exportTree(None)
+                else:
+                    display.exportTree(destination)
