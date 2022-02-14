@@ -38,7 +38,7 @@ class DrawingWebsite():
                             if s.getProfile() == 'p0' and s.getOutcome() == self.justification.outcome:
                                 removable_nodes.add(child)  # trivial contradiction
                 elif len(neighs) == 0:  # empty list: leaf of a tree
-                    labels[m] += " Contradiction!"
+                    labels[m] += " We're out of possible outcomes: contradiction!"
                     is_there_a_contradiction = True
 
         for node in removable_nodes:
