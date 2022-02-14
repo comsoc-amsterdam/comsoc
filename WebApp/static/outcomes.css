@@ -43,6 +43,7 @@ h1 {
   top: 75%;
   font-size: 1.5em;
   background-color: #D6743C;
+  visibility: hidden;
 }
 
 label {

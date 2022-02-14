@@ -28,6 +28,33 @@ function post(path, params, method='post') {
   form.submit();
 }
 
+function count_checkboxes() {
+  all_axioms = document.getElementById("checkboxes").getElementsByClassName('axiom-checkbox');
+  checked_axioms = [];
+
+  for (var i = 0; i < all_axioms.length; i++) {
+    if (all_axioms[i].checked) {
+      checked_axioms.push(all_axioms[i]);
+    }
+  }
+
+  all_outcomes = document.getElementById("outcome").getElementsByTagName('input');
+  checked_outcomes = [];
+
+  for (var i = 0; i < all_outcomes.length; i++) {
+    if (all_outcomes[i].checked) {
+      checked_outcomes.push(all_outcomes[i]);
+    }
+  }
+
+
+  if (checked_axioms.length == 0 || checked_outcomes.length == 0) {
+     document.getElementById("submit").style.visibility = "hidden";
+  } else {
+     document.getElementById("submit").style.visibility = "visible";
+  }
+}
+
 function submit() {
 
   all_axioms = document.getElementById("checkboxes").getElementsByClassName('axiom-checkbox');

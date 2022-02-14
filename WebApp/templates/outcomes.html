@@ -27,13 +27,13 @@
       </div>
       <div id="outcome">
       {% for candidate in candidates %}
-        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}">
+        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}" onclick="count_checkboxes();">
         <label for="{{candidate}}"><i>{{candidate}}</i></label><br>
       {% endfor %}
       </div>
       <div id="axioms-1">
       {% for axiom in axiom_names[:4] %}
-            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
@@ -42,7 +42,7 @@
       </div>
       <div id="axioms-2">
       {% for axiom in axiom_names[4:] %}
-            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}">
+            <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
