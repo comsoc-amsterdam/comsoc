@@ -34,15 +34,7 @@ function htmlToElement(html) {
 }
 
 function bad_candidate(candidate) {
-  if (candidate == "" || candidate.length > 10) {
-      return true;
-  }
-
-  if (! /^[a-zA-Z]+$/.test(candidate)) {
-    return true;
-  }
-
-  return false;
+  return (! /^[a-zA-Z]+$/.test(candidate));
 }
 
 function add_candidate() {
