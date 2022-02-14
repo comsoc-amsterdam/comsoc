@@ -30,7 +30,7 @@ function post(path, params, method='post') {
 
 function submit() {
 
-  all_axioms = document.getElementById("axioms").getElementsByTagName('input');
+  all_axioms = document.getElementById("checkboxes").getElementsByClassName('axiom-checkbox');
   checked_axioms = [];
 
   for (var i = 0; i < all_axioms.length; i++) {
