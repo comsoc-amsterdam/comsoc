@@ -110,7 +110,7 @@ def feedback():
         with flask_app.app_context():
             msg = Message(subject="Justification Feedback",
                           sender=flask_app.config.get("MAIL_USERNAME"),
-                          recipients=["olivieronardi@pm.me"],
+                          recipients=["comsoc.justify@mail.com"],
                           body=message)
             msg.attach("justification.html", "text/html", justification)
             mail.send(msg)
