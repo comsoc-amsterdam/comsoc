@@ -70,7 +70,8 @@ class Justification:
         return self._involved_profiles
 
     def __eq__(self, other):
-        return self.normative == other.normative and self.explanation == other.explanation
+        return self.normative == other.normative and self.explanation == other.explanation \
+            and self.profile == other.profile and self.outcome == other.outcome
 
     def __str__(self):
         res = f"########\n{self.problem}\n\nNORMATIVE BASIS:\n\t{{{', '.join(map(str, self.normative))}}}\nEXPLANATION:\n"
