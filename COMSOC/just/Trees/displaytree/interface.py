@@ -20,7 +20,7 @@ class DisplayTreeInterface():
         "Export the tree to a file located at dest."
 
         if self.mode == "dynamic":
-            self.drawer = DrawingDynamic(self.tree)
+            self.drawer = DrawingDynamic(self.tree, self.justification)
             if dest is None:
                 return self.exportDynamic(dest)
             else:
