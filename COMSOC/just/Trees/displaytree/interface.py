@@ -9,7 +9,7 @@ import sys
 class DisplayTreeInterface():
     'Interface class used to handle the display of a proof tree'
 
-    def __init__(self, tree, justification, encoding, mode="static"):
+    def __init__(self, tree, justification, mode="static", encoding = None):
         self.tree = tree
         self.drawer = None
         self.mode = mode

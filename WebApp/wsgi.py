@@ -102,7 +102,8 @@ def feedback():
         message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
     message += "Please find the justification file attached."
 
-    justification = base64.b64decode(request.form["justification"]).decode("utf-8")
+    html_justification = base64.b64decode(request.form["html_justification"]).decode()
+    justification = base64.b64decode(request.form["justification"])
 
     try:
         with flask_app.app_context():
@@ -110,7 +111,8 @@ def feedback():
                           sender=flask_app.config.get("MAIL_USERNAME"),
                           recipients=["comsoc.justify@mail.com"],
                           body=message)
-            msg.attach("justification.html", "text/html", justification)
+            msg.attach("justification.html", "text/html", html_justification)
+            msg.attach("justification.pickle", "application/octet-stream", justification)
             mail.send(msg)
     except Exception as e:
         print(e)
@@ -177,15 +179,17 @@ def compute_justification(profile_name, axioms, outcome_names):
         return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms)
     else:
-        pngs, cmap, outcomes, labels, profiles, profile_texts, sorted_nodes, target_outcome, html = shortest.display(display = 'website')
+        pngs, cmap, outcomes, labels, profiles, profile_texts,\
+            sorted_nodes, target_outcome, html, pickled_just = shortest.display(display = 'website')
         all_outcomes = sorted(scenario.outcomes, key = lambda out: (len(out), str(out)))
         tables = make_tables(sorted_nodes, all_outcomes, profiles, profile_texts, outcomes, target_outcome)
 
-        html_encoded = base64.b64encode(html.encode()).decode("utf-8")
+        html_encoded = base64.b64encode(html.encode()).decode()
+        justif_encoded = base64.b64encode(pickled_just).decode()
 
         return render_template('justification.html', len_nodes = len(sorted_nodes), outcomes=outcomes,\
             labels=labels, profiles=profiles, nodes=sorted_nodes, pngs=pngs,\
-            map=cmap, all_outcomes=all_outcomes, tables=tables, justification = html_encoded)
+            map=cmap, all_outcomes=all_outcomes, tables=tables, html_justification = html_encoded, justification = justif_encoded)
 
 @flask_app.route('/result', methods=["POST"])
 def result():

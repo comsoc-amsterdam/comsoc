@@ -43,7 +43,7 @@ function submit_form() {
     var submit = document.getElementById("submit-area");
     submit.innerHTML = "<strong>Thank you!</strong>"
 
-    post("/feedback", {"understandability": understandability, "convincingness": convincingness, "feedback": feedback, "justification" : justification})
+    post("/feedback", {"understandability": understandability, "convincingness": convincingness, "feedback": feedback, "justification" : justification, "html_justification": html_justification})
 }
 
 // Get the modal

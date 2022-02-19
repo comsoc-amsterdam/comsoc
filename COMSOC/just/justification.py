@@ -5,6 +5,7 @@ from COMSOC.just.Trees.displaytree.interface import DisplayTreeInterface
 
 from typing import Set, List
 from collections import deque
+import pickle
 
 class Justification:
 
@@ -97,12 +98,16 @@ class Justification:
         trees, encoding = self.getTrees(strategy, verbose)
         for tree in trees:
             if display == "website":
-                website_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = True), self, encoding, "website")
-                dynamic_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = False), self, encoding, "dynamic")
-                dynamic_display.toJson()
-                return tuple(list(website_display.exportTree(None)) + [dynamic_display.exportTree(None)])
+                website_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = True), self, "website", encoding = encoding)
+
+                html_tree = tree.getTreeFromAnswerSet(prettify = False)
+                dynamic_display = DisplayTreeInterface(html_tree, self, "dynamic")
+                html = dynamic_display.exportTree(None)
+                pickled = pickle.dumps({"justification": self, "tree": html_tree})
+
+                return tuple(list(website_display.exportTree(None)) + [html, pickled])
             else:
-                display = DisplayTreeInterface(tree, self, encoding, display)
+                display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = False), self, display)
                 if destination is None:
                     return display.exportTree(None)
                 else:
