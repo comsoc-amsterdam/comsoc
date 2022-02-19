@@ -67,7 +67,9 @@ class Justification:
                 self._involved_profiles.update(instance.mentions())
 
         return self._involved_profiles
-    
+
+    def __eq__(self, other):
+        return self.normative == other.normative and self.explanation == other.explanation
 
     def __str__(self):
         res = f"########\n{self.problem}\n\nNORMATIVE BASIS:\n\t{{{', '.join(map(str, self.normative))}}}\nEXPLANATION:\n"
@@ -97,6 +99,7 @@ class Justification:
             if display == "website":
                 website_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = True), self, encoding, "website")
                 dynamic_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = False), self, encoding, "dynamic")
+                dynamic_display.toJson()
                 return tuple(list(website_display.exportTree(None)) + [dynamic_display.exportTree(None)])
             else:
                 display = DisplayTreeInterface(tree, self, encoding, display)
