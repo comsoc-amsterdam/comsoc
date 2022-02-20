@@ -579,9 +579,9 @@ class NeutralityInstance(Instance):
                 
                 asp.append(f"neutrality({base},{encoded_outcome},{mapped},{encoded_mapped_outcome})")
 
-                if len(self._profiles) == 1:  # use lemmas
-                    asp.append(f"lemmaNeu({base})")
-                    asp.append(f"lemmaNeuV2({base})")
+        if len(self._profiles) == 1:  # use lemmas
+            asp.append(f"lemmaNeu({base})")
+            asp.append(f"lemmaNeuV2({base})")
 
 
         
