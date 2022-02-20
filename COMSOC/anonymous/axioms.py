@@ -497,7 +497,7 @@ class Neutrality(InterprofileAxiom):
 
         ### Instance might be usable if rule-specific conditions are met
         # Here, usable if P has a single possible outcome O st neut(P1,O,P2,O) is in the explanation
-        rules.append("localConditionsSatisfied(lemmaNeuV2(P),N):- profile(P), instance(lemmaNeuV2(P)), node(N), #count {outcome(O) : statement(N,P,O), instance(neutrality(P,O,P,O))} == 1.")
+        rules.append("localConditionsSatisfied(lemmaNeuV2(P,O),N):- profile(P), instance(lemmaNeuV2(P,O)), node(N), outcome(O), #count {outcome(O1) : statement(N,P,O1), instance(neutrality(P,O1,P,O1))} == 1.")
 
         ### Description of consequences
         # Using it assigns O to both profiles as a final outcome
@@ -505,7 +505,7 @@ class Neutrality(InterprofileAxiom):
                         instance(neutrality(P,O,P,O)), #count {O1 : outcome(O1), statement(N,P,O1),
                         instance(neutrality(P,O1,P,O1))} == 1.""")
 
-        constraints.append(":- step(lemmaNeuV2(P), N1, N2), instance(lemmaNeuV2(P)), profile(P), node(N1), node(N2), N1 < N2, outcome(O), onlyPossible(O,P,N1), statement(N2,P,O1), outcome(O1), O1 != O.")
+        constraints.append(":- step(lemmaNeuV2(P,O), N1, N2), instance(lemmaNeuV2(P)), profile(P), node(N1), node(N2), N1 < N2, outcome(O), onlyPossible(O,P,N1), statement(N2,P,O1), outcome(O1), O1 != O.")
 
         return facts, rules, constraints
 
@@ -579,9 +579,12 @@ class NeutralityInstance(Instance):
                 
                 asp.append(f"neutrality({base},{encoded_outcome},{mapped},{encoded_mapped_outcome})")
 
+                if len(self._profiles) == 1:  # use lemmas
+                    asp.append(f"lemmaNeuV2({base},{encoded_outcome})")
+
         if len(self._profiles) == 1:  # use lemmas
             asp.append(f"lemmaNeu({base})")
-            asp.append(f"lemmaNeuV2({base})")
+                    
 
 
         
@@ -593,7 +596,10 @@ class NeutralityInstance(Instance):
 
         if 'lemmaNeu' in fact:
             if 'V2' in fact:
-                return f"There is only one outcome available for {profiles[0]} that would not contradict Neutrality."
+                outcome = list(map(encoding.decode, re.findall('o[^,\)]+', fact)))[0]
+                if prettify:
+                    outcome = outcome.prettify()
+                return f"Outcome {outcome} is the only available outcome for {profiles[0]} that would not contradict Neutrality. Indeed, if any alternative in {outcome} would lose, that would be an unfair treatment, since it is symmetrical to the others."
             else:
                 return f"Every outcome available for {profiles[0]} would contradict Neutrality."
 
