@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="{{url_for('static', filename='outcomes.js')}}"></script>
     <script type="text/javascript">var profile_name="{{profile_name|safe}}";</script>
-    <script type="text/javascript">window.onunload = function(){};</script> <!-- reload the page when the back button is pressed on firefox -->
   </head>
   <body onload="count_checkboxes();">
 
@@ -57,5 +56,14 @@
     </div>
 
     <div id="loading">Looking for a justification... Please wait.</div>
+
+    <script type="text/javascript">
+      window.onpageshow = function (event) {
+      if (event.persisted) {
+          document.getElementById("true-content").style.visibility = "visible";
+          document.getElementById("loading").style.visibility = "hidden";
+        }
+      };
+    </script> <!-- reload the page when the back button is pressed on firefox/ios -->
   </body>
 </html>
