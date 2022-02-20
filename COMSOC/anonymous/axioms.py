@@ -497,7 +497,7 @@ class Neutrality(InterprofileAxiom):
 
         ### Instance might be usable if rule-specific conditions are met
         # Here, usable if P has a single possible outcome O st neut(P1,O,P2,O) is in the explanation
-        rules.append("localConditionsSatisfied(lemmaNeuV2(P,O),N):- profile(P), instance(lemmaNeuV2(P,O)), node(N), outcome(O), #count {outcome(O1) : statement(N,P,O1), instance(neutrality(P,O1,P,O1))} == 1.")
+        rules.append("localConditionsSatisfied(lemmaNeuV2(P,O),N):- profile(P), instance(lemmaNeuV2(P,O)), node(N), outcome(O), statement(N,P,O), instance(neutrality(P,O,P,O)), #count {outcome(O1) : statement(N,P,O1), instance(neutrality(P,O1,P,O1))} == 1.")
 
         ### Description of consequences
         # Using it assigns O to both profiles as a final outcome
@@ -505,7 +505,7 @@ class Neutrality(InterprofileAxiom):
                         instance(neutrality(P,O,P,O)), #count {O1 : outcome(O1), statement(N,P,O1),
                         instance(neutrality(P,O1,P,O1))} == 1.""")
 
-        constraints.append(":- step(lemmaNeuV2(P,O), N1, N2), instance(lemmaNeuV2(P)), profile(P), node(N1), node(N2), N1 < N2, outcome(O), onlyPossible(O,P,N1), statement(N2,P,O1), outcome(O1), O1 != O.")
+        constraints.append(":- step(lemmaNeuV2(P,O), N1, N2), instance(lemmaNeuV2(P,O)), profile(P), node(N1), node(N2), N1 < N2, outcome(O), onlyPossible(O,P,N1), statement(N2,P,O1), outcome(O1), O1 != O.")
 
         return facts, rules, constraints
 
