@@ -33,11 +33,14 @@ class DrawingDynamic():
                 if len(neighs) == 1:
                     child = neighs[0]
                     if not list(self.tree.neighbors(child)):  # only child is a leaf.
-                        if len(m.statements) == 1:  # there is only one possible outcome
-                            s = m.statements[0]
-                            # there is only the target outcome for the given profile
-                            if s.getProfile() == 'p0' and s.getOutcome() == self.justification.outcome:
-                                removable_nodes.add(child)  # trivial contradiction
+                        goal_statements = set()
+                        for s in m.statements:
+                            if s.getProfile() == 'p0':
+                                goal_statements.add(s.getOutcome())
+
+                        # there is only the target outcome for the given profile
+                        if goal_statements == {self.justification.outcome}:
+                            removable_nodes.add(child)  # trivial contradiction
 
         for node in removable_nodes:
             self.tree.remove_node(node)

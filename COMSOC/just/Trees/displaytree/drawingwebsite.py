@@ -18,32 +18,28 @@ class DrawingWebsite():
         labels = {}
 
         ## Clean graph (remove unused contradictions, prettify labels for contradictions)
-        
         removable_nodes = set()
-        is_there_a_contradiction = False
         for e in self.tree.edges():
             n, m = e
             
-            labels[m] = steps[e]
-
             if m not in removable_nodes:  # we don't care about the labels of this nodes
                 neighs = list(self.tree.neighbors(m))
 
                 if len(neighs) == 1:
                     child = neighs[0]
                     if not list(self.tree.neighbors(child)):  # only child is a leaf.
-                        if len(m.statements) == 1:  # there is only one possible outcome
-                            s = m.statements[0]
-                            # there is only the target outcome for the given profile
-                            if s.getProfile() == 'p0' and s.getOutcome() == self.justification.outcome:
-                                removable_nodes.add(child)  # trivial contradiction
-                elif len(neighs) == 0:  # empty list: leaf of a tree
-                    labels[m] += " We're out of possible outcomes: contradiction!"
-                    is_there_a_contradiction = True
+                        goal_statements = set()
+                        for s in m.statements:
+                            if s.getProfile() == 'p0':
+                                goal_statements.add(s.getOutcome())
+
+                        # there is only the target outcome for the given profile
+                        if goal_statements == {self.justification.outcome}:
+                            removable_nodes.add(child)  # trivial contradiction
 
         for node in removable_nodes:
             self.tree.remove_node(node)
-
+            
         ### Build graph
 
         g = graphviz.Digraph('G')
