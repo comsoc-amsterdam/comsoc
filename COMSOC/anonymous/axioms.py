@@ -612,7 +612,10 @@ class NeutralityInstance(Instance):
                 else:
                     return f"If {list(outcomes[0])[0]} was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to {list(outcomes[1])[0]} (and vice versa). Hence, neither can be the unique winners."
             else:
-                return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and vice versa). Hence, neither set can be the outcome."
+                if prettify:
+                    return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and vice versa). Hence, neither set can be the outcome."
+                else:
+                    return f"If {outcomes[0]} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1]} (and vice versa). Hence, neither set can be the outcome."
         else:
             return f"By Neutrality, if {outcomes[0].prettify() if prettify else outcomes[0]} is the outcome for {profiles[0]}, then {outcomes[1].prettify() if prettify else outcomes[0]} must be the outcome of {profiles[1]} (or vice versa)."
 
