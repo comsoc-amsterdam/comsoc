@@ -28,11 +28,12 @@ from flask_mail import Mail, Message
 from secret import password
 
 import base64
+import re
+import time
+import os
 
 import sys
 sys.path.append("..") 
-
-import re
 
 import COMSOC.anonymous as theory
 from COMSOC.problems import JustificationProblem
@@ -104,6 +105,17 @@ def feedback():
 
     html_justification = base64.b64decode(request.form["html_justification"]).decode()
     justification = base64.b64decode(request.form["justification"])
+
+    filename = f"feedbacks/justification_{int(time.time())}"
+
+    os.mkdir(filename)
+
+    with open(filename + "/justification.pickle", "wb") as f:
+        f.write(justification)
+    with open(filename + "/justification.html", "w") as f:
+        f.write(html_justification)
+    with open(filename + "/feedback.txt", "w") as f:
+        f.write(message)
 
     try:
         with flask_app.app_context():
