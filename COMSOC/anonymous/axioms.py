@@ -599,7 +599,7 @@ class NeutralityInstance(Instance):
                 outcome = list(map(encoding.decode, re.findall('o[^,\)]+', fact)))[0]
                 if prettify:
                     outcome = outcome.prettify()
-                return f"Outcome {outcome} is the only available outcome for {profiles[0]} that would not contradict Neutrality. Indeed, if any alternative in {outcome} were to lose, that would be an unfair treatment, since these alternatives differ only in the name."
+                return f"Outcome {outcome} is the only available outcome for {profiles[0]} that would not contradict Neutrality. Indeed, if any alternative in {outcome} were to lose, that would be an unfair treatment, since these alternatives differ only in their names."
             else:
                 return f"Every outcome available for {profiles[0]} would contradict Neutrality."
 
