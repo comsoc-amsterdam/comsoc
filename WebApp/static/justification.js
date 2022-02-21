@@ -3,14 +3,14 @@ function submit_form() {
     radios = understandable.getElementsByTagName("input");
     var understandability = "";
     for (var i = 0 ; i < radios.length; i++) {
-        if (radios[i].checked) understandability = radios[i].className;
+        if (radios[i].checked) understandability = parseInt(radios[i].className);
     }
 
     var convincing = document.getElementById("convincing");
     radios = convincing.getElementsByTagName("input");
     var convincingness = "";
     for (var i = 0 ; i < radios.length; i++) {
-        if (radios[i].checked) convincingness = radios[i].className;
+        if (radios[i].checked) convincingness = parseInt(radios[i].className);
 
     }
 

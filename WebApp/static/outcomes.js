@@ -38,6 +38,8 @@ function submit() {
   result = {"profile": profile_name};
 
   for (var i = 0; i < checked_axioms.length; i++) {
+    if (bad_input(checked_axioms[i].id))
+      return; 
     result["axiom_" + checked_axioms[i].id] = checked_axioms[i].id
   }
 
@@ -55,6 +57,9 @@ function submit() {
   }
 
   for (var i = 0; i < checked_outcomes.length; i++) {
+    if (bad_input(checked_outcomes[i].id))
+      return; 
+
     result["outcome_" + checked_outcomes[i].id] = checked_outcomes[i].id
   }
 

@@ -114,10 +114,6 @@ function add_ballot() {
   document.getElementById("submit").style.visibility = "visible";
 }
 
-function bad_candidate(candidate) {
-    return (! /^[a-zA-Z]+$/.test(candidate));
-}
-
 function submit() {
   ballots = document.getElementsByClassName("ballot");
   profile_str = "";
@@ -136,7 +132,7 @@ function submit() {
       }
       profile_str += number + ":";
       for (var j = 0; j < ranked_candidates.length; j++) {
-        if (bad_candidate(ranked_candidates[j].innerHTML)) {
+        if (bad_input(ranked_candidates[j].innerHTML)) {
           return;
         }
         profile_str += ranked_candidates[j].innerHTML;

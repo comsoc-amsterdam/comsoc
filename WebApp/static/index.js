@@ -13,7 +13,7 @@ function add_candidate() {
     return;
   }
 
-  if (bad_candidate(new_candidate)) {
+  if (bad_input(new_candidate)) {
     swal("Bad alternative name!");
     return;
   }
@@ -87,7 +87,7 @@ function submit() {
   result = {};
 
   for (var i = 0; i < candidates.length; i++) {
-    if (bad_candidate(candidates[i].id)) {
+    if (bad_input(candidates[i].id)) {
       return;
     }
     
