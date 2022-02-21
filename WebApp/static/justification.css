@@ -1,6 +1,6 @@
 body {
   font-family: 'IBM Plex Sans';
-  font-size: 14px;
+  font-size: 70%;
   background-color: #D6D6D6;
   margin-left: 15%;
   margin-right: 26%;
@@ -179,7 +179,7 @@ padding-right: 5px;
   text-decoration: underline;
   cursor: pointer;
   font-size: 16px;
-    position: fixed;
+  position: fixed;
   left: 3%;
   bottom: 5%;
 }
