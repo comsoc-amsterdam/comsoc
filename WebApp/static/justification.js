@@ -1,27 +1,3 @@
-function post(path, params, method='post') {
-
-  // The rest of this code assumes you are not using a library.
-  // It can be made less verbose if you use one.
-  const form = document.createElement('form');
-  form.method = method;
-  form.action = path;
-  form.target = "_blank" //open in new page
-
-  for (const key in params) {
-    if (params.hasOwnProperty(key)) {
-      const hiddenField = document.createElement('input');
-      hiddenField.type = 'hidden';
-      hiddenField.name = key;
-      hiddenField.value = params[key];
-
-      form.appendChild(hiddenField);
-    }
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-}
-
 function submit_form() {
     var understandable = document.getElementById("understandable");
     radios = understandable.getElementsByTagName("input");

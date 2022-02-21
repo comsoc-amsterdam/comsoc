@@ -11,6 +11,7 @@
       candidates = [];
       {% for candidate in candidates %} candidates.push('{{candidate}}'); {% endfor %}
     </script>
+    <script src="{{url_for('static', filename='generic.js')}}"></script>
     <script src="{{url_for('static', filename='buildprofile.js')}}"></script>
   </head>
   <body>
