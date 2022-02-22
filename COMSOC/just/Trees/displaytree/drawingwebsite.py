@@ -183,5 +183,5 @@ class DrawingWebsite():
 
         return {"len_nodes": len(sorted_nodes), "outcomes": outcomes,\
             "labels":labels, "profiles": profiles, "nodes": sorted_nodes, "pngs": pngs,\
-            "map":cmap, "all_outcomes":all_outcomes, "tables":tables, "html_justification":html_encoded,\
-            "justification":justif_encoded}
+            "map":cmap, "all_outcomes":all_outcomes, "tables":tables, "justification_html":html_encoded,\
+            "justification_pickle":justif_encoded}

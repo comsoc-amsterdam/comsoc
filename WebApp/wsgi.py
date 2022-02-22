@@ -25,11 +25,12 @@ def make_celery(app):
 from flask import Flask, request, render_template, url_for
 from flask_mail import Mail, Message
 
-from secret import password
+from secret import password, privkey, pubkey
 
 import base64
 import time
 import os
+import rsa
 
 import COMSOC.anonymous as theory  # We work with anonymous voting
 from COMSOC.problems import JustificationProblem
@@ -142,6 +143,12 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
     else:
         # Return the HTML website for the justification
         data_pack = shortest.displayASP(display = 'website')
+
+        sensible = (data_pack["justification_html"]+data_pack["justification_pickle"])
+        signature = rsa.sign(sensible.encode(), privkey, 'SHA-1')
+        signature = base64.b64encode(signature).decode()
+        data_pack["signature"] = signature
+
         return render_template("justification.html", **data_pack)
 
 ############ Web Pages ###############
@@ -217,21 +224,30 @@ def feedback():
         message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
     message += "Please find the justification file attached."
 
-    html_justification = base64.b64decode(request.form["html_justification"]).decode()
-    justification = base64.b64decode(request.form["justification"])
+    b64_html_justification = request.form["justification_html"]
+    b64_pickle_justification = request.form["justification_pickle"]
 
-    # removed for security reasons
+    signature = base64.b64decode(request.form["signature"])
 
-    """filename = f"feedbacks/justification_{int(time.time())}"
+    try:
+        rsa.verify((b64_html_justification + b64_pickle_justification).encode(), signature, pubkey)
+    except rsa.pkcs1.VerificationError:
+        return "Bad input!"
+
+    justification_html = base64.b64decode(b64_html_justification).decode()
+
+    justification_pickle = base64.b64decode(b64_pickle_justification)
+
+    filename = f"feedbacks/justification_{int(time.time())}"
 
     os.mkdir(filename)
 
     with open(filename + "/justification.pickle", "wb") as f:
-        f.write(justification)
+        f.write(justification_pickle)
     with open(filename + "/justification.html", "w") as f:
-        f.write(html_justification)
+        f.write(justification_html)
     with open(filename + "/feedback.txt", "w") as f:
-        f.write(message)""" 
+        f.write(message)
 
     try:
         with flask_app.app_context():
@@ -239,8 +255,8 @@ def feedback():
                           sender=flask_app.config.get("MAIL_USERNAME"),
                           recipients=["comsoc.justify@mail.com"],
                           body=message)
-            msg.attach("justification.html", "text/html", html_justification)
-            msg.attach("justification.pickle", "application/octet-stream", justification)
+            msg.attach("justification.html", "text/html", justification_html)
+            msg.attach("justification.pickle", "application/octet-stream", justification_pickle)
             mail.send(msg)
     except Exception as e:
         print(e)
