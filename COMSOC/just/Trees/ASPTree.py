@@ -37,6 +37,10 @@ class ASPTree():
     def getProofTrees(self):
         return (ProofTree(answerSet, self.encoding, self.fact2instance) for answerSet in self.getAnswerSets()), self.encoding
 
+    def getAProofTree(self):
+        for answerSet in self.getAnswerSets(): break
+        return ProofTree(answerSet, self.encoding, self.fact2instance), self.encoding        
+
     def getTree(self, answerSet):
         tree = ProofTree(answerSet, self.encoding, self.fact2instance)
         return tree.getTreeFromAnswerSet(self._prettify)    

@@ -5,7 +5,6 @@ from COMSOC.just.Trees.displaytree.interface import DisplayTreeInterface
 
 from typing import Set, List
 from collections import deque
-import pickle
 
 class Justification:
 
@@ -83,33 +82,7 @@ class Justification:
     def __len__(self):
         return len(self._explanation)
 
-    def getTrees(self, strategy = "ASP", verbose = False):
-        if strategy == 'ASP':
-            generator = ASPTree(self, limit = 1, verbose = verbose)
-            return generator.getProofTrees()
-        else:
-            raise NotImplementedError("Display strategy not implemented.")
-
-    def display(self, destination: str=None, strategy = "ASP", display = "dynamic", verbose = False):
-        """If destination is unspecified, return it."""
-
-        if not display in ['dynamic', 'website'] and destination is None:
-            raise ValueError()
-
-        trees, encoding = self.getTrees(strategy, verbose)
-        for tree in trees:
-            if display == "website":
-                website_display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = True), self, "website", encoding = encoding)
-
-                html_tree = tree.getTreeFromAnswerSet(prettify = False)
-                dynamic_display = DisplayTreeInterface(html_tree, self, "dynamic")
-                html = dynamic_display.exportTree(None)
-                pickled = pickle.dumps({"justification": self, "tree": html_tree})
-
-                return tuple(list(website_display.exportTree(None)) + [html, pickled])
-            else:
-                display = DisplayTreeInterface(tree.getTreeFromAnswerSet(prettify = False), self, display)
-                if destination is None:
-                    return display.exportTree(None)
-                else:
-                    display.exportTree(destination)
+    def displayASP(self, destination: str=None, strategy = "ASP", display = "dynamic", verbose = False):
+        tree, encoding = ASPTree(self, limit = 1, verbose = verbose).getAProofTree()
+        displayer = DisplayTreeInterface(tree, self, source = "ASP", encoding = encoding)
+        return displayer.exportTree(display, dest = destination)
