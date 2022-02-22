@@ -140,7 +140,7 @@ class CheckAxioms(DecisionProblem):
     def _known_faults(self):
         scenario = getScenario(self._axioms)
         names = set(map(str, self._axioms))
-        return scenario.nVoters < 3 or ("Condorcet" not in names) or ("Reinforcement" not in names)
+        return len(scenario.alternatives) < 3 or ("Condorcet" not in names) or ("Reinforcement" not in names)
         
     def _apply_reasoner(self, reasoner):
         return reasoner.checkAxioms(self._axioms)
