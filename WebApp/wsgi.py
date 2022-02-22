@@ -32,9 +32,6 @@ import re
 import time
 import os
 
-import sys
-sys.path.append("..") 
-
 import COMSOC.anonymous as theory  # We work with anonymous voting
 from COMSOC.problems import JustificationProblem
 from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
@@ -58,8 +55,7 @@ mail = Mail(flask_app)
 # Celery backend
 flask_app.config.update(
     CELERY_BROKER_URL='redis://localhost:6379',
-    CELERY_RESULT_BACKEND='redis://localhost:6379',
-    SERVER_NAME='127.0.0.1:5000'
+    CELERY_RESULT_BACKEND='redis://localhost:6379'
 )
 celery = make_celery(flask_app)
 
