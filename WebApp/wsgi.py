@@ -28,7 +28,6 @@ from flask_mail import Mail, Message
 from secret import password
 
 import base64
-import re
 import time
 import os
 
@@ -75,6 +74,10 @@ axiom_names["Responsiveness"] = "PositiveResponsiveness"
 
 ############ Helper functions ###############
 
+# Check if a name contains special chars
+def bad_input(string):
+    return any(map(lambda x: not x.isalpha(), string))
+
 # Given a profile string, return the Scenario it induces and the profile object itself.
 def parse_profile(profile_name: str):
     voters = 0
@@ -101,6 +104,11 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 
     # Get the scenario and the profile
     scenario, profile = parse_profile(profile_name)
+
+    # Check input
+    for a in scenario.alternatives:
+        if bad_input(a):
+            return "Bad input!"
 
     # Get the outcome
     outcome = scenario.get_outcome(','.join(outcome_names))
@@ -145,6 +153,10 @@ def index():
 
 @flask_app.route('/buildprofile', methods=["POST"])
 def buildprofile():
+    for val in request.form.values():
+        if bad_input(val):
+            return "Bad input!"
+
     return render_template('buildprofile.html', candidates = list(request.form.values()))
 
 @flask_app.route('/outcomes', methods=["POST"])
@@ -152,6 +164,11 @@ def outcomes():
     profile_name = request.form['profile']
 
     scenario, profile = parse_profile(profile_name)
+
+    # Check input
+    for a in scenario.alternatives:
+        if bad_input(a):
+            return "Bad input!"
 
     return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
         candidates = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
@@ -166,8 +183,14 @@ def result():
         if key == "profile":
             profile_name = value
         elif key[:6] == "axiom_":
+            # Check input
+            if bad_input(value):
+                return "Bad input!"
             axioms.append(value)
         elif key[:8] == "outcome_":
+            # Check input
+            if bad_input(value):
+                return "Bad input!"
             outcome_names.append(value)
 
     try:
@@ -175,6 +198,12 @@ def result():
         result = result.get(timeout=30)
     except TimeoutError:
         scenario, profile = parse_profile(profile_name)
+
+        # Check input
+        for a in scenario.alternatives:
+            if bad_input(a):
+                return "Bad input!"
+
         outcome = scenario.get_outcome(','.join(outcome_names))
         return render_template('timeout.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms)
@@ -191,7 +220,9 @@ def feedback():
     html_justification = base64.b64decode(request.form["html_justification"]).decode()
     justification = base64.b64decode(request.form["justification"])
 
-    filename = f"feedbacks/justification_{int(time.time())}"
+    # removed for security reasons
+
+    """filename = f"feedbacks/justification_{int(time.time())}"
 
     os.mkdir(filename)
 
@@ -200,7 +231,7 @@ def feedback():
     with open(filename + "/justification.html", "w") as f:
         f.write(html_justification)
     with open(filename + "/feedback.txt", "w") as f:
-        f.write(message)
+        f.write(message)""" 
 
     try:
         with flask_app.app_context():
