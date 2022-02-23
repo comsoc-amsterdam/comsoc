@@ -109,7 +109,7 @@ button {
   cursor: default;
 }
 
-#candidates {
+#alternatives {
   margin-top: 1.5%;
   width: 310px;
   height: 160px;
@@ -117,7 +117,7 @@ button {
   border-radius: 7px;
 }
 
-.a-candidate-div {
+.alternative-div {
   width: 310px;
   height: 40px;
   background-color: #C2C2C2;
@@ -125,12 +125,12 @@ button {
   border-radius: 7px;
 }
 
-.a-candidate-span {
+.alternative-span {
   float: left;
   margin-left: 7px;
   margin-top: 7px;
 }
-.a-candidate-button {
+.alternative-button {
   float: right;
   margin-right: 7px;
   border: none;

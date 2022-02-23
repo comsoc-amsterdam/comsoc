@@ -28,9 +28,9 @@
         <span class="empty"/>
       </div>
       <div id="outcome">
-      {% for candidate in candidates %}
-        <input type="checkbox" id="{{candidate}}" name="{{candidate}}" value="{{candidate}}" onclick="count_checkboxes();">
-        <label for="{{candidate}}"><i>{{candidate}}</i></label><br>
+      {% for alternative in alternatives %}
+        <input type="checkbox" id="{{alternative}}" name="{{alternative}}" value="{{alternative}}" onclick="count_checkboxes();">
+        <label for="{{alternative}}"><i>{{alternative}}</i></label><br>
       {% endfor %}
       </div>
       <div id="axioms-1">

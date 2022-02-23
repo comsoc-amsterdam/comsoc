@@ -28,6 +28,6 @@ function post(path, params, method='post') {
   form.submit();
 }
 
-function bad_input(candidate) {
-  return (! /^[a-zA-Z]+$/.test(candidate));
+function bad_input(inpt) {
+  return (! /^[a-zA-Z]+$/.test(inpt));
 }

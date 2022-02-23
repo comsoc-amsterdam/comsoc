@@ -62,7 +62,7 @@ h1 {
   visibility: hidden;
 }
 
-.candidates {
+.alternatives {
   display: inline-block;
   width: 100%;
 }

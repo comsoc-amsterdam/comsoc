@@ -1,8 +1,8 @@
 // RANK COLORS
-  if (candidates.length > 1) {
+  if (alternatives.length > 1) {
     var colorInterpolator = d3.interpolateRgb("green", "red");
 
-    steps = candidates.length;
+    steps = alternatives.length;
 
     var colorArray = d3.range(0, (1 + 1 / steps), 1 / (steps - 1)).map(function(d) {
       return colorInterpolator(d)
@@ -13,42 +13,42 @@
   }
 
 
-function rank(candidate_button) {
-  var ballot = candidate_button.parentElement.parentElement;
+function rank(alternative_button) {
+  var ballot = alternative_button.parentElement.parentElement;
   var ranked = ballot.getElementsByClassName("ranked")[0];
-  var button = htmlToElement("<button class=\"derank-button\" type=\"button\" onclick=\"derank(this);\">" + candidate_button.innerHTML + "</button>");
+  var button = htmlToElement("<button class=\"derank-button\" type=\"button\" onclick=\"derank(this);\">" + alternative_button.innerHTML + "</button>");
   var rank = ranked.getElementsByClassName("derank-button").length;
 
   button.style.backgroundColor = colorArray[rank];
   ranked.appendChild(button);
-  candidate_button.remove();
+  alternative_button.remove();
 }
 
-function derank(candidate_button) {
-  var ballot = candidate_button.parentElement.parentElement;
+function derank(alternative_button) {
+  var ballot = alternative_button.parentElement.parentElement;
   deranked = ballot.getElementsByClassName("deranked")[0];
-  deranked_candidates = deranked.getElementsByTagName("button");
-  new_candidate = htmlToElement("<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + candidate_button.innerHTML + "</button>");
+  deranked_alternatives = deranked.getElementsByTagName("button");
+  new_alternative = htmlToElement("<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + alternative_button.innerHTML + "</button>");
 
   var inserted = 0;
 
-  for (var i = 0; i < deranked_candidates.length; i++) {
-    if (deranked_candidates[i].innerHTML > candidate_button.innerHTML) {
-      deranked.insertBefore(new_candidate, deranked_candidates[i]);
+  for (var i = 0; i < deranked_alternatives.length; i++) {
+    if (deranked_alternatives[i].innerHTML > alternative_button.innerHTML) {
+      deranked.insertBefore(new_alternative, deranked_alternatives[i]);
       inserted = 1;
       break;
     }
   }
 
   if (inserted == 0)
-    deranked.appendChild(new_candidate);
+    deranked.appendChild(new_alternative);
 
-  candidate_button.remove();
+  alternative_button.remove();
 
-  ranked_candidates = ballot.getElementsByClassName("derank-button");
+  ranked_alternatives = ballot.getElementsByClassName("derank-button");
 
-  for (var i = 0; i < ranked_candidates.length; i++) {
-    ranked_candidates[i].style.backgroundColor = colorArray[i];
+  for (var i = 0; i < ranked_alternatives.length; i++) {
+    ranked_alternatives[i].style.backgroundColor = colorArray[i];
   }
 }
 
@@ -99,15 +99,15 @@ function add_ballot() {
   html += "<button class=\"ballot-remove\" onclick=\"remove_ballot(this.parentNode.parentNode);\">&times;</button>";
   html += "</div>";
 
-  html += "<div class=\"candidates\"><div class=\"deranked\">";
-  for (var i = 0; i < candidates.length; i++) {
-    html += "<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + candidates[i] + "</button>";
+  html += "<div class=\"alternatives\"><div class=\"deranked\">";
+  for (var i = 0; i < alternatives.length; i++) {
+    html += "<button class=\"rank-button\" type=\"button\" onclick=\"rank(this);\">" + alternatives[i] + "</button>";
   }
   html += "</div><div class=\"ranked\"></div></div>";
   html += "</div>";
   ballot = (htmlToElement(html));
-  button_size = ballot.getElementsByClassName("candidates")[0].getElementsByClassName("deranked")[0].style.height;
-  ballot.getElementsByClassName("candidates")[0].style.height = (candidates.length * (40 + 5*2)) + "px";
+  button_size = ballot.getElementsByClassName("alternatives")[0].getElementsByClassName("deranked")[0].style.height;
+  ballot.getElementsByClassName("alternatives")[0].style.height = (alternatives.length * (40 + 5*2)) + "px";
 
   ballots.insertBefore(ballot, ballots.firstChild);
 
@@ -125,18 +125,18 @@ function submit() {
         swal("Ballot counts must be positive!");
         return;
       }
-      ranked_candidates = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
-      if (ranked_candidates.length < candidates.length) {
+      ranked_alternatives = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
+      if (ranked_alternatives.length < alternatives.length) {
         swal("You have some unranked alternatives!");
         return;
       }
       profile_str += number + ":";
-      for (var j = 0; j < ranked_candidates.length; j++) {
-        if (bad_input(ranked_candidates[j].innerHTML)) {
+      for (var j = 0; j < ranked_alternatives.length; j++) {
+        if (bad_input(ranked_alternatives[j].innerHTML)) {
           return;
         }
-        profile_str += ranked_candidates[j].innerHTML;
-        if (j < ranked_candidates.length - 1) {
+        profile_str += ranked_alternatives[j].innerHTML;
+        if (j < ranked_alternatives.length - 1) {
           profile_str += '>';
         }
       }

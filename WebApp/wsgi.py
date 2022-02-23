@@ -1,4 +1,6 @@
-### FOR MULTIPLE WORKERS... ###
+MAX_TIME = 30  # maximum 30 seconds
+
+### FOR MULTIPLE WORKERS... (see flask documentation for celery) ###
 
 from celery import Celery
 from celery.exceptions import TimeoutError
@@ -100,6 +102,7 @@ def parse_profile(profile_name: str):
     return scenario, profile
 
 # A celery task that (if possible) retrieves a justification and return an html page describing it
+# (see celery documentation)
 @celery.task(name='uwsgi_file_web.compute_justification')
 def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 
@@ -142,13 +145,23 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
             axioms = axioms)
     else:
         # Return the HTML website for the justification
+        # this "datapack" is a dictionary containing all the data needed to display the website
         data_pack = shortest.displayASP(display = 'website')
 
+        # we need an extra field, however: a signature for the html and pickled justification
+        # (these will be sent from this page to an email in case of feedback: we sign them
+        # so we can make sure that the feedback we receive is from us and us only)
+
+        # concatenate the sensible data
         sensible = (data_pack["justification_html"]+data_pack["justification_pickle"])
+        # sign it
         signature = rsa.sign(sensible.encode(), privkey, 'SHA-1')
+        # base64-encode the signature so we can store it into the html page and send it later
         signature = base64.b64encode(signature).decode()
+        # add it to the datapack
         data_pack["signature"] = signature
 
+        # unroll the dictionary and display the justification!
         return render_template("justification.html", **data_pack)
 
 ############ Web Pages ###############
@@ -160,25 +173,29 @@ def index():
 
 @flask_app.route('/buildprofile', methods=["POST"])
 def buildprofile():
+
+    # Input sanitisation: the alternatives are in the keys of this dictionary
     for val in request.form.values():
         if bad_input(val):
             return "Bad input!"
 
-    return render_template('buildprofile.html', candidates = list(request.form.values()))
+    # in this request, we have the alternatives (the keys don't matter)
+    return render_template('buildprofile.html', alternatives = list(request.form.values()))
 
 @flask_app.route('/outcomes', methods=["POST"])
 def outcomes():
-    profile_name = request.form['profile']
 
+    # in this request, we have the profile
+    profile_name = request.form['profile']
     scenario, profile = parse_profile(profile_name)
 
-    # Check input
+    # Input sanitisation
     for a in scenario.alternatives:
         if bad_input(a):
             return "Bad input!"
 
     return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
-        candidates = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
+        alternatives = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
 
 @flask_app.route('/result', methods=["POST"])
 def result():
@@ -186,6 +203,10 @@ def result():
     axioms = []
     outcome_names = []
 
+    # In this request we have:
+    # profile --> the profile
+    # outcome_x if x is among the selected winners
+    # axiom_A if A is among the chosen axioms
     for key, value in request.form.items():
         if key == "profile":
             profile_name = value
@@ -200,10 +221,13 @@ def result():
                 return "Bad input!"
             outcome_names.append(value)
 
+    # We try to compute the results. Max time: MAX_TIME seconds 
     try:
         result = compute_justification.delay(profile_name, axioms, outcome_names)
-        result = result.get(timeout=30)
+        result = result.get(timeout=MAX_TIME)
     except TimeoutError:
+        # If we have a timeout, return an error message
+
         scenario, profile = parse_profile(profile_name)
 
         # Check input
@@ -212,6 +236,7 @@ def result():
                 return "Bad input!"
 
         outcome = scenario.get_outcome(','.join(outcome_names))
+        # prettify presents profile/outcome in HTML nicely
         return render_template('timeout.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms)
 
@@ -219,27 +244,41 @@ def result():
 
 @flask_app.route('/feedback', methods=["POST"])
 def feedback():
+
+    # Handle a feedback request
+    # request fields: understandability (int), convincingess (int), feedback (a string ot text),
+    # justification_html (a base64 encoded html file describing the justification we saw) 
+    # justification_pickle (a base64 encoded pickle object encoding the justification we saw)
+    # (to see why they are in base64, check the compute_justification function)
+    # signature (a RSA signature of the two the html/pickle files (for security reasons))
+
+    # Compose the email message
     message = f"understandability: {request.form['understandability']}\nconvincingess: {request.form['convincingness']}\n\n"
     if request.form['feedback'] != '':
         message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
-    message += "Please find the justification file attached."
+    message += "Please find the justification files attached."
 
     b64_html_justification = request.form["justification_html"]
     b64_pickle_justification = request.form["justification_pickle"]
 
     signature = base64.b64decode(request.form["signature"])
 
+    # Integrity check (we do this because, in theory, some one could fabricate these objects)
+    # This signature is procuded when the justification is computed, see the compute_justification function
     try:
+        # rsa verification
         rsa.verify((b64_html_justification + b64_pickle_justification).encode(), signature, pubkey)
     except rsa.pkcs1.VerificationError:
         return "Bad input!"
 
+    # Ok, we passed the check. Decode the files from base64 (this returns a bytes object)
+    # (the html file is also decoded from the bytes object, as we want a string here)
     justification_html = base64.b64decode(b64_html_justification).decode()
-
+    # (the pickle file is not decoded, we need it in bytes)
     justification_pickle = base64.b64decode(b64_pickle_justification)
 
+    # Save these things to disk
     filename = f"feedbacks/justification_{int(time.time())}"
-
     os.mkdir(filename)
 
     with open(filename + "/justification.pickle", "wb") as f:
@@ -249,6 +288,7 @@ def feedback():
     with open(filename + "/feedback.txt", "w") as f:
         f.write(message)
 
+    # Try sending an email
     try:
         with flask_app.app_context():
             msg = Message(subject="Justification Feedback",
@@ -261,4 +301,5 @@ def feedback():
     except Exception as e:
         print(e)
 
+    # Ok!
     return render_template("message_sent.html")

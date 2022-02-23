@@ -8,8 +8,8 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script type="text/javascript">
-      candidates = [];
-      {% for candidate in candidates %} candidates.push('{{candidate}}'); {% endfor %}
+      alternatives = [];
+      {% for alternative in alternatives %} alternatives.push('{{alternative}}'); {% endfor %}
     </script>
     <script src="{{url_for('static', filename='generic.js')}}"></script>
     <script src="{{url_for('static', filename='buildprofile.js')}}"></script>

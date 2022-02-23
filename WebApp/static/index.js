@@ -1,55 +1,55 @@
 function handle_keypress() {
-  if(document.getElementById("addCandidate").value === "") submit();
-  else add_candidate();
+  if(document.getElementById("addAlternative").value === "") submit();
+  else add_alternative();
 }
 
-function add_candidate() {
+function add_alternative() {
 
-  candidates = document.getElementById("candidates").getElementsByTagName('div');
+  alternatives = document.getElementById("alternatives").getElementsByTagName('div');
 
-  var new_candidate = document.getElementById("addCandidate").value;
+  var new_alternative = document.getElementById("addAlternative").value;
 
-  if (new_candidate.length == 0) {
+  if (new_alternative.length == 0) {
     return;
   }
 
-  if (bad_input(new_candidate)) {
+  if (bad_input(new_alternative)) {
     swal("Bad alternative name!");
     return;
   }
 
-  // Candidate accepted
+  // Alternative accepted
 
-  if (candidates.length == 1) {
+  if (alternatives.length == 1) {
     document.getElementById("submit").style.opacity = "1";
     document.getElementById("submit").style.cursor = "pointer";
   }
 
-  if (candidates.length == 3) {
+  if (alternatives.length == 3) {
     document.getElementById("addButton").style.opacity = "0.5";
     document.getElementById("addButton").style.cursor = "default";
   }
 
-  document.getElementById("addCandidate").value = "";
+  document.getElementById("addAlternative").value = "";
 
-  new_node = htmlToElement("<div class=\"a-candidate-div\" id=" + new_candidate + "><label><span class=\"a-candidate-span\">"+ new_candidate + "</span></label><button class=\"a-candidate-button\" onclick=\"remove(" + new_candidate + ");\">x</button></div>");
+  new_node = htmlToElement("<div class=\"alternative-div\" id=" + new_alternative + "><label><span class=\"alternative-span\">"+ new_alternative + "</span></label><button class=\"alternative-button\" onclick=\"remove(" + new_alternative + ");\">x</button></div>");
   new_node.style.opacity = 0;
 
   var added = 0;
 
-  for (var i = 0; i < candidates.length; i++) {
-    if (candidates[i].id.toLowerCase() == new_candidate.toLowerCase()) {
+  for (var i = 0; i < alternatives.length; i++) {
+    if (alternatives[i].id.toLowerCase() == new_alternative.toLowerCase()) {
       return;
     }
-    if (candidates[i].id.toLowerCase() > new_candidate.toLowerCase()) {
-      document.getElementById("candidates").insertBefore(new_node, candidates[i]);
+    if (alternatives[i].id.toLowerCase() > new_alternative.toLowerCase()) {
+      document.getElementById("alternatives").insertBefore(new_node, alternatives[i]);
       added = 1;
       break;
     }
   }
   
   if (added == 0) {
-    document.getElementById("candidates").appendChild(new_node);
+    document.getElementById("alternatives").appendChild(new_node);
   }
 
   var steps = 0;
@@ -68,9 +68,9 @@ function remove(to_delete) {
   document.getElementById("addButton").style.cursor = "pointer";
   to_delete.remove();
 
-  candidates = document.getElementById("candidates").getElementsByTagName('div');
+  alternatives = document.getElementById("alternatives").getElementsByTagName('div');
 
-  if (candidates.length < 2) {
+  if (alternatives.length < 2) {
     document.getElementById("submit").style.opacity = "0";
     document.getElementById("submit").style.cursor = "default";
   }
@@ -78,20 +78,20 @@ function remove(to_delete) {
 
 function submit() {
 
-  candidates = document.getElementById("candidates").getElementsByTagName('div');
+  alternatives = document.getElementById("alternatives").getElementsByTagName('div');
 
-  if (candidates.length < 2) {
+  if (alternatives.length < 2) {
     return;
   }
 
   result = {};
 
-  for (var i = 0; i < candidates.length; i++) {
-    if (bad_input(candidates[i].id)) {
+  for (var i = 0; i < alternatives.length; i++) {
+    if (bad_input(alternatives[i].id)) {
       return;
     }
     
-    result["candidate_" + candidates[i].id] = candidates[i].id
+    result["alternative_" + alternatives[i].id] = alternatives[i].id
   }
 
   post('/buildprofile', result);

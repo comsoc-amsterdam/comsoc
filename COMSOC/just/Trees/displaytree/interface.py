@@ -39,14 +39,16 @@ class DisplayTreeInterface():
 
     def exportWebsite(self):
         if self.source == "ASP":
-            tree = self.proofTree.getTreeFromAnswerSet(prettify = False)
-            prettified_tree = self.proofTree.getTreeFromAnswerSet(prettify = True)
+            tree = self.proofTree.getTreeFromAnswerSet(prettify = False)  # this creates a tree where the labels are in plaintext
+            prettified_tree = self.proofTree.getTreeFromAnswerSet(prettify = True) # this creates a tree where the labels are in HTML
         else:
             raise NotImplementedError("Only ASP trees have been implemented")
 
+        # First, create the stand-alone html justification. This is actually used in the web presentation itself.
         html = self.exportDynamic()
-        pickled = pickle.dumps({"justification": self.justification, "tree": tree})
 
+        # prepare the website drawer
         self.drawer = DrawingWebsite(prettified_tree, tree, self.justification, self.encoding, html)
 
+        # get the content
         return self.drawer.getContent()

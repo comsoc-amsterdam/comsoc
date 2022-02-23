@@ -11,11 +11,11 @@
     <h1>Automated Justification</h1>
     <p id="description">Enter a profile of preferences and choose an outcome. Then ask the computer to find a convincing justification for your choice.</p>
     <label class="custom-field">
-    <input id="addCandidate" type="text" placeholder="&nbsp;" onkeyup="if(event.keyCode===13){handle_keypress();}" maxlength="10"/>
+    <input id="addAlternative" type="text" placeholder="&nbsp;" onkeyup="if(event.keyCode===13){handle_keypress();}" maxlength="10"/>
     <span class="placeholder">Alternative</span>
-    <button id="addButton" onclick="add_candidate();">add</button>
+    <button id="addButton" onclick="add_alternative();">add</button>
     </label>
-    <div id="candidates">
+    <div id="alternatives">
     </div>
     <button id="submit" type="button" onclick="submit();">next</button>
 
