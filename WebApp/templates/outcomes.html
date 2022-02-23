@@ -9,55 +9,77 @@
     <script src="{{url_for('static', filename='outcomes.js')}}"></script>
     <script type="text/javascript">var profile_name="{{profile_name|safe}}";</script>
   </head>
+  <!-- When the page is loaded, we run this function, that checks whether some checkboxes are clicked or not.
+    This is because, depending on whether they are clicked, we display the submit button or not. -->
   <body onload="count_checkboxes();">
 
-    <div id="h1-container"><h1>Automated Justification</h1></div>
+    <div id="h1-container">
+      <h1>Automated Justification</h1>
+    </div>
 
+     <!-- we structure this page in two main parts: true-content and loading.
+      true-content is initially shown and loading hidden. When we click "submit", the opposite becomes true. -->
     <div id="true-content">
 
-    <p>Here is the profile of preferences you have specified:</p>
+      <p>Here is the profile of preferences you have specified:</p>
 
-    <div id="the-profile">{{profile_text|safe}}</div>
-
-    <p>We will now ask the computer to find a justification for an outcome. First, choose the outcome (you can indicate a tie by ticking multiple winners). Then, choose the normative principles you want the computer to use in the justification.</p>
-
-    <div id="checkboxes">
-      <div id="titles">
-        <h3 id="outcome-title">Winners:</h3>
-        <h3 id="corpus-title">Principles:</h3>
-        <span class="empty"/>
+      <div id="the-profile">
+        {{profile_text|safe}}
       </div>
-      <div id="outcome">
-      {% for alternative in alternatives %}
-        <input type="checkbox" id="{{alternative}}" name="{{alternative}}" value="{{alternative}}" onclick="count_checkboxes();">
-        <label for="{{alternative}}"><i>{{alternative}}</i></label><br>
-      {% endfor %}
-      </div>
-      <div id="axioms-1">
-      {% for axiom in axiom_names[:4] %}
+
+      <p>We will now ask the computer to find a justification for an outcome. First, choose the outcome (you can indicate a tie by ticking multiple winners). Then, choose the normative principles you want the computer to use in the justification.</p>
+
+      <!-- each checkbox when clicked launchs a count_checkboxes script that counts how many checkboxes are selected.
+        If enough are, then the SUBMIT button is showed. -->
+      <div id="checkboxes">
+
+        <div id="titles">
+          <h3 id="outcome-title">Winners:</h3>
+          <h3 id="corpus-title">Principles:</h3>
+          <span class="empty"/> <!-- this empty span is necessary for spacing reasons -->
+        </div>
+
+        <div id="outcome">
+          {% for alternative in alternatives %}
+            <input type="checkbox" id="{{alternative}}" name="{{alternative}}" value="{{alternative}}" onclick="count_checkboxes();">
+            <label for="{{alternative}}"><i>{{alternative}}</i></label><br>
+          {% endfor %}
+        </div>
+
+        <!-- we devide the axioms in two groups for presentation reasons -->
+        <div id="axioms-1">
+          {% for axiom in axiom_names[:4] %}
             <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
             <br>
-      {% endfor %}
-      </div>
-      <div id="axioms-2">
-      {% for axiom in axiom_names[4:] %}
+          {% endfor %}
+        </div>
+
+        <div id="axioms-2">
+          {% for axiom in axiom_names[4:] %}
             <input type="checkbox" class="axiom-checkbox" id="{{axiom}}" name="{{axiom}}" value="{{axiom}}" onclick="count_checkboxes();">
             <span class="hovertext" data-hover="{{axiom_description[axiom]}}">
               <label for="{{axiom}}" onclick="">{{axiom}}</label>
             </span>
             <br>
-      {% endfor %}
+          {% endfor %}
+        </div>
       </div>
+
+      <button id="submit" type="button" onclick="submit();">submit</button>
+
     </div>
 
-    <button id="submit" type="button" onclick="submit();">submit</button>
+    <!-- This will be displayed (through javascript) when we click submit -->
+    <div id="loading">
+      Looking for a justification... Please wait.
     </div>
 
-    <div id="loading">Looking for a justification... Please wait.</div>
-
+    <!-- Necessary for Firefox and iOS: when we reach this page through the "back" or "reload" button,
+      we manually hide the loading message and show the true content. This happens automatically on other browsers...
+     -->
     <script type="text/javascript">
       window.onpageshow = function (event) {
       if (event.persisted) {
@@ -65,6 +87,6 @@
           document.getElementById("loading").style.visibility = "hidden";
         }
       };
-    </script> <!-- reload the page when the back button is pressed on firefox/ios -->
+    </script> 
   </body>
 </html>

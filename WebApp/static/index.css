@@ -161,7 +161,7 @@ button {
 
 /* popup */
 
-#myBtn, #example {
+#open_modal, #example {
   background: none!important;
   border: none;
   padding: 0!important;

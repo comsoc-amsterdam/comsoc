@@ -8,6 +8,7 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script type="text/javascript">
+      // Save the alternatives in an array, so we can access them from javascript
       alternatives = [];
       {% for alternative in alternatives %} alternatives.push('{{alternative}}'); {% endfor %}
     </script>
@@ -19,6 +20,7 @@
     <p>Now define the profile of preferences. To add a new ballot, click on "add ballot" and then click on the alternatives on the left to rank them. You can click on an already-ranked alternative to remove it. The numbers indicate the number of voters expressing a given preference.</p>
     <button id="addBallotButton" type="button" onclick="add_ballot();">add ballot</button>
 
+    <!-- This div will contain the ballots that are added dynamically. These are added through javascript, so check the script. -->
     <div id="ballots">
     </div>
 

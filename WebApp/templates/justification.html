@@ -5,12 +5,17 @@
     <link rel="stylesheet" href="{{url_for('static', filename='justification.css')}}"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="{{url_for('static', filename='generic.js')}}"></script>
+    <!-- preliminary declaratins of objects used in javascript 
+        all this data comes from the python script that calls this jinja template-->
     <script type="text/javascript">
-      var pngs = {};
-      var labels = {};
-      var outcomes = {};
-      var profiles = {};
-      var tables = {};
+
+      var pngs = {}; // dictionary mapping each node to a different png image of the tree (with the current node highlighted). Encoded in base64
+      var labels = {}; // dictionary mapping each node to a text label describing it
+      var outcomes = {}; //dictionary mapping each node to a dictionary mapping each profile to the outcomes available in this node
+      var profiles = {}; //dictionary mapping each node to its profiles
+      var tables = {}; //dictionary mapping each node to an HTML table represeting it
+
+      // Let's fill in these values 
       {% for node in nodes %}
         pngs.{{node}} = "{{pngs[node]}}";
         labels.{{node}} = "{{labels[node]|safe}}";
@@ -25,9 +30,15 @@
             {% endfor %}
         {% endfor %}
       {% endfor %}
+
+      // Current node: the first one
       var current = 1;
+      // Maximum and minimum indexes of the nodes
       var max = {{len_nodes}};
       var min = 1;
+
+      // In this variables, we store the data that we need to send in case of feedback
+      // These are encoded in base64 in orderd to be stored here as strings
       var justification_pickle = "{{justification_pickle|safe}}";
       var justification_html = "{{justification_html|safe}}";
       var signature = "{{signature|safe}}";
@@ -36,30 +47,39 @@
   <body>
       <div id="h1-container"><h1>Automated Justification</h1></div>
 
-<p id="description">{{labels[nodes[0]]|safe}}</p>
+        <p id="description">{{labels[nodes[0]]|safe}}</p>
 
-<div id="outcomes-table"></div>
+        <!-- This div will contain the outcome tables. It is initially empty,
+            but will be filled with a value from javascript before rendering the page (next line) -->
+        <div id="outcomes-table"></div>
+        <script type="text/javascript">document.getElementById("outcomes-table").innerHTML = tables["{{nodes[0]}}"];</script>
 
-<script type="text/javascript">document.getElementById("outcomes-table").innerHTML = tables["{{nodes[0]}}"];</script>
+        <!-- The png image of the graph used to navigate the justification tree
+            recall that it is encoded in base64
+            furthremore, everynode has a different png (different nodes highlighted), we start by rendering the first one -->
+        <div id="image">
+            <img src="data:image/png;base64,{{pngs[nodes[0]]}}", usemap="#G"/>
+            <!-- We also need to make the image clickable, we do so by adding this map here -->
+            {{map | safe}}    
+        </div>
 
-<div id="image">
-    <img src="data:image/png;base64,{{pngs[nodes[0]]}}", usemap="#G"/>
-    {{map | safe}}    
-</div>
+        <button onclick="prev();" id="prev">back</button>
+        <button onclick="next();" id="next">next</button>
 
-<button onclick="prev();" id="prev">back</button>
-<button onclick="next();" id="next">next</button>
+        <button id="rate-button">Rate this justification</button>
 
-<button id="myBtn">Rate this justification</button>
-
-        <!-- The Modal -->
+        <!-- The Modal for the feedback -->
         <div id="myModal" class="modal">
           <!-- Modal content -->
           <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close">&times;</span> <!-- close button -->
+
             <h2>Rate this justification and support our research</h2>
+
             <p><strong></style>How much do you agree with these statements?</strong></p>
-            <p style="margin-bottom: -0.5%;"><i>I found the explanations easy to understand</i></p>
+
+            <p class="feedback-question"><i>I found the explanations easy to understand</i></p>
+            <!-- rate with stars-->
             <div id="understandable" class="stars">
                 <input id="star-5" type="radio" name="star" class="5"/>
                 <label for="star-5"></label>
@@ -72,7 +92,8 @@
                 <input id="star-1" type="radio" name="star" class="1"/>
                 <label for="star-1"></label>
             </div>
-            <p style="margin-bottom: -0.5%;"><i>I found the arguments convincing</i></p>
+            <p class="feedback-question"><i>I found the arguments convincing</i></p>
+            <!-- rate with stars -->
             <div id="convincing" class="stars">
                 <input id="star-2-5" type="radio" name="star-2" class="5"/>
                 <label for="star-2-5"></label>
@@ -85,11 +106,12 @@
                 <input id="star-2-1" type="radio" name="star-2" class="1"/>
                 <label for="star-2-1"></label>
             </div>
-                <p><strong>Do you have any further feedback?</strong></p>
-                <textarea id="further-feedback" cols="45" rows="5"></textarea><br>
-                <span id="submit-area"><button id="submit-button" onclick="submit_form();">submit</button></span>
+            <p><strong>Do you have any further feedback?</strong></p>
+            <textarea id="further-feedback" cols="45" rows="5"></textarea><br>
+            <span id="submit-area">
+                <button id="submit-button" onclick="submit_form();">submit</button>
+            </span>
           </div>
-
         </div>
         <script src="{{url_for('static', filename='justification.js')}}"></script>
   </body>

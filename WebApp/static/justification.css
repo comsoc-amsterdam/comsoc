@@ -170,7 +170,7 @@ padding-right: 5px;
     transform: translate(-50%, 0);
 }
 
-#myBtn {
+#rate-button {
   background: none!important;
   border: none;
   padding: 0!important;
@@ -207,6 +207,10 @@ padding-right: 5px;
   overflow: auto; /* Enable scroll if needed */
   background-color: rgb(0,0,0); /* Fallback color */
   background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.feedback-question {
+    margin-bottom: -0.5%;
 }
 
 /* Modal Content/Box */
