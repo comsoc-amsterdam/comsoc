@@ -1,31 +1,43 @@
 <table>
-<tr>
-  <th class="hidden-cell"></th>
-  {% for outcome in pretty_outcomes %}
-  <th>{{outcome | safe}}</th>
-  {% endfor %}
-</tr>
-{% for profile in all_profiles %}
-  {% if profile in current_profiles %}
-    <tr {% if profile in contradictions %} style="color: red" {% endif %}>
-      <td class="profile-cell">
-        <div class="tooltip" {% if profile == all_profiles[0] and greenify %} style="color: green" {% endif %} onclick="">
-        {{profile | safe}}
-        <div class="tooltiptext">
-          <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
-        </div> 
-      </div>
-      </td>
-      {% for outcome in all_outcomes %}
-        {% if outcome in outcomes[profile] %}
-        <td style="color: green;">&#10004;</td>
-        {% else %}
-        <td style="color: red;">&#10007;</td>
-          {% endif %}
-        {% endfor %}
-    </tr>
-  {% else %}
-    {% if profile == all_profiles[0] %}
+  <!-- headers -->
+  <tr>
+    <th class="hidden-cell"></th> <!-- for spacing reasons -->
+    <!-- headers for every outcome -->
+    {% for outcome in pretty_outcomes %}
+      <th>{{outcome | safe}}</th>
+    {% endfor %}
+  </tr>
+  <!-- one row for every possible profile -->
+  {% for profile in all_profiles %}
+    <!-- if mentioned in the current node...-->
+    {% if profile in current_profiles %}
+      <!-- if it is contradictions: no possible outcome. So we paint this row in red.-->
+      <tr {% if profile in contradictions %} style="color: red" {% endif %}>
+        <td class="profile-cell">
+          <!-- greenify is true if there is only the target outcome available for the goal profile. If this is true,
+            when showing the goal profile (first profile in all_profiles), paint this profile in green -->
+          <div class="tooltip" {% if profile == all_profiles[0] and greenify %} style="color: green" {% endif %} onclick="">
+            {{profile | safe}}
+            <!-- hovering content: a pretty html representation of this profile -->
+            <div class="tooltiptext">
+              <p class="tooltipcontent">{{pretty_profiles[profile]|safe}}</p>
+            </div> 
+          </div>
+        </td>
+        <!-- now one outcome cell for every outcome -->
+          {% for outcome in all_outcomes %}
+            <!-- if available for this profile, show a "OK" mark in green. Otherwise, red cross -->
+            {% if outcome in outcomes[profile] %}
+              <td style="color: green;">&#10004;</td>
+            {% else %}
+              <td style="color: red;">&#10007;</td>
+            {% endif %}
+          {% endfor %}
+      </tr>
+      <!-- if not mentioned in this node... -->
+      {% else %}
+        <!-- if it is the goal profile, (the first one in all_profiles), then we still show the hovering content.-->
+        {% if profile == all_profiles[0] %}
           <tr>
             <td class="profile-cell"><span class="unused-profile">
               <div class="tooltip" onclick="">
@@ -35,18 +47,19 @@
                 </div> 
               </div>
             </span></td>
+            <!-- For the unused profiles we don't show the outcomes -->
             {% for outcome in all_outcomes %}
               <td></td>
             {% endfor %}
             </tr>
-    {% else %}
-      <tr>
-        <td class="profile-cell"><span class="unused-profile">{{profile|safe}}</span></td>
-        {% for outcome in all_outcomes %}
-          <td></td>
-        {% endfor %}
-      </tr>
+        {% else %} <!-- for a non-goal, unused profile, we just show the greyed out profile (unused-profile) and no outcome, with no hovering -->
+        <tr>
+          <td class="profile-cell"><span class="unused-profile">{{profile|safe}}</span></td>
+          {% for outcome in all_outcomes %}
+            <td></td>
+          {% endfor %}
+        </tr>
+      {% endif %}
     {% endif %}
-  {% endif %}
-{% endfor %}
+  {% endfor %}
 </table>
