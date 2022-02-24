@@ -546,6 +546,7 @@ class ASPTree():
 
         statements.append("#minimize {1 @ 2,N: node(N)}.")
         statements.append("#maximize {N @ 1,N: step(intro(P),N,N1)}.")
+        statements.append("#maximize {N @ 3,N: step(goal(P,O), N, N1)}.")
 
         statements.append("#show node/1.")
         statements.append("#show edge/2.")
