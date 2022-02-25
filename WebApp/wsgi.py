@@ -35,6 +35,9 @@ import time
 import os
 import rsa
 
+import sys
+sys.path.append('..')
+
 import COMSOC.anonymous as theory  # We work with anonymous voting
 from COMSOC.problems import JustificationProblem
 from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
@@ -42,7 +45,7 @@ from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 ############ Preliminary definitions ###############
 
 # Regular url_for is buggy, so I do this manually
-BASE_URL = "https://demo.illc.uva.nl/justify" # change to http://127.0.0.1:5000 during tests
+BASE_URL = "https://demo.illc.uva.nl/justify"
 
 flask_app = Flask(__name__)
 
@@ -325,3 +328,8 @@ def feedback():
 
     # Ok!
     return render_template("message_sent.html", base_url = BASE_URL)
+
+
+if __name__ == '__main__':
+    BASE_URL = "http://127.0.0.1:5000" # for testing purposes...
+    flask_app.run(host="127.0.0.1", port=5000)
