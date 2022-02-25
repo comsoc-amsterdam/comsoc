@@ -1,4 +1,5 @@
 MAX_TIME = 30  # maximum 30 seconds
+SHORTEST_OUT_OF = 15 # Find shortest justification (explanation-cardinality wise) among the first 15 you find
 
 ### FOR MULTIPLE WORKERS... (see flask documentation for celery) ###
 
@@ -130,7 +131,7 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 
     shortest = None  # Shotest (cardinality of the explanation) justification will be stored here
     # Iterate over up to 5 justifications with a depth of 3, using heuristics
-    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = 5, \
+    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = SHORTEST_OUT_OF, \
                                       derivedAxioms = derived, nb_folder = 'knownbases'):
         # Memorise the shortest justification here
         if shortest is None:

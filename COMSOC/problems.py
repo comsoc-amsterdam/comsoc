@@ -349,5 +349,11 @@ class JustificationProblem(AbstractProblem):
                 if justsRetrievedSoFar == maximum:
                     return
 
+            # No matter what is the maximum number of justification we want to find:
+            # For a given depth d, if we find at least one justification, WE DO NOT GO to d+1. This is because
+            # most likely these will be larger.
+            if justsRetrievedSoFar > 0:
+                return 
+
     def __str__(self):
         return f"Given profile: {self.profile}\nTarget outcome: {self.outcome}\nCorpus: {{{', '.join(map(str, self.corpus))}}}"
