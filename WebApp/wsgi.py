@@ -25,7 +25,7 @@ def make_celery(app):
 
 ########### imports ################
 
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, redirect
 from flask_mail import Mail, Message
 
 from secret import password, privkey, pubkey
@@ -172,8 +172,12 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 def index():
     return render_template('index.html')
 
-@flask_app.route('/buildprofile', methods=["POST"])
+@flask_app.route('/buildprofile', methods=["POST", "GET"])
 def buildprofile():
+
+    # If we reach this page by GET, return home
+    if request.method == "GET":
+        return redirect(url_for('index'))
 
     # Input sanitisation: the alternatives are in the keys of this dictionary
     for val in request.form.values():
@@ -183,8 +187,12 @@ def buildprofile():
     # in this request, we have the alternatives (the keys don't matter)
     return render_template('buildprofile.html', alternatives = list(request.form.values()))
 
-@flask_app.route('/outcomes', methods=["POST"])
+@flask_app.route('/outcomes', methods=["POST", "GET"])
 def outcomes():
+
+    # If we reach this page by GET, return home
+    if request.method == "GET":
+        return redirect(url_for('index'))
 
     # in this request, we have the profile
     profile_name = request.form['profile']
@@ -198,8 +206,13 @@ def outcomes():
     return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
         alternatives = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
 
-@flask_app.route('/result', methods=["POST"])
+@flask_app.route('/result', methods=["POST", "GET"])
 def result():
+
+    # If we reach this page by GET, return home
+    if request.method == "GET":
+        return redirect(url_for('index'))
+
     profile_name = None
     axioms = []
     outcome_names = []
@@ -243,8 +256,12 @@ def result():
 
     return result
 
-@flask_app.route('/feedback', methods=["POST"])
+@flask_app.route('/feedback', methods=["POST", "GET"])
 def feedback():
+
+    # If we reach this page by GET, return home
+    if request.method == "GET":
+        return redirect(url_for('index'))
 
     # Handle a feedback request
     # request fields: understandability (int), convincingess (int), feedback (a string ot text),
