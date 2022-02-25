@@ -544,9 +544,9 @@ class ASPTree():
         """Return the ASP statements necessary to encode the solving strategy."""
         statements = []
 
-        statements.append("#minimize {1 @ 2,N: node(N)}.")
-        statements.append("#maximize {N @ 1,N: step(intro(P),N,N1)}.")
-        statements.append("#maximize {N @ 3,N: step(goal(P,O), N, N1)}.")
+        statements.append("#minimize {1 @ 3,N: node(N)}.") # minimize number of nodes first
+        statements.append("#maximize {N @ 2,N: step(goal(P,O), N, N1)}.") # then, try to use the goal as late as possible
+        statements.append("#maximize {N @ 1,N: step(intro(P),N,N1)}.") # and introduce each profile as late as possible
 
         statements.append("#show node/1.")
         statements.append("#show edge/2.")
