@@ -39,7 +39,7 @@ function submit_form() {
     result["signature"] = signature;
 
     // send a post request with this data to the feedback page (in a new tab)
-    post("/feedback", result, inNewPage = true)
+    post(base_url + "/feedback", result, inNewPage = true)
 }
 
 // The area tags are inside the MAP for the clickable images. They represent the different nodes we can click on. That is,

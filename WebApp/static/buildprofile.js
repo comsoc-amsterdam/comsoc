@@ -168,5 +168,5 @@ function submit() {
   }
 
   // send a post request with to the outcome selection page with this profile
-  post('/outcomes', {"profile" : profile_str});
+  post(base_url + '/outcomes', {"profile" : profile_str});
 }

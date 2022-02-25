@@ -85,5 +85,5 @@ function submit() {
   document.getElementById("loading").style.visibility = "visible";
 
   // Good! post the request object to the results page.
-  post('/result', result);
+  post(base_url + '/result', result);
 }

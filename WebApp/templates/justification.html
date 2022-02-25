@@ -2,9 +2,9 @@
 <html>
   <head>
     <title>Automated Justification</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='justification.css')}}"/>
+    <link rel="stylesheet" href="{{base_url}}/static/justification.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
-    <script src="{{url_for('static', filename='generic.js')}}"></script>
+    <script src="{{base_url}}/static/generic.js"></script>
     <!-- preliminary declaratins of objects used in javascript 
         all this data comes from the python script that calls this jinja template-->
     <script type="text/javascript">
@@ -42,6 +42,8 @@
       var justification_pickle = "{{justification_pickle|safe}}";
       var justification_html = "{{justification_html|safe}}";
       var signature = "{{signature|safe}}";
+
+      var base_url = "{{base_url}}";
     </script>
   </head>
   <body>
@@ -113,5 +115,5 @@
             </span>
           </div>
         </div>
-        <script src="{{url_for('static', filename='justification.js')}}"></script>
+        <script src="{{base_url}}/static/justification.js"></script>
   </body>

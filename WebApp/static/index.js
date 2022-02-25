@@ -129,13 +129,13 @@ function submit() {
   }
 
   // Send this request-data to the buildprofile page (as a post request)
-  post('/buildprofile', result);
+  post(base_url + '/buildprofile', result);
 }
 
 // When we click the example link, we directly send a post request to the outcomes page
 // with an example profile encoded as a string
 function example() {
-  post('/outcomes', {"profile": "2:Chianti>Brunello>Amarone,1:Brunello>Amarone>Chianti,1:Brunello>Chianti>Amarone,1:Amarone>Chianti>Brunello"});
+  post(base_url + '/outcomes', {"profile": "2:Chianti>Brunello>Amarone,1:Brunello>Amarone>Chianti,1:Brunello>Chianti>Amarone,1:Amarone>Chianti>Brunello"});
 }
 
 /* modal code */

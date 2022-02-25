@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Automated Justification</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='buildprofile.css')}}"/>
+    <link rel="stylesheet" href="{{base_url}}/static/buildprofile.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -11,9 +11,10 @@
       // Save the alternatives in an array, so we can access them from javascript
       alternatives = [];
       {% for alternative in alternatives %} alternatives.push('{{alternative}}'); {% endfor %}
+      var base_url = "{{base_url}}";
     </script>
-    <script src="{{url_for('static', filename='generic.js')}}"></script>
-    <script src="{{url_for('static', filename='buildprofile.js')}}"></script>
+    <script src="{{base_url}}/static/generic.js"></script>
+    <script src="{{base_url}}/static/buildprofile.js"></script>
   </head>
   <body>
     <div id="h1-container"><h1>Automated Justification</h1></div>

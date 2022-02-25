@@ -25,7 +25,7 @@ def make_celery(app):
 
 ########### imports ################
 
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, redirect
 from flask_mail import Mail, Message
 
 from secret import password, privkey, pubkey
@@ -40,6 +40,9 @@ from COMSOC.problems import JustificationProblem
 from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 
 ############ Preliminary definitions ###############
+
+# Regular url_for is buggy, so I do this manually
+BASE_URL = "https://demo.illc.uva.nl/justify" # change to http://127.0.0.1:5000 during tests
 
 flask_app = Flask(__name__)
 
@@ -143,7 +146,7 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
     if shortest is None:
         # the .prettify method takes a profile/outcome and converts it into a nice HTML format
         return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
-            axioms = axioms)
+            axioms = axioms, base_url = BASE_URL)
     else:
         # Return the HTML website for the justification
         # this "datapack" is a dictionary containing all the data needed to display the website
@@ -163,21 +166,21 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
         data_pack["signature"] = signature
 
         # unroll the dictionary and display the justification!
-        return render_template("justification.html", **data_pack)
+        return render_template("justification.html", base_url = BASE_URL, **data_pack)
 
 ############ Web Pages ###############
 
 # Index page
 @flask_app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', base_url = BASE_URL)
 
 @flask_app.route('/buildprofile', methods=["POST", "GET"])
 def buildprofile():
 
     # If we reach this page by GET, return home
     if request.method == "GET":
-        return redirect(url_for('index'))
+        return redirect(BASE_URL)
 
     # Input sanitisation: the alternatives are in the keys of this dictionary
     for val in request.form.values():
@@ -185,14 +188,14 @@ def buildprofile():
             return "Bad input!"
 
     # in this request, we have the alternatives (the keys don't matter)
-    return render_template('buildprofile.html', alternatives = list(request.form.values()))
+    return render_template('buildprofile.html', alternatives = list(request.form.values()), base_url = BASE_URL)
 
 @flask_app.route('/outcomes', methods=["POST", "GET"])
 def outcomes():
 
     # If we reach this page by GET, return home
     if request.method == "GET":
-        return redirect(url_for('index'))
+        return redirect(BASE_URL)
 
     # in this request, we have the profile
     profile_name = request.form['profile']
@@ -204,14 +207,15 @@ def outcomes():
             return "Bad input!"
 
     return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
-        alternatives = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description)
+        alternatives = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description,\
+        base_url = BASE_URL)
 
 @flask_app.route('/result', methods=["POST", "GET"])
 def result():
 
     # If we reach this page by GET, return home
     if request.method == "GET":
-        return redirect(url_for('index'))
+        return redirect(BASE_URL)
 
     profile_name = None
     axioms = []
@@ -252,7 +256,7 @@ def result():
         outcome = scenario.get_outcome(','.join(outcome_names))
         # prettify presents profile/outcome in HTML nicely
         return render_template('timeout.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
-            axioms = axioms)
+            axioms = axioms, base_url = BASE_URL)
 
     return result
 
@@ -261,7 +265,7 @@ def feedback():
 
     # If we reach this page by GET, return home
     if request.method == "GET":
-        return redirect(url_for('index'))
+        return redirect(BASE_URL)
 
     # Handle a feedback request
     # request fields: understandability (int), convincingess (int), feedback (a string ot text),
@@ -320,4 +324,4 @@ def feedback():
         print(e)
 
     # Ok!
-    return render_template("message_sent.html")
+    return render_template("message_sent.html", base_url = BASE_URL)

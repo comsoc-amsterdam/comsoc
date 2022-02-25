@@ -2,10 +2,11 @@
 <html>
   <head>
     <title>Automated Justification</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}"/>
+    <link rel="stylesheet" href="{{base_url}}/static/index.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans">
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="{{url_for('static', filename='generic.js')}}"></script>
+    <script type="text/javascript">var base_url = "{{base_url}}";</script>
+    <script src="{{base_url}}/static/generic.js"></script>
   </head>
   <body>
     <h1>Automated Justification</h1>
@@ -43,7 +44,7 @@
               <span class="close">&times;</span> <!-- close button -->
               <h2>About</h2>
 
-              <p>This demo illustrates our research on computing and explaining normatively grounded justifications for collective decisions. Read the <a href="{{url_for('static', filename='description.pdf')}}" target="_blank">demo description</a> to find out more. For an easy-going introduction to the topic, watch <a href="https://www.youtube.com/watch?v=HexNGGnujzU" target="_blank">this video</a>.</p>
+              <p>This demo illustrates our research on computing and explaining normatively grounded justifications for collective decisions. Read the <a href="{{base_url}}/static/description.pdf" target="_blank">demo description</a> to find out more. For an easy-going introduction to the topic, watch <a href="https://www.youtube.com/watch?v=HexNGGnujzU" target="_blank">this video</a>.</p>
 
               <p>For in-depth information about our research, consult these papers:</p>
 
@@ -71,6 +72,6 @@
       </ul>
     </div>
 
-    <script src="{{url_for('static', filename='index.js')}}"></script>
+    <script src="{{base_url}}/static/index.js"></script>
     </body>
 </html>
