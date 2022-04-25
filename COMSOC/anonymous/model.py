@@ -96,10 +96,30 @@ class AnonymousScenario(AbstractScenario):
         """ Given a profile description, return the profile.
 
         Two variants:
-        `012,012,210` or `2:012,1:210` mean the same thing. In the
+        `0>1>2,0>1>2,2>1>0` or `2:0>1>2,1:2>1>0` mean the same thing. In the
         latter example, you can omit the `1:`.
         """
         return AnonymousProfile(self._profileDictFromString(description))
+
+    def get_profile_from_file(self, files):
+        """ Given a filename (string) or filenames (list of string), read the profiles in it.
+            This function expects an endline-separated list of profiles (encoded as specified in the get_profile method),
+            and returns an iterator over profiles. """
+
+        # Normalisation: we use list of files
+        if isinstance(files, str):
+            files = [files]
+
+        # For every file...
+        for file in files:
+            # For every line in the file...
+            with open(file, "r") as handle:
+                # Decode and yield.
+                for description in handle.readlines():
+                    description = description.strip()  # remove \n
+                    if description:  # No empty lines...
+                        yield self.get_profile(description)
+
         
 
     def _generateProfilesOfSize(self, n: int):
