@@ -37,10 +37,14 @@ function add_alternative() {
   }
 
   // If we had already three alternatives, now we have four: so we set hide the addAlternative button
-  // (in this way we cap the number of alternatives to four)
   if (alternatives.length == 3) {
     document.getElementById("addButton").style.opacity = "0.5";
     document.getElementById("addButton").style.cursor = "default";
+  }
+
+  // Can't accept more than four!
+  if (alternatives.length == 4) {
+    return;
   }
 
   // Empty the input field
