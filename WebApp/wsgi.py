@@ -49,17 +49,17 @@ BASE_URL = "https://demo.illc.uva.nl/justify"
 
 flask_app = Flask(__name__)
 
-mail_settings = {
+"""mail_settings = {
     "MAIL_SERVER": 'smtp.mail.com',
     "MAIL_PORT": 465,
     "MAIL_USE_TLS": False,
     "MAIL_USE_SSL": True,
     "MAIL_USERNAME": "comsoc.justify@mail.com",
     "MAIL_PASSWORD": password  # inside secret.py
-}
+}"""
 
-flask_app.config.update(mail_settings)
-mail = Mail(flask_app)
+"""flask_app.config.update(mail_settings)
+mail = Mail(flask_app)"""
 
 # Celery backend
 flask_app.config.update(
@@ -314,6 +314,7 @@ def feedback():
         f.write(message)
 
     # Try sending an email
+    """
     try:
         with flask_app.app_context():
             msg = Message(subject="Justification Feedback",
@@ -325,6 +326,7 @@ def feedback():
             mail.send(msg)
     except Exception as e:
         print(e)
+    """
 
     # Ok!
     return render_template("message_sent.html", base_url = BASE_URL)
