@@ -128,14 +128,16 @@ function submit() {
   profile_str = "";
   // For each ballot (if at least one)
   if (ballots.length > 0) {
+    var totvoters = 0;
     for (var i = 0; i < ballots.length; i++) {
       ballot = ballots[i];
       // Number of voters (must be positive)
       number = ballot.getElementsByClassName("quantity")[0].value;
-      if (number <= 0) {
+      if (parseInt(number) <= 0) {
         swal("Ballot counts must be positive!");
         return;
       }
+      totvoters = totvoters + parseInt(number);
       // Ranked alterantives: must be all!
       ranked_alternatives = ballot.getElementsByClassName("ranked")[0].getElementsByTagName("button");
       if (ranked_alternatives.length < alternatives.length) {
@@ -164,6 +166,11 @@ function submit() {
 
   // sanity check
   if (profile_str == "") {
+    return;
+  }
+
+  if (totvoters > 10) {
+    swal("Please don't insert more than 10 voters!");
     return;
   }
 
