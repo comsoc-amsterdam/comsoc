@@ -4,7 +4,7 @@ SHORTEST_OUT_OF = 15 # Find shortest justification (explanation-cardinality wise
 ### FOR MULTIPLE WORKERS... (see flask documentation for celery) ###
 
 from celery import Celery
-from celery.exceptions import TimeoutError
+from celery.exceptions import SoftTimeLimitExceeded
 import billiard
 
 def make_celery(app):
@@ -110,66 +110,69 @@ def parse_profile(profile_name: str):
 
 # A celery task that (if possible) retrieves a justification and return an html page describing it
 # (see celery documentation)
-@celery.task(name='uwsgi_file_web.compute_justification')
+@celery.task(name='uwsgi_file_web.compute_justification', time_limit = MAX_TIME*2, soft_time_limit = MAX_TIME)
 def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 
-    # Get the scenario and the profile
-    scenario, profile = parse_profile(profile_name)
+    try: 
+        # Get the scenario and the profile
+        scenario, profile = parse_profile(profile_name)
 
-    # Check input
-    for a in scenario.alternatives:
-        if bad_input(a):
-            return "Bad input!"
+        # Check input
+        for a in scenario.alternatives:
+            if bad_input(a):
+                return "Bad input!"
 
-    # Get the outcome
-    outcome = scenario.get_outcome(','.join(outcome_names))
-    # Get the relevant axioms
-    corpus = theory.get_axioms(scenario, (axiom_names[axiom] for axiom in axioms))
+        # Get the outcome
+        outcome = scenario.get_outcome(','.join(outcome_names))
+        # Get the relevant axioms
+        corpus = theory.get_axioms(scenario, (axiom_names[axiom] for axiom in axioms))
 
-    # Construct the justification problem
-    problem = JustificationProblem(profile, outcome, corpus)
+        # Construct the justification problem
+        problem = JustificationProblem(profile, outcome, corpus)
 
-    # Derived axiom heuristics to use
-    derived = {
-        Symmetry(scenario),
-        QuasiTiedWinner(scenario),
-        QuasiTiedLoser(scenario)}
+        # Derived axiom heuristics to use
+        derived = {
+            Symmetry(scenario),
+            QuasiTiedWinner(scenario),
+            QuasiTiedLoser(scenario)}
 
-    shortest = None  # Shotest (cardinality of the explanation) justification will be stored here
-    # Iterate over up to 5 justifications with a depth of 3, using heuristics
-    for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = SHORTEST_OUT_OF, \
-                                      derivedAxioms = derived, nb_folder = 'knownbases'):
-        # Memorise the shortest justification here
+        shortest = None  # Shotest (cardinality of the explanation) justification will be stored here
+        # Iterate over up to 5 justifications with a depth of 3, using heuristics
+        for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = SHORTEST_OUT_OF, \
+                                          derivedAxioms = derived, nb_folder = 'knownbases'):
+            # Memorise the shortest justification here
+            if shortest is None:
+                shortest = justification
+            else:
+                shortest = min((shortest, justification), key = lambda j : (len(j.involved_profiles), len(j)))
+
+        # No justification found: present failure message
         if shortest is None:
-            shortest = justification
+            # the .prettify method takes a profile/outcome and converts it into a nice HTML format
+            return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
+                axioms = axioms, base_url = BASE_URL)
         else:
-            shortest = min((shortest, justification), key = lambda j : (len(j.involved_profiles), len(j)))
+            # Return the HTML website for the justification
+            # this "datapack" is a dictionary containing all the data needed to display the website
+            data_pack = shortest.displayASP(display = 'website')
 
-    # No justification found: present failure message
-    if shortest is None:
-        # the .prettify method takes a profile/outcome and converts it into a nice HTML format
-        return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
-            axioms = axioms, base_url = BASE_URL)
-    else:
-        # Return the HTML website for the justification
-        # this "datapack" is a dictionary containing all the data needed to display the website
-        data_pack = shortest.displayASP(display = 'website')
+            # we need an extra field, however: a signature for the html and pickled justification
+            # (these will be sent from this page to an email in case of feedback: we sign them
+            # so we can make sure that the feedback we receive is from us and us only)
 
-        # we need an extra field, however: a signature for the html and pickled justification
-        # (these will be sent from this page to an email in case of feedback: we sign them
-        # so we can make sure that the feedback we receive is from us and us only)
+            # concatenate the sensible data
+            sensible = (data_pack["justification_html"]+data_pack["justification_pickle"])
+            # sign it
+            signature = rsa.sign(sensible.encode(), privkey, 'SHA-1')
+            # base64-encode the signature so we can store it into the html page and send it later
+            signature = base64.b64encode(signature).decode()
+            # add it to the datapack
+            data_pack["signature"] = signature
 
-        # concatenate the sensible data
-        sensible = (data_pack["justification_html"]+data_pack["justification_pickle"])
-        # sign it
-        signature = rsa.sign(sensible.encode(), privkey, 'SHA-1')
-        # base64-encode the signature so we can store it into the html page and send it later
-        signature = base64.b64encode(signature).decode()
-        # add it to the datapack
-        data_pack["signature"] = signature
-
-        # unroll the dictionary and display the justification!
-        return render_template("justification.html", base_url = BASE_URL, **data_pack)
+            # unroll the dictionary and display the justification!
+            return render_template("justification.html", base_url = BASE_URL, **data_pack)
+    except SoftTimeLimitExceeded:
+        return None
 
 ############ Web Pages ###############
 
@@ -242,11 +245,11 @@ def result():
                 return "Bad input!"
             outcome_names.append(value)
 
-    # We try to compute the results. Max time: MAX_TIME seconds 
-    try:
-        result = compute_justification.delay(profile_name, axioms, outcome_names)
-        result = result.get(timeout=MAX_TIME)
-    except TimeoutError:
+    # We try to compute the results.
+    result = compute_justification.delay(profile_name, axioms, outcome_names)
+    result = result.get()
+
+    if result is None:
         # If we have a timeout, return an error message
 
         scenario, profile = parse_profile(profile_name)
@@ -260,8 +263,8 @@ def result():
         # prettify presents profile/outcome in HTML nicely
         return render_template('timeout.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
             axioms = axioms, base_url = BASE_URL)
-
-    return result
+    else:
+        return result
 
 @flask_app.route('/feedback', methods=["POST", "GET"])
 def feedback():
