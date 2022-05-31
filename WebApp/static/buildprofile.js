@@ -170,7 +170,7 @@ function submit() {
   }
 
   if (totvoters > 10) {
-    swal("Please don't insert more than 10 voters!");
+    swal("Please do not specify more than 10 voters.");
     return;
   }
 
