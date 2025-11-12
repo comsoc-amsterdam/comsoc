@@ -329,13 +329,13 @@ class AnonymousProfile(AbstractProfile):
             for y in self.alternatives:
                 if x != y:
                     winner = self.majorityContest(x, y)
-                    if len(winner) > 1:
-                        return None
-                    elif x in winner:
-                        disproven.add(y)
-                    else:
+                    if y in winner:
                         disproven.add(x)
+                        if x in winner:
+                            disproven.add(y)
                         break
+                    else:
+                        disproven.add(y)
             if not x in disproven:
                 return x
 
