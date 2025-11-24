@@ -26,14 +26,6 @@ def make_celery(app):
 ########### imports ################
 
 from flask import Flask, request, render_template, redirect
-from flask_mail import Mail, Message
-
-from secret import password, privkey, pubkey
-
-import base64
-import time
-import os
-import rsa
 
 import sys
 sys.path.append('..')
@@ -156,19 +148,6 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
             # this "datapack" is a dictionary containing all the data needed to display the website
             data_pack = shortest.displayASP(display = 'website')
 
-            # we need an extra field, however: a signature for the html and pickled justification
-            # (these will be sent from this page to an email in case of feedback: we sign them
-            # so we can make sure that the feedback we receive is from us and us only)
-
-            # concatenate the sensible data
-            sensible = (data_pack["justification_html"]+data_pack["justification_pickle"])
-            # sign it
-            signature = rsa.sign(sensible.encode(), privkey, 'SHA-1')
-            # base64-encode the signature so we can store it into the html page and send it later
-            signature = base64.b64encode(signature).decode()
-            # add it to the datapack
-            data_pack["signature"] = signature
-
             # unroll the dictionary and display the justification!
             return render_template("justification.html", base_url = BASE_URL, **data_pack)
     except SoftTimeLimitExceeded:
@@ -265,74 +244,6 @@ def result():
             axioms = axioms, base_url = BASE_URL)
     else:
         return result
-
-@flask_app.route('/feedback', methods=["POST", "GET"])
-def feedback():
-
-    # If we reach this page by GET, return home
-    if request.method == "GET":
-        return redirect(BASE_URL)
-
-    # Handle a feedback request
-    # request fields: understandability (int), convincingess (int), feedback (a string ot text),
-    # justification_html (a base64 encoded html file describing the justification we saw) 
-    # justification_pickle (a base64 encoded pickle object encoding the justification we saw)
-    # (to see why they are in base64, check the compute_justification function)
-    # signature (a RSA signature of the two the html/pickle files (for security reasons))
-
-    # Compose the email message
-    message = f"understandability: {request.form['understandability']}\nconvincingess: {request.form['convincingness']}\n\n"
-    if request.form['feedback'] != '':
-        message += f"EXTRA FEEDBACK:\n\"{request.form['feedback']}\"\n\n"
-    message += "Please find the justification files attached."
-
-    b64_html_justification = request.form["justification_html"]
-    b64_pickle_justification = request.form["justification_pickle"]
-
-    signature = base64.b64decode(request.form["signature"])
-
-    # Integrity check (we do this because, in theory, some one could fabricate these objects)
-    # This signature is procuded when the justification is computed, see the compute_justification function
-    try:
-        # rsa verification
-        rsa.verify((b64_html_justification + b64_pickle_justification).encode(), signature, pubkey)
-    except rsa.pkcs1.VerificationError:
-        return "Bad input!"
-
-    # Ok, we passed the check. Decode the files from base64 (this returns a bytes object)
-    # (the html file is also decoded from the bytes object, as we want a string here)
-    justification_html = base64.b64decode(b64_html_justification).decode()
-    # (the pickle file is not decoded, we need it in bytes)
-    justification_pickle = base64.b64decode(b64_pickle_justification)
-
-    # Save these things to disk
-    filename = f"feedbacks/justification_{int(time.time())}"
-    os.mkdir(filename)
-
-    with open(filename + "/justification.pickle", "wb") as f:
-        f.write(justification_pickle)
-    with open(filename + "/justification.html", "w") as f:
-        f.write(justification_html)
-    with open(filename + "/feedback.txt", "w") as f:
-        f.write(message)
-
-    # Try sending an email
-    """
-    try:
-        with flask_app.app_context():
-            msg = Message(subject="Justification Feedback",
-                          sender=flask_app.config.get("MAIL_USERNAME"),
-                          recipients=["comsoc.justify@mail.com"],
-                          body=message)
-            msg.attach("justification.html", "text/html", justification_html)
-            msg.attach("justification.pickle", "application/octet-stream", justification_pickle)
-            mail.send(msg)
-    except Exception as e:
-        print(e)
-    """
-
-    # Ok!
-    return render_template("message_sent.html", base_url = BASE_URL)
 
 
 if __name__ == '__main__':

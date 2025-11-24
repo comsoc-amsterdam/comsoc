@@ -5,7 +5,7 @@ import networkx as nx
 import pathlib
 from jinja2 import Environment, FileSystemLoader
 
-import pickle
+# import pickle ## deprecated
 
 class DrawingWebsite():
     'Handle the drawing of a proof tree as dynamic document.'
@@ -227,15 +227,16 @@ class DrawingWebsite():
 
         # The justification and its networkx justification tree (the plain-text, non-html version) are pickled
         # this will be sent in as feedback
-        pickled_just = pickle.dumps({"justification": self.justification, "tree": self.tree})
+        # pickled_just = pickle.dumps({"justification": self.justification, "tree": self.tree})
 
         # Encode the feedback-data in base64, so we can store them into the webpage and send them in as feedback
-        html_encoded = base64.b64encode(self.html.encode()).decode()
-        justif_encoded = base64.b64encode(pickled_just).decode()
+        # html_encoded = base64.b64encode(self.html.encode()).decode()
+        # justif_encoded = base64.b64encode(pickled_just).decode()
 
         # The complete data. Each key/value pair is a parameter/argument pair in the jinja template.
         # Check the justification.html template in the webapp to see how these things will be used.
         return {"len_nodes": len(sorted_nodes), "outcomes": outcomes,\
             "labels":labels, "profiles": profiles, "nodes": sorted_nodes, "pngs": pngs,\
-            "map":cmap, "all_outcomes":all_outcomes, "tables":tables, "justification_html":html_encoded,\
-            "justification_pickle":justif_encoded}
+            "map":cmap, "all_outcomes":all_outcomes, "tables":tables
+            # , "justification_html":html_encoded, "justification_pickle":justif_encoded
+            }

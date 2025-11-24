@@ -68,7 +68,7 @@
         <button onclick="prev();" id="prev">back</button>
         <button onclick="next();" id="next">next</button>
 
-        <button id="rate-button">Rate this justification</button>
+        <button id="rate-button">Feedback?</button>
 
         <!-- The Modal for the feedback -->
         <div id="myModal" class="modal">
@@ -76,43 +76,10 @@
           <div class="modal-content">
             <span class="close">&times;</span> <!-- close button -->
 
-            <h2>Rate this justification and support our research</h2>
+            <h2>Feedback?</h2>
 
-            <p><strong></style>How much do you agree with these statements?</strong></p>
+            <p>Please contact us at ulle.endriss [at] uva.nl!</p>
 
-            <p class="feedback-question"><i>I found the explanations easy to understand</i></p>
-            <!-- rate with stars-->
-            <div id="understandable" class="stars">
-                <input id="star-5" type="radio" name="star" class="5"/>
-                <label for="star-5"></label>
-                <input id="star-4" type="radio" name="star" class="4"/>
-                <label for="star-4"></label>
-                <input id="star-3" type="radio" name="star" class="3"/>
-                <label for="star-3"></label>
-                <input id="star-2" type="radio" name="star" class="2"/>
-                <label for="star-2"></label>
-                <input id="star-1" type="radio" name="star" class="1"/>
-                <label for="star-1"></label>
-            </div>
-            <p class="feedback-question"><i>I found the arguments convincing</i></p>
-            <!-- rate with stars -->
-            <div id="convincing" class="stars">
-                <input id="star-2-5" type="radio" name="star-2" class="5"/>
-                <label for="star-2-5"></label>
-                <input id="star-2-4" type="radio" name="star-2" class="4"/>
-                <label for="star-2-4"></label>
-                <input id="star-2-3" type="radio" name="star-2" class="3"/>
-                <label for="star-2-3"></label>
-                <input id="star-2-2" type="radio" name="star-2" class="2"/>
-                <label for="star-2-2"></label>
-                <input id="star-2-1" type="radio" name="star-2" class="1"/>
-                <label for="star-2-1"></label>
-            </div>
-            <p><strong>Do you have any further feedback?</strong></p>
-            <textarea id="further-feedback" cols="45" rows="5"></textarea><br>
-            <span id="submit-area">
-                <button id="submit-button" onclick="submit_form();">submit</button>
-            </span>
           </div>
         </div>
         <script src="{{base_url}}/static/justification.js"></script>
