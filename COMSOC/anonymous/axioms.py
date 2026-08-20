@@ -96,7 +96,7 @@ class Faithfulness(IntraprofileAxiom):
 
 class FaithfulnessInstance(Instance):
 
-    """Instance of the Faitfhulness Axiom."""
+    """Instance of the Faithfulness Axiom."""
 
     def __init__(self, profile):
         self._profile = profile
@@ -127,12 +127,12 @@ class FaithfulnessInstance(Instance):
     def from_asp(self, fact : str, encoding, prettify = False) -> str:
         profile = encoding.encode_profile(self._profile, prettify = prettify)
         if prettify:
-            return f"Since {profile} has only one voter, by Faithfulness, her favourite alternative, <i>{self._winner}</i>, should be the unique winner."
+            return f"Since {profile} has only one voter, by Faithfulness, that voter's favourite alternative, <i>{self._winner}</i>, should be the unique winner."
         else:
-            return f"Since {profile} has only one voter, by Faithfulness, her favourite alternative, {self._winner}, should be the unique winner."
+            return f"Since {profile} has only one voter, by Faithfulness, that voter's favourite alternative, {self._winner}, should be the unique winner."
 
     def __str__(self):
-        return f"In profile ({self._profile}) there is only one voter. Hence, their favourite alternative should win."
+        return f"In profile ({self._profile}) there is only one voter. Hence, that voter's favourite alternative should win."
 
 class Pareto(IntraprofileAxiom):
 
@@ -198,7 +198,7 @@ class ParetoInstance(Instance):
         return self._profile, self._dominated
 
     def as_SAT(self, encoding) -> List[List[int]]:
-        # The pareto dominated alternative cannot win.
+        # The Pareto-dominated alternative cannot win.
         return [[-encoding.encode(self._profile, self._dominated)]]
 
     def as_asp(self, encoding):
@@ -212,7 +212,7 @@ class ParetoInstance(Instance):
             return f"In profile {profile}, alternative {self._dominated} is Pareto-dominated. Hence, it cannot be among the winners."
 
     def __str__(self):
-        return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot win."        
+        return f"In profile ({self._profile}) alternative {self._dominated} is Pareto-dominated. Hence, it cannot be among the winners."        
 
 class Cancellation(IntraprofileAxiom):
 
@@ -534,7 +534,7 @@ class NeutralityInstance(Instance):
         self._base = base
         # We want it to be hashable, because the instance needs to be hashable; and the hashable
         # needs to be consistent with the __equal__ function, which looks at the mapping. This is because
-        # there can be different ways to map two profiles, and hence, different instances betweem two profiles.
+        # there can be different ways to map two profiles, and hence, different instances between two profiles.
         self._mapping = self.HashableDict(mapping)
         self._mapped = mapped
         self._profiles = frozenset((self._base, self._mapped))
@@ -599,7 +599,7 @@ class NeutralityInstance(Instance):
                 outcome = list(map(encoding.decode, re.findall('o[^,\)]+', fact)))[0]
                 if prettify:
                     outcome = outcome.prettify()
-                return f"Outcome {outcome} is the only available outcome for {profiles[0]} that would not contradict Neutrality. Indeed, if any alternative in {outcome} were to lose, that would be an unfair treatment, since these alternatives differ only in their names."
+                return f"Outcome {outcome} is the only available outcome for {profiles[0]} that would not contradict Neutrality. Indeed, if any alternative in {outcome} were to lose, that would be unfair, since these alternatives differ only in their names."
             else:
                 return f"Every outcome available for {profiles[0]} would contradict Neutrality."
 
@@ -608,9 +608,9 @@ class NeutralityInstance(Instance):
         if len(set(profiles)) == 1:  # only one profile involved.
             if len(outcomes[0]) == 1 and len(outcomes[1]) == 1:
                 if prettify:
-                    return f"If <i>{list(outcomes[0])[0]}</i> was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}</i> (and vice versa). Hence, neither can be the unique winners."
+                    return f"If <i>{list(outcomes[0])[0]}</i> were to be the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to <i>{list(outcomes[1])[0]}</i> (and vice versa). Hence, neither can be the unique winner."
                 else:
-                    return f"If {list(outcomes[0])[0]} was the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to {list(outcomes[1])[0]} (and vice versa). Hence, neither can be the unique winners."
+                    return f"If {list(outcomes[0])[0]} were to be the unique winner for {profiles[0]}, then we would contradict Neutrality, as it should be treated equally to {list(outcomes[1])[0]} (and vice versa). Hence, neither can be the unique winner."
             else:
                 if prettify:
                     return f"If {outcomes[0].prettify()} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1].prettify()} (and vice versa). Hence, neither set can be the outcome."
@@ -743,7 +743,7 @@ class PositiveResponsiveness(InterprofileAxiom):
                                 break
 
                         # If this is the case, it means we tried every mapping, and
-                        # failed all of them (otherwise, we would have breaked without failure
+                        # failed all of them (otherwise, we would have broken out without failure
                         # before). Hence we break out from this loop as well, there is no
                         # use in trying out the next ballot.
                         if failed:
@@ -770,7 +770,7 @@ class PositiveResponsiveness(InterprofileAxiom):
                 for p, q in combinations(self.scenario.profilesOfSize(size), 2):
                     # If there is an instance between p and q, this will return a tuple
                     # (base, raised, x), where the support of x in base has been augmented
-                    # to obtan raised. Otherwise, returns None.
+                    # to obtain raised. Otherwise, returns None.
                     for base, raised, x in self._check_profs(p, q):
                         # If we found an instance, create it!
                         insts.add(PositiveResponsivenessInstance(base, x, raised))
@@ -922,7 +922,7 @@ class Reinforcement(InterprofileAxiom):
 
     def getInstances(self):
 
-        # Idea: for all (unoredered!) pairs of numbers i,j in [1..n-1] (where n is the number of voters),
+        # Idea: for all (unordered!) pairs of numbers i,j in [1..n-1] (where n is the number of voters),
         # we sum all profiles of i and j voters to obtain a superprofile, and generate the corresponding instance.
 
         insts = set()
@@ -943,7 +943,7 @@ class Reinforcement(InterprofileAxiom):
 
     def _auxBinaryPartitions(self, acc, rest):
 
-        """Auxilliary function to generate all binary partitions of a profile.
+        """Auxiliary function to generate all binary partitions of a profile.
 
             This is a tail-recursive function. That is, we use the 'acc' (accumulator) variable to hold the result of the recursion so far,
             and then finally return it at the end.
@@ -951,7 +951,7 @@ class Reinforcement(InterprofileAxiom):
             Parameters
             ----------
             acc : list
-                The results of the recusion so far. Every element of the list corresponds to a possible way to partition the profile, and is a pair where:
+                The results of the recursion so far. Every element of the list corresponds to a possible way to partition the profile, and is a pair where:
                     The first element describes the partition. It is a list of tuples (ballot, X, Y). In the original profile, "ballot" was expressed by X+Y voters, and
                         in this partition we split X of them into the first subprofile, and Y of them in the second one.
                     The second is a boolean, saying whether this partition is symmetric or not (that is, whether if we swap the first and second subprofile, we obtain the same partition).
@@ -968,7 +968,7 @@ class Reinforcement(InterprofileAxiom):
         # Get the next ballot to process.
         ballot, counter = rest[0]
 
-        # If acc is nonempy:
+        # If acc is nonempty:
         if acc:
             acc_new = []
             # `split` iterates over all possible ways to split counter (the number of voters expressing this ballot) in two numbers.
@@ -989,7 +989,7 @@ class Reinforcement(InterprofileAxiom):
                     if not isSymmetric and not isSymmetricPrime:
                         acc_new.append((possible_world + [(ballot, counter - split, split)], False))
 
-        # If it is empy, it is the first turn.
+        # If it is empty, it is the first turn.
         else:
             # Hence, 
             acc_new = [([(ballot, split, counter - split)], split == counter - split) for split in range(counter // 2 + 1)]
@@ -1079,7 +1079,7 @@ class Reinforcement(InterprofileAxiom):
         #rules.append("priority(2, reinforcement(P1,P2,P)) :- instance(reinforcement(P1,P2,P)), profile(P1), profile(P2), profile(P).")
 
         ### Instance might be usable if rule-specific conditions are met
-        # Here, usable if P1 and P2 both have a finale outcome MIGHT NOT NECESSARY, and the instersection of these outcomes is not empty
+        # Here, usable if P1 and P2 both have a finale outcome MIGHT NOT NECESSARY, and the intersection of these outcomes is not empty
         rules.append("localConditionsSatisfied(reinforcement(P1,P2,P),N):- profile(P1), outcome(O1), profile(P2), outcome(O2), profile(P), node(N), finaleOutcome(N,P1,O1), finaleOutcome(N,P2,O2), outcome(O), O != oEmpty, isIntersection(O,O1,O2).")
 
 
@@ -1155,7 +1155,7 @@ class ReinforcementInstance(Instance):
         p1, p2 = map(lambda x : encoding.encode_profile(x, prettify = prettify), sorted((self._part1, self._part2)))
         p = encoding.encode_profile(self._profile, prettify = prettify)
         if self._part1 != self._part2:
-            return f"Observe that, when we merge profiles {p1} and {p2}, we obtain {p}. Hence, by Reinforcement, the alternatives that win both under {p1} and {p2} must be the winners of {p}."
+            return f"Observe that, when we merge profiles {p1} and {p2}, we obtain {p}. Hence, by Reinforcement, the alternatives that win under both {p1} and {p2} must be the winners of {p}."
         else:
             return f"Profile {p} can be obtained by duplicating {p1}. Thus, by Reinforcement, their outcomes must be the same."
 
@@ -1163,4 +1163,4 @@ class ReinforcementInstance(Instance):
         if self._part1 != self._part2:
             return f"If some alternatives win in both ({self._part1}) and ({self._part2}), they must be the outcome of ({self._profile})."
         else:
-            return f"Profile ({self._profile}) can be obtained by duplicating ({self._part1}). Thus their outcomes must be the same."
+            return f"Profile ({self._profile}) can be obtained by duplicating ({self._part1}). Thus, their outcomes must be the same."
