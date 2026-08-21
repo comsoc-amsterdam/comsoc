@@ -14,6 +14,20 @@ Install the required Python packages with:
 
     pip install -r requirements.txt
 
+For tasks that require the enumeration of MUSes (including the demo), compile `MARCO`. Inside `COMSOC/MARCO/src/pyminisolvers`, run
+
+    make
+    make test
+
+Consult `COMSOC/MARCO/README.md` for more information. Finally, some code (in particular the demo) requires `graphviz`. On Ubuntu:
+
+	sudo apt install graphviz
+
+On Arch linux:
+
+	sudo pacman -S graphviz
+
+
 ## Running the demo locally
 
 For instructions on how to run the web-app demo locally, see `WebApp/README.md`.

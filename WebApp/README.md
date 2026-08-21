@@ -1,8 +1,12 @@
-To test this, you need to install [Flask](https://flask.palletsprojects.com/en/2.0.x/) and [Celery with redis](https://docs.celeryproject.org/en/stable/getting-started/introduction.html#installation):
+# Running the Demo Locally
 
-    pip install "celery[redis]"
+## Installation
 
-Then, run the following commands (in the folder where `wsgi.py` is located) on **two different** bash shells:
+First, make sure to install all the Python dependencies, `graphviz`, and to compile MARCO. To do so, see the installation instructions in `../README.md`.
+
+## Running the demo
+
+Then, run the following commands (in the folder where `wsgi.py` is located) on **two different** shells:
 
     python wsgi.py
 
@@ -10,8 +14,17 @@ and
 
     celery -A wsgi.celery worker
 
-Then, you should connect to http://127.0.0.1:5000/
+Then, the demo will be available locally at [http://127.0.0.1:5000/].
 
-If you get an error message saying "Error 111 connecting to localhost:6379. Connection refused.", try:
+## Troubleshooting
+
+If you get an error message saying "Error 111 connecting to localhost:6379. Connection refused.", you might have to install `redis-server`. How to do so might depend on your system.
+
+On Ubuntu:
 
     sudo apt-get install redis-server
+
+On Arch linux:
+
+    sudo pacman -S valkey
+    sudo systemctl enable --now redis.service
