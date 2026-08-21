@@ -1,5 +1,3 @@
-[marco.py has been changed: we use `import billiard as multiprocessing` instead of `import multiprocessing`]
-
 MARCO: an efficient MUS and MSS/MCS enumeration tool
 ====================================================
 
@@ -44,14 +42,13 @@ before running MARCO.
 Tested Platforms:
 
  - Linux
- - Cygwin
  - OS X
+ - Cygwin
 
 Requirements:
 
- - Python 3.x
+ - Python 3.9+
  - A standard build environment (make, gcc or clang, etc.)
- - zlib development libraries (e.g., `zlib1g-dev` or `zlib-devel` packages)
 
 To build and test the Python bindings:
 

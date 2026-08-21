@@ -15,8 +15,7 @@ Basic usage:
 ```python
 >>> import minisolvers
 >>> S = minisolvers.MinisatSolver()
->>> for i in range(4):
-...     S.new_var()  
+>>> S.new_vars(4)  
 >>> for clause in [1], [-2], [-1, 2, -3], [3, 4]:
 ...     S.add_clause(clause)  
 
@@ -43,28 +42,18 @@ Setup
 -----
 
 Requirements:
- - Python 2.7 or 3.x
+ - Python 3.9+
  - A standard build environment (make, gcc, etc.)
-
-Tested Platforms:
- - Linux
- - Cygwin
- - OS X
 
 To build the shared libraries:
 
     $ make
 
-To test the API (automatically tests w/ Python 2 and/or 3 as available):
+To test the API:
 
     $ make test
 
 Or manually run the tests:
-
-    $ python -m doctest -v minisolvers.py
-    $ python test_minisolvers.py
-
-and/or
 
     $ python3 -m doctest -v minisolvers.py
     $ python3 test_minisolvers.py
