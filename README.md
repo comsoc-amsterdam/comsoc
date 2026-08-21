@@ -2,11 +2,9 @@
 
 This repository contains the code for the [web-app demo](https://demo.illc.uva.nl/justify) for the automated justification of collective decisions. The demo allows users to search for axiomatic justifications of voting outcomes in small-scale scenarios [1,2,6]. A more detailed description of the demo is available [3].
 
-The code was developed with reusability in mind and therefore also provides a broader Python framework for research in Computational Social Choice [4]. In particular, it includes tools for SAT-based reasoning about voting rules and axioms [5], together with functionality used by the justification algorithms underlying the demo.
+The code was developed with reusability in mind and therefore also provides a broader Python framework for research in Computational Social Choice [4]. In particular, it includes tools for SAT-based reasoning about voting rules and axioms [5], together with functionality used by the justification algorithms underlying the demo. For a more in-depth introduction to the general framework and examples of its use, see [`Example.ipynb`](https://github.com/comsoc-amsterdam/comsoc/blob/main/Example.ipynb).
 
-The code was mainly developed by Oliviero Nardi and Arthur Boixel.
-
-For a more in-depth introduction to the general framework and examples of its use, see [`Example.ipynb`](https://github.com/comsoc-amsterdam/comsoc/blob/main/Example.ipynb).
+The code was mainly developed by Oliviero Nardi and Arthur Boixel. 
 
 ## Installation
 
@@ -19,14 +17,13 @@ For tasks that require the enumeration of MUSes (including the demo), compile `M
     make
     make test
 
-Consult `COMSOC/MARCO/README.md` for more information. Finally, some code (in particular the demo) requires `graphviz`. On Ubuntu:
+Consult [`COMSOC/MARCO/README.md`](https://github.com/comsoc-amsterdam/comsoc/blob/main/COMSOC/MARCO/README.md) for more information. Finally, some code (in particular the demo) requires `graphviz`. On Ubuntu:
 
 	sudo apt install graphviz
 
 On Arch linux:
 
 	sudo pacman -S graphviz
-
 
 ## Running the demo locally
 
@@ -42,7 +39,7 @@ and
 
 Then, the demo will be available locally at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
-### Troubleshooting
+### Troubleshooting for the demo
 
 If you get an error message saying "Error 111 connecting to localhost:6379. Connection refused.", you might have to install `redis-server`. How to do so might depend on your system.
 
@@ -56,6 +53,13 @@ On Arch linux:
     sudo systemctl enable --now redis.service
 
 For instructions on how to run the web-app demo locally, see `WebApp/README.md`.
+
+## Included Solvers
+
+This code includes the `MARCO` MUS enumeration tool by Mark Liffiton and Wenting Zhao, which in turn includes the following solvers:
+* `MUSer2`: Anton Belov, Norbert Manthey, and Joao Marques-Silva
+* `MiniSAT`: Niklas Een and Niklas Sörensson
+* `MiniCARD`: Mark Liffiton and Jordyn Maglalang
 
 ## References
 
