@@ -14,7 +14,7 @@ and
 
     celery -A wsgi.celery worker --pool=solo --loglevel=INFO
 
-Then, the demo will be available locally at [http://127.0.0.1:5000/].
+Then, the demo will be available locally at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
 ## Troubleshooting
 
