@@ -29,13 +29,13 @@ On Arch linux:
 
 First, make sure to install all the Python dependencies, `graphviz`, and to compile `MARCO`. 
 
-Then, run the following commands (in the folder where `wsgi.py` is located) on **two different** shells:
+Then, run the following commands inside the `WebApp/` folder, on **two different** shells:
 
     python wsgi.py
 
 and
 
-    celery -A wsgi.celery worker --pool=solo --loglevel=INFO
+    celery -A wsgi.celery worker --pool=solo
 
 Then, the demo will be available locally at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
@@ -51,8 +51,6 @@ On Arch linux:
 
     sudo pacman -S valkey
     sudo systemctl enable --now redis.service
-
-For instructions on how to run the web-app demo locally, see `WebApp/README.md`.
 
 ## Included Solvers
 
