@@ -1,17 +1,26 @@
+import multiprocessing as mp
+import sys
+
+# COMSOC/MARCO multiprocessing code expects traditional POSIX fork semantics.
+# Python 3.14 changed the Linux default to "forkserver".
+if sys.platform.startswith("linux"):
+    mp.set_start_method("fork", force=True)
+
+
 MAX_TIME = 30  # maximum 30 seconds
-SHORTEST_OUT_OF = 15 # Find shortest justification (explanation-cardinality wise) among the first 15 you find
+SHORTEST_OUT_OF = 15  # Find shortest justification (explanation-cardinality wise) among the first 15 you find
 
 ### FOR MULTIPLE WORKERS... (see flask documentation for celery) ###
 
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
-import billiard
+
 
 def make_celery(app):
     celery = Celery(
         app.import_name,
-        backend=app.config['CELERY_RESULT_BACKEND'],
-        broker=app.config['CELERY_BROKER_URL']
+        backend=app.config["CELERY_RESULT_BACKEND"],
+        broker=app.config["CELERY_BROKER_URL"],
     )
     celery.conf.update(app.config)
 
@@ -23,16 +32,18 @@ def make_celery(app):
     celery.Task = ContextTask
     return celery
 
+
 ########### imports ################
 
-from flask import Flask, request, render_template, redirect
-
 import sys
-sys.path.append('..')
+
+from flask import Flask, redirect, render_template, request
+
+sys.path.append("..")
 
 import COMSOC.anonymous as theory  # We work with anonymous voting
+from COMSOC.just import QuasiTiedLoser, QuasiTiedWinner, Symmetry
 from COMSOC.problems import JustificationProblem
-from COMSOC.just import Symmetry, QuasiTiedWinner, QuasiTiedLoser
 
 ############ Preliminary definitions ###############
 
@@ -41,22 +52,10 @@ BASE_URL = "https://demo.illc.uva.nl/justify"
 
 flask_app = Flask(__name__)
 
-"""mail_settings = {
-    "MAIL_SERVER": 'smtp.mail.com',
-    "MAIL_PORT": 465,
-    "MAIL_USE_TLS": False,
-    "MAIL_USE_SSL": True,
-    "MAIL_USERNAME": "comsoc.justify@mail.com",
-    "MAIL_PASSWORD": password  # inside secret.py
-}"""
-
-"""flask_app.config.update(mail_settings)
-mail = Mail(flask_app)"""
-
 # Celery backend
 flask_app.config.update(
-    CELERY_BROKER_URL='redis://localhost:6379',
-    CELERY_RESULT_BACKEND='redis://localhost:6379'
+    CELERY_BROKER_URL="redis://localhost:6379",
+    CELERY_RESULT_BACKEND="redis://localhost:6379",
 )
 celery = make_celery(flask_app)
 
@@ -71,14 +70,16 @@ axiom_description = {
 }
 
 # Call all axioms with their default name, except for PositiveResponsiveness.
-axiom_names = {axiom:axiom for axiom in axiom_description.keys()}
+axiom_names = {axiom: axiom for axiom in axiom_description}
 axiom_names["Responsiveness"] = "PositiveResponsiveness"
 
 ############ Helper functions ###############
 
+
 # Check if a name contains special chars
 def bad_input(string):
     return any(map(lambda x: not x.isalpha(), string))
+
 
 # Given a profile string, return the Scenario it induces and the profile object itself.
 def parse_profile(profile_name: str):
@@ -86,13 +87,13 @@ def parse_profile(profile_name: str):
     alternatives = None
     # In this loop, we deduce the number of voters and the alternatives.
     # values are comma-separated
-    for c_ballot in profile_name.split(','):
+    for c_ballot in profile_name.split(","):
         # each value is <count>:<preference>
-        count, ballot = c_ballot.split(':')
+        count, ballot = c_ballot.split(":")
         voters += int(count)
         # Deduce the alternatives from the first preference (they are >-sperated)
         if alternatives is None:
-            alternatives = set(ballot.split('>'))
+            alternatives = set(ballot.split(">"))
 
     # Now, we can create a scenario
     scenario = theory.Scenario(voters, alternatives)
@@ -100,12 +101,17 @@ def parse_profile(profile_name: str):
 
     return scenario, profile
 
+
 # A celery task that (if possible) retrieves a justification and return an html page describing it
 # (see celery documentation)
-@celery.task(name='uwsgi_file_web.compute_justification', time_limit = MAX_TIME*2, soft_time_limit = MAX_TIME)
+@celery.task(
+    name="uwsgi_file_web.compute_justification",
+    time_limit=MAX_TIME * 2,
+    soft_time_limit=MAX_TIME,
+)
 def compute_justification(profile_name: str, axioms: list, outcome_names: list):
 
-    try: 
+    try:
         # Get the scenario and the profile
         scenario, profile = parse_profile(profile_name)
 
@@ -115,7 +121,7 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
                 return "Bad input!"
 
         # Get the outcome
-        outcome = scenario.get_outcome(','.join(outcome_names))
+        outcome = scenario.get_outcome(",".join(outcome_names))
         # Get the relevant axioms
         corpus = theory.get_axioms(scenario, (axiom_names[axiom] for axiom in axioms))
 
@@ -126,41 +132,60 @@ def compute_justification(profile_name: str, axioms: list, outcome_names: list):
         derived = {
             Symmetry(scenario),
             QuasiTiedWinner(scenario),
-            QuasiTiedLoser(scenario)}
+            QuasiTiedLoser(scenario),
+        }
 
         shortest = None  # Shotest (cardinality of the explanation) justification will be stored here
         # Iterate over up to 5 justifications with a depth of 3, using heuristics
-        for justification in problem.solve(extract = "SAT", nontriviality = ["from_folder", "known_faults"], depth = 3, heuristics = True, maximum = SHORTEST_OUT_OF, \
-                                          derivedAxioms = derived, nb_folder = 'knownbases'):
+        for justification in problem.solve(
+            extract="SAT",
+            nontriviality=["from_folder", "known_faults"],
+            depth=3,
+            heuristics=True,
+            maximum=SHORTEST_OUT_OF,
+            derivedAxioms=derived,
+            nb_folder="knownbases",
+        ):
             # Memorise the shortest justification here
             if shortest is None:
                 shortest = justification
             else:
-                shortest = min((shortest, justification), key = lambda j : (len(j.involved_profiles), len(j)))
+                shortest = min(
+                    (shortest, justification),
+                    key=lambda j: (len(j.involved_profiles), len(j)),
+                )
 
         # No justification found: present failure message
         if shortest is None:
             # the .prettify method takes a profile/outcome and converts it into a nice HTML format
-            return render_template('failure.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
-                axioms = axioms, base_url = BASE_URL)
+            return render_template(
+                "failure.html",
+                profile_text=profile.prettify(),
+                outcome=outcome.prettify(),
+                axioms=axioms,
+                base_url=BASE_URL,
+            )
         else:
             # Return the HTML website for the justification
             # this "datapack" is a dictionary containing all the data needed to display the website
-            data_pack = shortest.displayASP(display = 'website')
+            data_pack = shortest.displayASP(display="website")
 
             # unroll the dictionary and display the justification!
-            return render_template("justification.html", base_url = BASE_URL, **data_pack)
+            return render_template("justification.html", base_url=BASE_URL, **data_pack)
     except SoftTimeLimitExceeded:
         return None
 
+
 ############ Web Pages ###############
 
-# Index page
-@flask_app.route('/')
-def index():
-    return render_template('index.html', base_url = BASE_URL)
 
-@flask_app.route('/buildprofile', methods=["POST", "GET"])
+# Index page
+@flask_app.route("/")
+def index():
+    return render_template("index.html", base_url=BASE_URL)
+
+
+@flask_app.route("/buildprofile", methods=["POST", "GET"])
 def buildprofile():
 
     # If we reach this page by GET, return home
@@ -173,9 +198,12 @@ def buildprofile():
             return "Bad input!"
 
     # in this request, we have the alternatives (the keys don't matter)
-    return render_template('buildprofile.html', alternatives = list(request.form.values()), base_url = BASE_URL)
+    return render_template(
+        "buildprofile.html", alternatives=list(request.form.values()), base_url=BASE_URL
+    )
 
-@flask_app.route('/outcomes', methods=["POST", "GET"])
+
+@flask_app.route("/outcomes", methods=["POST", "GET"])
 def outcomes():
 
     # If we reach this page by GET, return home
@@ -183,7 +211,7 @@ def outcomes():
         return redirect(BASE_URL)
 
     # in this request, we have the profile
-    profile_name = request.form['profile']
+    profile_name = request.form["profile"]
     scenario, profile = parse_profile(profile_name)
 
     # Input sanitisation
@@ -191,11 +219,18 @@ def outcomes():
         if bad_input(a):
             return "Bad input!"
 
-    return render_template('outcomes.html', profile_name = profile_name, profile_text = profile.prettify(),\
-        alternatives = sorted(scenario.alternatives), axiom_names = sorted(axiom_description.keys()), axiom_description = axiom_description,\
-        base_url = BASE_URL)
+    return render_template(
+        "outcomes.html",
+        profile_name=profile_name,
+        profile_text=profile.prettify(),
+        alternatives=sorted(scenario.alternatives),
+        axiom_names=sorted(axiom_description.keys()),
+        axiom_description=axiom_description,
+        base_url=BASE_URL,
+    )
 
-@flask_app.route('/result', methods=["POST", "GET"])
+
+@flask_app.route("/result", methods=["POST", "GET"])
 def result():
 
     # If we reach this page by GET, return home
@@ -238,14 +273,19 @@ def result():
             if bad_input(a):
                 return "Bad input!"
 
-        outcome = scenario.get_outcome(','.join(outcome_names))
+        outcome = scenario.get_outcome(",".join(outcome_names))
         # prettify presents profile/outcome in HTML nicely
-        return render_template('timeout.html', profile_text = profile.prettify(), outcome = outcome.prettify(),\
-            axioms = axioms, base_url = BASE_URL)
+        return render_template(
+            "timeout.html",
+            profile_text=profile.prettify(),
+            outcome=outcome.prettify(),
+            axioms=axioms,
+            base_url=BASE_URL,
+        )
     else:
         return result
 
 
-if __name__ == '__main__':
-    BASE_URL = "http://127.0.0.1:5000" # for testing purposes...
+if __name__ == "__main__":
+    BASE_URL = "http://127.0.0.1:5000"  # for testing purposes...
     flask_app.run(host="127.0.0.1", port=5000)
