@@ -2,6 +2,10 @@ MIT License
 
 Copyright (c) 2022 Arthur Boixel, Ulle Endriss, Oliviero Nardi
 
+MARCO (python implementation) - Copyright (c) 2013, Mark Liffiton
+MiniCARD                      - Copyright (c) 2012  Mark Liffiton, Jordyn Maglalang
+MiniSat                       - Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
