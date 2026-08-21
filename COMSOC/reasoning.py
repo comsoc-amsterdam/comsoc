@@ -191,7 +191,7 @@ class SAT(AbstractReasoner):
             # Every line of the output of the subprocess is an MUS.
             for result in marco_gen:
                 # Only care for MUSes (first argument is `U`)
-                kind, indexes = result
+                kind, child_id, indexes = result
                 if kind == 'U':
                     # We return the instances corresponding to the group of clauses in the gMUS.
                     # Recall that we use the same indexes for instances and group of clauses, so this works.
