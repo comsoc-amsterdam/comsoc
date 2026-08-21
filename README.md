@@ -40,8 +40,8 @@ For instructions on how to run the web-app demo locally, see `WebApp/README.md`.
 
 [3] Arthur Boixel, Ulle Endriss, and Oliviero Nardi. Displaying Justifications for Collective Decisions. In *Proceedings of the 31st International Joint Conference on Artificial Intelligence (IJCAI-2022)*, 2022. Demo Paper.
 
-[3] Felix Brandt, Vincent Conitzer, Ulle Endriss, Jérôme Lang, and Ariel D. Procaccia, editors. *Handbook of Computational Social Choice*. Cambridge University Press, 2016.
+[4] Felix Brandt, Vincent Conitzer, Ulle Endriss, Jérôme Lang, and Ariel D. Procaccia, editors. *Handbook of Computational Social Choice*. Cambridge University Press, 2016.
 
-[4] Christian Geist and Dominik Peters. Computer-Aided Methods for Social Choice Theory. In: Ulle Endriss, editor, *Trends in Computational Social Choice*. AI Access, 2017.
+[5] Christian Geist and Dominik Peters. Computer-Aided Methods for Social Choice Theory. In: Ulle Endriss, editor, *Trends in Computational Social Choice*. AI Access, 2017.
 
-[5] Oliviero Nardi, Arthur Boixel, and Ulle Endriss. A Graph-Based Algorithm for the Automated Justification of Collective Decisions. In *Proceedings of the 21st International Conference on Autonomous Agents and Multiagent Systems (AAMAS-2022)*, IFAAMAS, 2022.
+[6] Oliviero Nardi, Arthur Boixel, and Ulle Endriss. A Graph-Based Algorithm for the Automated Justification of Collective Decisions. In *Proceedings of the 21st International Conference on Autonomous Agents and Multiagent Systems (AAMAS-2022)*, IFAAMAS, 2022.
