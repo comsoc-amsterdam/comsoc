@@ -617,7 +617,7 @@ class NeutralityInstance(Instance):
                 else:
                     return f"If {outcomes[0]} were to be the (tied) winners for {profiles[0]}, then we would contradict Neutrality, as these alternatives should be treated equally to {outcomes[1]} (and vice versa). Hence, neither set can be the outcome."
         else:
-            return f"By Neutrality, if {outcomes[0].prettify() if prettify else outcomes[0]} is the outcome for {profiles[0]}, then {outcomes[1].prettify() if prettify else outcomes[0]} must be the outcome of {profiles[1]} (or vice versa)."
+            return f"By Neutrality, if {outcomes[0].prettify() if prettify else outcomes[0]} is the outcome for {profiles[0]}, then {outcomes[1].prettify() if prettify else outcomes[0]} must be the outcome of {profiles[1]} (and vice versa)."
 
     def _isEqual(self, other):
         return self._profiles == other._profiles and self._mapping == other._mapping
